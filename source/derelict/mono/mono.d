@@ -94,8 +94,839 @@ class DerelictMonoLoader : SharedLibLoader
 		bindFunc(cast(void**)&mono_runtime_resource_check_limit,
 				"mono_runtime_resource_check_limit");
 		// metadata/appdomain.h
+		bindFunc(cast(void**)&mono_init, "mono_init");
+		bindFunc(cast(void**)&mono_init_from_assembly, "mono_init_from_assembly");
+		bindFunc(cast(void**)&mono_init_version, "mono_init_version");
+		bindFunc(cast(void**)&mono_get_root_domain, "mono_get_root_domain");
+		bindFunc(cast(void**)&mono_runtime_init, "mono_runtime_init");
+		bindFunc(cast(void**)&mono_runtime_cleanup, "mono_runtime_cleanup");
+		bindFunc(cast(void**)&mono_install_runtime_cleanup, "mono_install_runtime_cleanup");
+		bindFunc(cast(void**)&mono_runtime_quit, "mono_runtime_quit");
+		bindFunc(cast(void**)&mono_runtime_set_shutting_down, "mono_runtime_set_shutting_down");
+		bindFunc(cast(void**)&mono_runtime_is_shutting_down, "mono_runtime_is_shutting_down");
+		bindFunc(cast(void**)&mono_check_corlib_version, "mono_check_corlib_version");
+		bindFunc(cast(void**)&mono_domain_create, "mono_domain_create");
+		bindFunc(cast(void**)&mono_domain_create_appdomain, "mono_domain_create_appdomain");
+		bindFunc(cast(void**)&mono_domain_set_config, "mono_domain_set_config");
+		bindFunc(cast(void**)&mono_domain_get, "mono_domain_get");
+		bindFunc(cast(void**)&mono_domain_get_by_id, "mono_domain_get_by_id");
+		bindFunc(cast(void**)&mono_domain_get_id, "mono_domain_get_id");
+		bindFunc(cast(void**)&mono_domain_get_friendly_name, "mono_domain_get_friendly_name");
+		bindFunc(cast(void**)&mono_domain_set, "mono_domain_set");
+		bindFunc(cast(void**)&mono_domain_set_internal, "mono_domain_set_internal");
+		bindFunc(cast(void**)&mono_domain_unload, "mono_domain_unload");
+		bindFunc(cast(void**)&mono_domain_try_unload, "mono_domain_try_unload");
+		bindFunc(cast(void**)&mono_domain_is_unloading, "mono_domain_is_unloading");
+		bindFunc(cast(void**)&mono_domain_from_appdomain, "mono_domain_from_appdomain");
+		bindFunc(cast(void**)&mono_domain_foreach, "mono_domain_foreach");
+		bindFunc(cast(void**)&mono_domain_assembly_open, "mono_domain_assembly_open");
+		bindFunc(cast(void**)&mono_domain_finalize, "mono_domain_finalize");
+		bindFunc(cast(void**)&mono_domain_free, "mono_domain_free");
+		bindFunc(cast(void**)&mono_domain_has_type_resolve, "mono_domain_has_type_resolve");
+		bindFunc(cast(void**)&mono_domain_try_type_resolve, "mono_domain_try_type_resolve");
+		bindFunc(cast(void**)&mono_domain_owns_vtable_slot, "mono_domain_owns_vtable_slot");
+		bindFunc(cast(void**)&mono_context_init, "mono_context_init");
+		bindFunc(cast(void**)&mono_context_set, "mono_context_set");
+		bindFunc(cast(void**)&mono_context_get, "mono_context_get");
+		bindFunc(cast(void**)&mono_context_get_id, "mono_context_get_id");
+		bindFunc(cast(void**)&mono_context_get_domain_id, "mono_context_get_domain_id");
+		bindFunc(cast(void**)&mono_jit_info_table_find, "mono_jit_info_table_find");
+		bindFunc(cast(void**)&mono_jit_info_get_code_start, "mono_jit_info_get_code_start");
+		bindFunc(cast(void**)&mono_jit_info_get_code_size, "mono_jit_info_get_code_size");
+		bindFunc(cast(void**)&mono_jit_info_get_method, "mono_jit_info_get_method");
+		bindFunc(cast(void**)&mono_get_corlib, "mono_get_corlib");
+		bindFunc(cast(void**)&mono_get_object_class, "mono_get_object_class");
+		bindFunc(cast(void**)&mono_get_byte_class, "mono_get_byte_class");
+		bindFunc(cast(void**)&mono_get_void_class, "mono_get_void_class");
+		bindFunc(cast(void**)&mono_get_boolean_class, "mono_get_boolean_class");
+		bindFunc(cast(void**)&mono_get_sbyte_class, "mono_get_sbyte_class");
+		bindFunc(cast(void**)&mono_get_int16_class, "mono_get_int16_class");
+		bindFunc(cast(void**)&mono_get_uint16_class, "mono_get_uint16_class");
+		bindFunc(cast(void**)&mono_get_int32_class, "mono_get_int32_class");
+		bindFunc(cast(void**)&mono_get_uint32_class, "mono_get_uint32_class");
+		bindFunc(cast(void**)&mono_get_intptr_class, "mono_get_intptr_class");
+		bindFunc(cast(void**)&mono_get_uintptr_class, "mono_get_uintptr_class");
+		bindFunc(cast(void**)&mono_get_int64_class, "mono_get_int64_class");
+		bindFunc(cast(void**)&mono_get_uint64_class, "mono_get_uint64_class");
+		bindFunc(cast(void**)&mono_get_single_class, "mono_get_single_class");
+		bindFunc(cast(void**)&mono_get_double_class, "mono_get_double_class");
+		bindFunc(cast(void**)&mono_get_char_class, "mono_get_char_class");
+		bindFunc(cast(void**)&mono_get_string_class, "mono_get_string_class");
+		bindFunc(cast(void**)&mono_get_enum_class, "mono_get_enum_class");
+		bindFunc(cast(void**)&mono_get_array_class, "mono_get_array_class");
+		bindFunc(cast(void**)&mono_get_thread_class, "mono_get_thread_class");
+		bindFunc(cast(void**)&mono_get_exception_class, "mono_get_exception_class");
+		bindFunc(cast(void**)&mono_security_enable_core_clr, "mono_security_enable_core_clr");
+		bindFunc(cast(void**)&mono_security_set_core_clr_platform_callback,
+				"mono_security_set_core_clr_platform_callback");
+		// metadata/assembly.h
+		bindFunc(cast(void**)&mono_assemblies_init, "mono_assemblies_init");
+		bindFunc(cast(void**)&mono_assemblies_cleanup, "mono_assemblies_cleanup");
+		bindFunc(cast(void**)&mono_assembly_open, "mono_assembly_open");
+		bindFunc(cast(void**)&mono_assembly_open_full, "mono_assembly_open_full");
+		bindFunc(cast(void**)&mono_assembly_load, "mono_assembly_load");
+		bindFunc(cast(void**)&mono_assembly_load_full, "mono_assembly_load_full");
+		bindFunc(cast(void**)&mono_assembly_load_from, "mono_assembly_load_from");
+		bindFunc(cast(void**)&mono_assembly_load_from_full, "mono_assembly_load_from_full");
+		bindFunc(cast(void**)&mono_assembly_load_with_partial_name,
+				"mono_assembly_load_with_partial_name");
+		bindFunc(cast(void**)&mono_assembly_loaded, "mono_assembly_loaded");
+		bindFunc(cast(void**)&mono_assembly_loaded_full, "mono_assembly_loaded_full");
+		bindFunc(cast(void**)&mono_assembly_get_assemblyref, "mono_assembly_get_assemblyref");
+		bindFunc(cast(void**)&mono_assembly_load_reference, "mono_assembly_load_reference");
+		bindFunc(cast(void**)&mono_assembly_load_references, "mono_assembly_load_references");
+		bindFunc(cast(void**)&mono_assembly_load_module, "mono_assembly_load_module");
+		bindFunc(cast(void**)&mono_assembly_close, "mono_assembly_close");
+		bindFunc(cast(void**)&mono_assembly_setrootdir, "mono_assembly_setrootdir");
+		bindFunc(cast(void**)&mono_assembly_getrootdir, "mono_assembly_getrootdir");
+		bindFunc(cast(void**)&mono_native_getrootdir, "mono_native_getrootdir");
+		bindFunc(cast(void**)&mono_assembly_foreach, "mono_assembly_foreach");
+		bindFunc(cast(void**)&mono_assembly_set_main, "mono_assembly_set_main");
+		bindFunc(cast(void**)&mono_assembly_get_main, "mono_assembly_get_main");
+		bindFunc(cast(void**)&mono_assembly_get_image, "mono_assembly_get_image");
+		bindFunc(cast(void**)&mono_assembly_get_name, "mono_assembly_get_name");
+		bindFunc(cast(void**)&mono_assembly_fill_assembly_name,
+				"mono_assembly_fill_assembly_name");
+		bindFunc(cast(void**)&mono_assembly_names_equal, "mono_assembly_names_equal");
+		bindFunc(cast(void**)&mono_stringify_assembly_name, "mono_stringify_assembly_name");
+		bindFunc(cast(void**)&mono_install_assembly_load_hook, "mono_install_assembly_load_hook");
+		bindFunc(cast(void**)&mono_install_assembly_search_hook,
+				"mono_install_assembly_search_hook");
+		bindFunc(cast(void**)&mono_install_assembly_refonly_search_hook,
+				"mono_install_assembly_refonly_search_hook");
+		bindFunc(cast(void**)&mono_assembly_invoke_search_hook,
+				"mono_assembly_invoke_search_hook");
+		bindFunc(cast(void**)&mono_install_assembly_postload_search_hook,
+				"mono_install_assembly_postload_search_hook");
+		bindFunc(cast(void**)&mono_install_assembly_postload_refonly_search_hook,
+				"mono_install_assembly_postload_refonly_search_hook");
+		bindFunc(cast(void**)&mono_install_assembly_preload_hook,
+				"mono_install_assembly_preload_hook");
+		bindFunc(cast(void**)&mono_install_assembly_refonly_preload_hook,
+				"mono_install_assembly_refonly_preload_hook");
+		bindFunc(cast(void**)&mono_assembly_invoke_load_hook, "mono_assembly_invoke_load_hook");
+		bindFunc(cast(void**)&mono_assembly_name_new, "mono_assembly_name_new");
+		bindFunc(cast(void**)&mono_assembly_name_get_name, "mono_assembly_name_get_name");
+		bindFunc(cast(void**)&mono_assembly_name_get_culture, "mono_assembly_name_get_culture");
+		bindFunc(cast(void**)&mono_assembly_name_get_version, "mono_assembly_name_get_version");
+		bindFunc(cast(void**)&mono_assembly_name_get_pubkeytoken,
+				"mono_assembly_name_get_pubkeytoken");
+		bindFunc(cast(void**)&mono_assembly_name_free, "mono_assembly_name_free");
+		bindFunc(cast(void**)&mono_register_bundled_assemblies,
+				"mono_register_bundled_assemblies");
+		bindFunc(cast(void**)&mono_register_config_for_assembly,
+				"mono_register_config_for_assembly");
+		bindFunc(cast(void**)&mono_register_symfile_for_assembly,
+				"mono_register_symfile_for_assembly");
+		bindFunc(cast(void**)&mono_register_machine_config, "mono_register_machine_config");
+		bindFunc(cast(void**)&mono_set_rootdir, "mono_set_rootdir");
+		bindFunc(cast(void**)&mono_set_dirs, "mono_set_dirs");
+		bindFunc(cast(void**)&mono_set_assemblies_path, "mono_set_assemblies_path");
+		// metadata/attrdefs.h
+		// metadata/blob.h
+		// metadata/class.h
+		bindFunc(cast(void**)&mono_class_get, "mono_class_get");
+		bindFunc(cast(void**)&mono_class_get_full, "mono_class_get_full");
+		bindFunc(cast(void**)&mono_class_init, "mono_class_init");
+		bindFunc(cast(void**)&mono_class_vtable, "mono_class_vtable");
+		bindFunc(cast(void**)&mono_class_from_name, "mono_class_from_name");
+		bindFunc(cast(void**)&mono_class_from_name_case, "mono_class_from_name_case");
+		bindFunc(cast(void**)&mono_class_get_method_from_name_flags,
+				"mono_class_get_method_from_name_flags");
+		bindFunc(cast(void**)&mono_class_from_typeref, "mono_class_from_typeref");
+		bindFunc(cast(void**)&mono_class_from_typeref_checked, "mono_class_from_typeref_checked");
+		bindFunc(cast(void**)&mono_class_from_generic_parameter,
+				"mono_class_from_generic_parameter");
+		bindFunc(cast(void**)&mono_class_inflate_generic_type, "mono_class_inflate_generic_type");
+		bindFunc(cast(void**)&mono_class_inflate_generic_method,
+				"mono_class_inflate_generic_method");
+		bindFunc(cast(void**)&mono_get_inflated_method, "mono_get_inflated_method");
+		bindFunc(cast(void**)&mono_field_from_token, "mono_field_from_token");
+		bindFunc(cast(void**)&mono_bounded_array_class_get, "mono_bounded_array_class_get");
+		bindFunc(cast(void**)&mono_array_class_get, "mono_array_class_get");
+		bindFunc(cast(void**)&mono_ptr_class_get, "mono_ptr_class_get");
+		bindFunc(cast(void**)&mono_class_get_field, "mono_class_get_field");
+		bindFunc(cast(void**)&mono_class_get_field_from_name, "mono_class_get_field_from_name");
+		bindFunc(cast(void**)&mono_class_get_field_token, "mono_class_get_field_token");
+		bindFunc(cast(void**)&mono_class_get_event_token, "mono_class_get_event_token");
+		bindFunc(cast(void**)&mono_class_get_property_from_name,
+				"mono_class_get_property_from_name");
+		bindFunc(cast(void**)&mono_class_get_property_token, "mono_class_get_property_token");
+		bindFunc(cast(void**)&mono_array_element_size, "mono_array_element_size");
+		bindFunc(cast(void**)&mono_class_instance_size, "mono_class_instance_size");
+		bindFunc(cast(void**)&mono_class_array_element_size, "mono_class_array_element_size");
+		bindFunc(cast(void**)&mono_class_data_size, "mono_class_data_size");
+		bindFunc(cast(void**)&mono_class_value_size, "mono_class_value_size");
+		bindFunc(cast(void**)&mono_class_min_align, "mono_class_min_align");
+		bindFunc(cast(void**)&mono_class_from_mono_type, "mono_class_from_mono_type");
+		bindFunc(cast(void**)&mono_class_is_subclass_of, "mono_class_is_subclass_of");
+		bindFunc(cast(void**)&mono_class_is_assignable_from, "mono_class_is_assignable_from");
+		bindFunc(cast(void**)&mono_ldtoken, "mono_ldtoken");
+		bindFunc(cast(void**)&mono_type_get_name, "mono_type_get_name");
+		bindFunc(cast(void**)&mono_type_get_underlying_type, "mono_type_get_underlying_type");
+		bindFunc(cast(void**)&mono_class_get_image, "mono_class_get_image");
+		bindFunc(cast(void**)&mono_class_get_element_class, "mono_class_get_element_class");
+		bindFunc(cast(void**)&mono_class_is_valuetype, "mono_class_is_valuetype");
+		bindFunc(cast(void**)&mono_class_is_enum, "mono_class_is_enum");
+		bindFunc(cast(void**)&mono_class_enum_basetype, "mono_class_enum_basetype");
+		bindFunc(cast(void**)&mono_class_get_parent, "mono_class_get_parent");
+		bindFunc(cast(void**)&mono_class_get_nesting_type, "mono_class_get_nesting_type");
+		bindFunc(cast(void**)&mono_class_get_rank, "mono_class_get_rank");
+		bindFunc(cast(void**)&mono_class_get_flags, "mono_class_get_flags");
+		bindFunc(cast(void**)&mono_class_get_name, "mono_class_get_name");
+		bindFunc(cast(void**)&mono_class_get_namespace, "mono_class_get_namespace");
+		bindFunc(cast(void**)&mono_class_get_type, "mono_class_get_type");
+		bindFunc(cast(void**)&mono_class_get_type_token, "mono_class_get_type_token");
+		bindFunc(cast(void**)&mono_class_get_byref_type, "mono_class_get_byref_type");
+		bindFunc(cast(void**)&mono_class_num_fields, "mono_class_num_fields");
+		bindFunc(cast(void**)&mono_class_num_methods, "mono_class_num_methods");
+		bindFunc(cast(void**)&mono_class_num_properties, "mono_class_num_properties");
+		bindFunc(cast(void**)&mono_class_num_events, "mono_class_num_events");
+		bindFunc(cast(void**)&mono_class_get_fields, "mono_class_get_fields");
+		bindFunc(cast(void**)&mono_class_get_methods, "mono_class_get_methods");
+		bindFunc(cast(void**)&mono_class_get_properties, "mono_class_get_properties");
+		bindFunc(cast(void**)&mono_class_get_events, "mono_class_get_events");
+		bindFunc(cast(void**)&mono_class_get_interfaces, "mono_class_get_interfaces");
+		bindFunc(cast(void**)&mono_class_get_nested_types, "mono_class_get_nested_types");
+		bindFunc(cast(void**)&mono_class_is_delegate, "mono_class_is_delegate");
+		bindFunc(cast(void**)&mono_class_implements_interface, "mono_class_implements_interface");
+		bindFunc(cast(void**)&mono_field_get_name, "mono_field_get_name");
+		bindFunc(cast(void**)&mono_field_get_type, "mono_field_get_type");
+		bindFunc(cast(void**)&mono_field_get_parent, "mono_field_get_parent");
+		bindFunc(cast(void**)&mono_field_get_flags, "mono_field_get_flags");
+		bindFunc(cast(void**)&mono_field_get_offset, "mono_field_get_offset");
+		bindFunc(cast(void**)&mono_field_get_data, "mono_field_get_data");
+		bindFunc(cast(void**)&mono_property_get_name, "mono_property_get_name");
+		bindFunc(cast(void**)&mono_property_get_set_method, "mono_property_get_set_method");
+		bindFunc(cast(void**)&mono_property_get_get_method, "mono_property_get_get_method");
+		bindFunc(cast(void**)&mono_property_get_parent, "mono_property_get_parent");
+		bindFunc(cast(void**)&mono_property_get_flags, "mono_property_get_flags");
+		bindFunc(cast(void**)&mono_event_get_name, "mono_event_get_name");
+		bindFunc(cast(void**)&mono_event_get_add_method, "mono_event_get_add_method");
+		bindFunc(cast(void**)&mono_event_get_remove_method, "mono_event_get_remove_method");
+		bindFunc(cast(void**)&mono_event_get_remove_method, "mono_event_get_remove_method");
+		bindFunc(cast(void**)&mono_event_get_raise_method, "mono_event_get_raise_method");
+		bindFunc(cast(void**)&mono_event_get_parent, "mono_event_get_parent");
+		bindFunc(cast(void**)&mono_event_get_flags, "mono_event_get_flags");
+		bindFunc(cast(void**)&mono_class_get_method_from_name, "mono_class_get_method_from_name");
+		bindFunc(cast(void**)&mono_class_name_from_token, "mono_class_name_from_token");
+		bindFunc(cast(void**)&mono_method_can_access_field, "mono_method_can_access_field");
+		bindFunc(cast(void**)&mono_method_can_access_method, "mono_method_can_access_method");
+		// metadata/debug-helpers.h
+		bindFunc(cast(void**)&mono_disasm_code_one, "mono_disasm_code_one");
+		bindFunc(cast(void**)&mono_disasm_code, "mono_disasm_code");
+		bindFunc(cast(void**)&mono_type_full_name, "mono_type_full_name");
+		bindFunc(cast(void**)&mono_signature_get_desc, "mono_signature_get_desc");
+		bindFunc(cast(void**)&mono_context_get_desc, "mono_context_get_desc");
+		bindFunc(cast(void**)&mono_method_desc_new, "mono_method_desc_new");
+		bindFunc(cast(void**)&mono_method_desc_from_method, "mono_method_desc_from_method");
+		bindFunc(cast(void**)&mono_method_desc_free, "mono_method_desc_free");
+		bindFunc(cast(void**)&mono_method_desc_match, "mono_method_desc_match");
+		bindFunc(cast(void**)&mono_method_desc_full_match, "mono_method_desc_full_match");
+		bindFunc(cast(void**)&mono_method_desc_search_in_class,
+				"mono_method_desc_search_in_class");
+		bindFunc(cast(void**)&mono_method_desc_search_in_image,
+				"mono_method_desc_search_in_image");
+		bindFunc(cast(void**)&mono_method_full_name, "mono_method_full_name");
+		bindFunc(cast(void**)&mono_field_full_name, "mono_field_full_name");
+		// metadata/debug-mono-symfile.h
+		bindFunc(cast(void**)&mono_debug_open_mono_symbols, "mono_debug_open_mono_symbols");
+		bindFunc(cast(void**)&mono_debug_close_mono_symbol_file,
+				"mono_debug_close_mono_symbol_file");
+		bindFunc(cast(void**)&mono_debug_symfile_is_loaded, "mono_debug_symfile_is_loaded");
+		bindFunc(cast(void**)&mono_debug_symfile_lookup_location,
+				"mono_debug_symfile_lookup_location");
+		bindFunc(cast(void**)&mono_debug_symfile_free_location,
+				"mono_debug_symfile_free_location");
+		bindFunc(cast(void**)&mono_debug_symfile_lookup_method,
+				"mono_debug_symfile_lookup_method");
+		bindFunc(cast(void**)&mono_debug_symfile_lookup_locals,
+				"mono_debug_symfile_lookup_locals");
+		bindFunc(cast(void**)&mono_debug_image_has_debug_info, "mono_debug_image_has_debug_info");
+		// metadata/environment.h
+		bindFunc(cast(void**)&mono_environment_exitcode_get, "mono_environment_exitcode_get");
+		bindFunc(cast(void**)&mono_environment_exitcode_set, "mono_environment_exitcode_set");
+		// metadata/exception.h
+		bindFunc(cast(void**)&mono_exception_from_name, "mono_exception_from_name");
+		bindFunc(cast(void**)&mono_exception_from_token, "mono_exception_from_token");
+		bindFunc(cast(void**)&mono_exception_from_name_two_strings,
+				"mono_exception_from_name_two_strings");
+		bindFunc(cast(void**)&mono_exception_from_name_msg, "mono_exception_from_name_msg");
+		bindFunc(cast(void**)&mono_exception_from_token_two_strings,
+				"mono_exception_from_token_two_strings");
+		bindFunc(cast(void**)&mono_exception_from_name_domain, "mono_exception_from_name_domain");
+		bindFunc(cast(void**)&mono_get_exception_divide_by_zero,
+				"mono_get_exception_divide_by_zero");
+		bindFunc(cast(void**)&mono_get_exception_security, "mono_get_exception_security");
+		bindFunc(cast(void**)&mono_get_exception_arithmetic, "mono_get_exception_arithmetic");
+		bindFunc(cast(void**)&mono_get_exception_overflow, "mono_get_exception_overflow");
+		bindFunc(cast(void**)&mono_get_exception_null_reference,
+				"mono_get_exception_null_reference");
+		bindFunc(cast(void**)&mono_get_exception_execution_engine,
+				"mono_get_exception_execution_engine");
+		bindFunc(cast(void**)&mono_get_exception_thread_abort, "mono_get_exception_thread_abort");
+		bindFunc(cast(void**)&mono_get_exception_thread_state, "mono_get_exception_thread_state");
+		bindFunc(cast(void**)&mono_get_exception_thread_interrupted,
+				"mono_get_exception_thread_interrupted");
+		bindFunc(cast(void**)&mono_get_exception_serialization,
+				"mono_get_exception_serialization");
+		bindFunc(cast(void**)&mono_get_exception_invalid_cast, "mono_get_exception_invalid_cast");
+		bindFunc(cast(void**)&mono_get_exception_invalid_operation,
+				"mono_get_exception_invalid_operation");
+		bindFunc(cast(void**)&mono_get_exception_index_out_of_range,
+				"mono_get_exception_index_out_of_range");
+		bindFunc(cast(void**)&mono_get_exception_array_type_mismatch,
+				"mono_get_exception_array_type_mismatch");
+		bindFunc(cast(void**)&mono_get_exception_type_load, "mono_get_exception_type_load");
+		bindFunc(cast(void**)&mono_get_exception_missing_method,
+				"mono_get_exception_missing_method");
+		bindFunc(cast(void**)&mono_get_exception_missing_field,
+				"mono_get_exception_missing_field");
+		bindFunc(cast(void**)&mono_get_exception_not_implemented,
+				"mono_get_exception_not_implemented");
+		bindFunc(cast(void**)&mono_get_exception_not_supported,
+				"mono_get_exception_not_supported");
+		bindFunc(cast(void**)&mono_get_exception_argument_null,
+				"mono_get_exception_argument_null");
+		bindFunc(cast(void**)&mono_get_exception_argument, "mono_get_exception_argument");
+		bindFunc(cast(void**)&mono_get_exception_argument_out_of_range,
+				"mono_get_exception_argument_out_of_range");
+		bindFunc(cast(void**)&mono_get_exception_io, "mono_get_exception_io");
+		bindFunc(cast(void**)&mono_get_exception_file_not_found,
+				"mono_get_exception_file_not_found");
+		bindFunc(cast(void**)&mono_get_exception_file_not_found2,
+				"mono_get_exception_file_not_found2");
+		bindFunc(cast(void**)&mono_get_exception_type_initialization,
+				"mono_get_exception_type_initialization");
+		bindFunc(cast(void**)&mono_get_exception_synchronization_lock,
+				"mono_get_exception_synchronization_lock");
+		bindFunc(cast(void**)&mono_get_exception_cannot_unload_appdomain,
+				"mono_get_exception_cannot_unload_appdomain");
+		bindFunc(cast(void**)&mono_get_exception_appdomain_unloaded,
+				"mono_get_exception_appdomain_unloaded");
+		bindFunc(cast(void**)&mono_get_exception_bad_image_format,
+				"mono_get_exception_bad_image_format");
+		bindFunc(cast(void**)&mono_get_exception_bad_image_format2,
+				"mono_get_exception_bad_image_format2");
+		bindFunc(cast(void**)&mono_get_exception_stack_overflow,
+				"mono_get_exception_stack_overflow");
+		bindFunc(cast(void**)&mono_get_exception_out_of_memory,
+				"mono_get_exception_out_of_memory");
+		bindFunc(cast(void**)&mono_get_exception_field_access, "mono_get_exception_field_access");
+		bindFunc(cast(void**)&mono_get_exception_method_access,
+				"mono_get_exception_method_access");
+		bindFunc(cast(void**)&mono_get_exception_reflection_type_load,
+				"mono_get_exception_reflection_type_load");
+		bindFunc(cast(void**)&mono_get_exception_runtime_wrapped,
+				"mono_get_exception_runtime_wrapped");
+		bindFunc(cast(void**)&mono_install_unhandled_exception_hook,
+				"mono_install_unhandled_exception_hook");
+		bindFunc(cast(void**)&mono_invoke_unhandled_exception_hook,
+				"mono_invoke_unhandled_exception_hook");
+		// metadata/image.h
+		bindFunc(cast(void**)&mono_images_init, "mono_images_init");
+		bindFunc(cast(void**)&mono_images_cleanup, "mono_images_cleanup");
+		bindFunc(cast(void**)&mono_image_open, "mono_image_open");
+		bindFunc(cast(void**)&mono_image_open_full, "mono_image_open_full");
+		bindFunc(cast(void**)&mono_pe_file_open, "mono_pe_file_open");
+		bindFunc(cast(void**)&mono_image_open_from_data, "mono_image_open_from_data");
+		bindFunc(cast(void**)&mono_image_open_from_data_full, "mono_image_open_from_data_full");
+		bindFunc(cast(void**)&mono_image_open_from_data_with_name,
+				"mono_image_open_from_data_with_name");
+		bindFunc(cast(void**)&mono_image_fixup_vtable, "mono_image_fixup_vtable");
+		bindFunc(cast(void**)&mono_image_loaded, "mono_image_loaded");
+		bindFunc(cast(void**)&mono_image_loaded_full, "mono_image_loaded_full");
+		bindFunc(cast(void**)&mono_image_loaded_by_guid, "mono_image_loaded_by_guid");
+		bindFunc(cast(void**)&mono_image_loaded_by_guid_full, "mono_image_loaded_by_guid_full");
+		bindFunc(cast(void**)&mono_image_init, "mono_image_init");
+		bindFunc(cast(void**)&mono_image_close, "mono_image_close");
+		bindFunc(cast(void**)&mono_image_addref, "mono_image_addref");
+		bindFunc(cast(void**)&mono_image_strerror, "mono_image_strerror");
+		bindFunc(cast(void**)&mono_image_ensure_section, "mono_image_ensure_section");
+		bindFunc(cast(void**)&mono_image_ensure_section_idx, "mono_image_ensure_section_idx");
+		bindFunc(cast(void**)&mono_image_get_entry_point, "mono_image_get_entry_point");
+		bindFunc(cast(void**)&mono_image_get_resource, "mono_image_get_resource");
+		bindFunc(cast(void**)&mono_image_load_file_for_image, "mono_image_load_file_for_image");
+		bindFunc(cast(void**)&mono_image_load_module, "mono_image_load_module");
+		bindFunc(cast(void**)&mono_image_get_name, "mono_image_get_name");
+		bindFunc(cast(void**)&mono_image_get_filename, "mono_image_get_filename");
+		bindFunc(cast(void**)&mono_image_get_guid, "mono_image_get_guid");
+		bindFunc(cast(void**)&mono_image_get_assembly, "mono_image_get_assembly");
+		bindFunc(cast(void**)&mono_image_is_dynamic, "mono_image_is_dynamic");
+		bindFunc(cast(void**)&mono_image_rva_map, "mono_image_rva_map");
+		bindFunc(cast(void**)&mono_image_get_table_info, "mono_image_get_table_info");
+		bindFunc(cast(void**)&mono_image_get_table_rows, "mono_image_get_table_rows");
+		bindFunc(cast(void**)&mono_table_info_get_rows, "mono_table_info_get_rows");
+		bindFunc(cast(void**)&mono_image_lookup_resource, "mono_image_lookup_resource");
+		bindFunc(cast(void**)&mono_image_get_public_key, "mono_image_get_public_key");
+		bindFunc(cast(void**)&mono_image_get_strong_name, "mono_image_get_strong_name");
+		bindFunc(cast(void**)&mono_image_strong_name_position, "mono_image_strong_name_position");
+		bindFunc(cast(void**)&mono_image_add_to_name_cache, "mono_image_add_to_name_cache");
+		bindFunc(cast(void**)&mono_image_has_authenticode_entry,
+				"mono_image_has_authenticode_entry");
+		// metadata/loader.h
+		bindFunc(cast(void**)&mono_get_method, "mono_get_method");
+		bindFunc(cast(void**)&mono_get_method_full, "mono_get_method_full");
+		bindFunc(cast(void**)&mono_get_method_constrained, "mono_get_method_constrained");
+		bindFunc(cast(void**)&mono_free_method, "mono_free_method");
+		bindFunc(cast(void**)&mono_method_get_signature_full, "mono_method_get_signature_full");
+		bindFunc(cast(void**)&mono_method_get_signature, "mono_method_get_signature");
+		bindFunc(cast(void**)&mono_method_signature, "mono_method_signature");
+		bindFunc(cast(void**)&mono_method_get_header, "mono_method_get_header");
+		bindFunc(cast(void**)&mono_method_get_name, "mono_method_get_name");
+		bindFunc(cast(void**)&mono_method_get_class, "mono_method_get_class");
+		bindFunc(cast(void**)&mono_method_get_token, "mono_method_get_token");
+		bindFunc(cast(void**)&mono_method_get_flags, "mono_method_get_flags");
+		bindFunc(cast(void**)&mono_method_get_index, "mono_method_get_index");
+		bindFunc(cast(void**)&mono_load_image, "mono_load_image");
+		bindFunc(cast(void**)&mono_add_internal_call, "mono_add_internal_call");
+		bindFunc(cast(void**)&mono_lookup_internal_call, "mono_lookup_internal_call");
+		bindFunc(cast(void**)&mono_lookup_internal_call_full, "mono_lookup_internal_call_full");
+		bindFunc(cast(void**)&mono_lookup_icall_symbol, "mono_lookup_icall_symbol");
+		bindFunc(cast(void**)&mono_dllmap_insert, "mono_dllmap_insert");
+		bindFunc(cast(void**)&mono_lookup_pinvoke_call, "mono_lookup_pinvoke_call");
+		bindFunc(cast(void**)&mono_method_get_param_names, "mono_method_get_param_names");
+		bindFunc(cast(void**)&mono_method_get_param_token, "mono_method_get_param_token");
+		bindFunc(cast(void**)&mono_method_get_marshal_info, "mono_method_get_marshal_info");
+		bindFunc(cast(void**)&mono_method_has_marshal_info, "mono_method_has_marshal_info");
+		bindFunc(cast(void**)&mono_method_get_last_managed, "mono_method_get_last_managed");
+		bindFunc(cast(void**)&mono_stack_walk, "mono_stack_walk");
+		bindFunc(cast(void**)&mono_stack_walk_no_il, "mono_stack_walk_no_il");
+		bindFunc(cast(void**)&mono_stack_walk_async_safe, "mono_stack_walk_async_safe");
+		bindFunc(cast(void**)&mono_method_get_header_checked, "mono_method_get_header_checked");
+		// metadata/metadata.h
+		bindFunc(cast(void**)&mono_metadata_init, "mono_metadata_init");
+		bindFunc(cast(void**)&mono_metadata_decode_row, "mono_metadata_decode_row");
+		bindFunc(cast(void**)&mono_metadata_decode_row_col, "mono_metadata_decode_row_col");
+		bindFunc(cast(void**)&mono_metadata_compute_size, "mono_metadata_compute_size");
+		bindFunc(cast(void**)&mono_metadata_locate, "mono_metadata_locate");
+		bindFunc(cast(void**)&mono_metadata_locate_token, "mono_metadata_locate_token");
+		bindFunc(cast(void**)&mono_metadata_string_heap, "mono_metadata_string_heap");
+		bindFunc(cast(void**)&mono_metadata_blob_heap, "mono_metadata_blob_heap");
+		bindFunc(cast(void**)&mono_metadata_user_string, "mono_metadata_user_string");
+		bindFunc(cast(void**)&mono_metadata_guid_heap, "mono_metadata_guid_heap");
+		bindFunc(cast(void**)&mono_metadata_typedef_from_field,
+				"mono_metadata_typedef_from_field");
+		bindFunc(cast(void**)&mono_metadata_typedef_from_method,
+				"mono_metadata_typedef_from_method");
+		bindFunc(cast(void**)&mono_metadata_nested_in_typedef, "mono_metadata_nested_in_typedef");
+		bindFunc(cast(void**)&mono_metadata_nesting_typedef, "mono_metadata_nesting_typedef");
+		bindFunc(cast(void**)&mono_metadata_interfaces_from_typedef,
+				"mono_metadata_interfaces_from_typedef");
+		bindFunc(cast(void**)&mono_metadata_events_from_typedef,
+				"mono_metadata_events_from_typedef");
+		bindFunc(cast(void**)&mono_metadata_methods_from_event,
+				"mono_metadata_methods_from_event");
+		bindFunc(cast(void**)&mono_metadata_properties_from_typedef,
+				"mono_metadata_properties_from_typedef");
+		bindFunc(cast(void**)&mono_metadata_methods_from_property,
+				"mono_metadata_methods_from_property");
+		bindFunc(cast(void**)&mono_metadata_packing_from_typedef,
+				"mono_metadata_packing_from_typedef");
+		bindFunc(cast(void**)&mono_metadata_get_marshal_info, "mono_metadata_get_marshal_info");
+		bindFunc(cast(void**)&mono_metadata_custom_attrs_from_index,
+				"mono_metadata_custom_attrs_from_index");
+		bindFunc(cast(void**)&mono_metadata_parse_marshal_spec,
+				"mono_metadata_parse_marshal_spec");
+		bindFunc(cast(void**)&mono_metadata_free_marshal_spec, "mono_metadata_free_marshal_spec");
+		bindFunc(cast(void**)&mono_metadata_implmap_from_method,
+				"mono_metadata_implmap_from_method");
+		bindFunc(cast(void**)&mono_metadata_field_info, "mono_metadata_field_info");
+		bindFunc(cast(void**)&mono_metadata_get_constant_index,
+				"mono_metadata_get_constant_index");
+		bindFunc(cast(void**)&mono_metadata_decode_value, "mono_metadata_decode_value");
+		bindFunc(cast(void**)&mono_metadata_decode_signed_value,
+				"mono_metadata_decode_signed_value");
+		bindFunc(cast(void**)&mono_metadata_decode_blob_size, "mono_metadata_decode_blob_size");
+		bindFunc(cast(void**)&mono_metadata_encode_value, "mono_metadata_encode_value");
+		bindFunc(cast(void**)&mono_type_is_byref, "mono_type_is_byref");
+		bindFunc(cast(void**)&mono_type_get_type, "mono_type_get_type");
+		bindFunc(cast(void**)&mono_type_get_signature, "mono_type_get_signature");
+		bindFunc(cast(void**)&mono_type_get_class, "mono_type_get_class");
+		bindFunc(cast(void**)&mono_type_get_array_type, "mono_type_get_array_type");
+		bindFunc(cast(void**)&mono_type_get_ptr_type, "mono_type_get_ptr_type");
+		bindFunc(cast(void**)&mono_type_get_modifiers, "mono_type_get_modifiers");
+		bindFunc(cast(void**)&mono_type_is_struct, "mono_type_is_struct");
+		bindFunc(cast(void**)&mono_type_is_void, "mono_type_is_void");
+		bindFunc(cast(void**)&mono_type_is_pointer, "mono_type_is_pointer");
+		bindFunc(cast(void**)&mono_type_is_reference, "mono_type_is_reference");
+		bindFunc(cast(void**)&mono_type_is_generic_parameter, "mono_type_is_generic_parameter");
+		bindFunc(cast(void**)&mono_signature_get_return_type, "mono_signature_get_return_type");
+		bindFunc(cast(void**)&mono_signature_get_params, "mono_signature_get_params");
+		bindFunc(cast(void**)&mono_signature_get_param_count, "mono_signature_get_param_count");
+		bindFunc(cast(void**)&mono_signature_get_call_conv, "mono_signature_get_call_conv");
+		bindFunc(cast(void**)&mono_signature_vararg_start, "mono_signature_vararg_start");
+		bindFunc(cast(void**)&mono_signature_is_instance, "mono_signature_is_instance");
+		bindFunc(cast(void**)&mono_signature_explicit_this, "mono_signature_explicit_this");
+		bindFunc(cast(void**)&mono_signature_param_is_out, "mono_signature_param_is_out");
+		bindFunc(cast(void**)&mono_metadata_parse_typedef_or_ref,
+				"mono_metadata_parse_typedef_or_ref");
+		bindFunc(cast(void**)&mono_metadata_parse_custom_mod, "mono_metadata_parse_custom_mod");
+		bindFunc(cast(void**)&mono_metadata_parse_array, "mono_metadata_parse_array");
+		bindFunc(cast(void**)&mono_metadata_free_array, "mono_metadata_free_array");
+		bindFunc(cast(void**)&mono_metadata_parse_type, "mono_metadata_parse_type");
+		bindFunc(cast(void**)&mono_metadata_parse_param, "mono_metadata_parse_param");
+		bindFunc(cast(void**)&mono_metadata_parse_ret_type, "mono_metadata_parse_ret_type");
+		bindFunc(cast(void**)&mono_metadata_parse_field_type, "mono_metadata_parse_field_type");
+		bindFunc(cast(void**)&mono_type_create_from_typespec, "mono_type_create_from_typespec");
+		bindFunc(cast(void**)&mono_metadata_free_type, "mono_metadata_free_type");
+		bindFunc(cast(void**)&mono_type_size, "mono_type_size");
+		bindFunc(cast(void**)&mono_type_stack_size, "mono_type_stack_size");
+		bindFunc(cast(void**)&mono_type_generic_inst_is_valuetype,
+				"mono_type_generic_inst_is_valuetype");
+		bindFunc(cast(void**)&mono_metadata_generic_class_is_valuetype,
+				"mono_metadata_generic_class_is_valuetype");
+		bindFunc(cast(void**)&mono_metadata_generic_class_hash,
+				"mono_metadata_generic_class_hash");
+		bindFunc(cast(void**)&mono_metadata_generic_class_equal,
+				"mono_metadata_generic_class_equal");
+		bindFunc(cast(void**)&mono_metadata_type_hash, "mono_metadata_type_hash");
+		bindFunc(cast(void**)&mono_metadata_type_equal, "mono_metadata_type_equal");
+		bindFunc(cast(void**)&mono_metadata_signature_alloc, "mono_metadata_signature_alloc");
+		bindFunc(cast(void**)&mono_metadata_signature_dup, "mono_metadata_signature_dup");
+		bindFunc(cast(void**)&mono_metadata_parse_signature, "mono_metadata_parse_signature");
+		bindFunc(cast(void**)&mono_metadata_parse_method_signature,
+				"mono_metadata_parse_method_signature");
+		bindFunc(cast(void**)&mono_metadata_free_method_signature,
+				"mono_metadata_free_method_signature");
+		bindFunc(cast(void**)&mono_metadata_signature_equal, "mono_metadata_signature_equal");
+		bindFunc(cast(void**)&mono_signature_hash, "mono_signature_hash");
+		bindFunc(cast(void**)&mono_metadata_parse_mh, "mono_metadata_parse_mh");
+		bindFunc(cast(void**)&mono_metadata_free_mh, "mono_metadata_free_mh");
+		bindFunc(cast(void**)&mono_method_header_get_code, "mono_method_header_get_code");
+		bindFunc(cast(void**)&mono_method_header_get_locals, "mono_method_header_get_locals");
+		bindFunc(cast(void**)&mono_method_header_get_num_clauses,
+				"mono_method_header_get_num_clauses");
+		bindFunc(cast(void**)&mono_method_header_get_clauses, "mono_method_header_get_clauses");
+		bindFunc(cast(void**)&mono_type_to_unmanaged, "mono_type_to_unmanaged");
+		bindFunc(cast(void**)&mono_metadata_token_from_dor, "mono_metadata_token_from_dor");
+		bindFunc(cast(void**)&mono_guid_to_string, "mono_guid_to_string");
+		bindFunc(cast(void**)&mono_guid_to_string_minimal, "mono_guid_to_string_minimal");
+		bindFunc(cast(void**)&mono_metadata_declsec_from_index,
+				"mono_metadata_declsec_from_index");
+		bindFunc(cast(void**)&mono_metadata_translate_token_index,
+				"mono_metadata_translate_token_index");
+		bindFunc(cast(void**)&mono_metadata_decode_table_row, "mono_metadata_decode_table_row");
+		bindFunc(cast(void**)&mono_metadata_decode_table_row_col,
+				"mono_metadata_decode_table_row_col");
+		// metadata/mono-config.h
+		bindFunc(cast(void**)&mono_config_get_os, "mono_config_get_os");
+		bindFunc(cast(void**)&mono_config_get_cpu, "mono_config_get_cpu");
+		bindFunc(cast(void**)&mono_config_get_wordsize, "mono_config_get_wordsize");
+		bindFunc(cast(void**)&mono_get_config_dir, "mono_get_config_dir");
+		bindFunc(cast(void**)&mono_set_config_dir, "mono_set_config_dir");
+		bindFunc(cast(void**)&mono_get_machine_config, "mono_get_machine_config");
+		bindFunc(cast(void**)&mono_config_cleanup, "mono_config_cleanup");
+		bindFunc(cast(void**)&mono_config_parse, "mono_config_parse");
+		bindFunc(cast(void**)&mono_config_for_assembly, "mono_config_for_assembly");
+		bindFunc(cast(void**)&mono_config_parse_memory, "mono_config_parse_memory");
+		bindFunc(cast(void**)&mono_config_string_for_assembly_file,
+				"mono_config_string_for_assembly_file");
+		bindFunc(cast(void**)&mono_config_set_server_mode, "mono_config_set_server_mode");
+		bindFunc(cast(void**)&mono_config_is_server_mode, "mono_config_is_server_mode");
+		// metadata/mono-debug.h
+		bindFunc(cast(void**)&mono_debug_init, "mono_debug_init");
+		bindFunc(cast(void**)&mono_debug_open_image_from_memory,
+				"mono_debug_open_image_from_memory");
+		bindFunc(cast(void**)&mono_debug_cleanup, "mono_debug_cleanup");
+		bindFunc(cast(void**)&mono_debug_close_image, "mono_debug_close_image");
+		bindFunc(cast(void**)&mono_debug_domain_unload, "mono_debug_domain_unload");
+		bindFunc(cast(void**)&mono_debug_domain_create, "mono_debug_domain_create");
+		bindFunc(cast(void**)&mono_debug_add_method, "mono_debug_add_method");
+		bindFunc(cast(void**)&mono_debug_remove_method, "mono_debug_remove_method");
+		bindFunc(cast(void**)&mono_debug_lookup_method, "mono_debug_lookup_method");
+		bindFunc(cast(void**)&mono_debug_lookup_method_addresses,
+				"mono_debug_lookup_method_addresses");
+		bindFunc(cast(void**)&mono_debug_find_method, "mono_debug_find_method");
+		bindFunc(cast(void**)&mono_debug_free_method_jit_info, "mono_debug_free_method_jit_info");
+		bindFunc(cast(void**)&mono_debug_add_delegate_trampoline,
+				"mono_debug_add_delegate_trampoline");
+		bindFunc(cast(void**)&mono_debug_lookup_locals, "mono_debug_lookup_locals");
+		bindFunc(cast(void**)&mono_debug_lookup_method_async_debug_info,
+				"mono_debug_lookup_method_async_debug_info");
+		bindFunc(cast(void**)&mono_debug_method_lookup_location,
+				"mono_debug_method_lookup_location");
+		bindFunc(cast(void**)&mono_debug_lookup_source_location,
+				"mono_debug_lookup_source_location");
+		bindFunc(cast(void**)&mono_debug_il_offset_from_address,
+				"mono_debug_il_offset_from_address");
+		bindFunc(cast(void**)&mono_debug_free_source_location, "mono_debug_free_source_location");
+		bindFunc(cast(void**)&mono_debug_print_stack_frame, "mono_debug_print_stack_frame");
+		bindFunc(cast(void**)&mono_debugger_method_has_breakpoint,
+				"mono_debugger_method_has_breakpoint");
+		bindFunc(cast(void**)&mono_debugger_insert_breakpoint, "mono_debugger_insert_breakpoint");
+		bindFunc(cast(void**)&mono_set_is_debugger_attached, "mono_set_is_debugger_attached");
+		bindFunc(cast(void**)&mono_is_debugger_attached, "mono_is_debugger_attached");
+		// metadata/mono-gc.h
+		bindFunc(cast(void**)&mono_gc_collect, "mono_gc_collect");
+		bindFunc(cast(void**)&mono_gc_max_generation, "mono_gc_max_generation");
+		bindFunc(cast(void**)&mono_gc_get_generation, "mono_gc_get_generation");
+		bindFunc(cast(void**)&mono_gc_collection_count, "mono_gc_collection_count");
+		bindFunc(cast(void**)&mono_gc_get_used_size, "mono_gc_get_used_size");
+		bindFunc(cast(void**)&mono_gc_get_heap_size, "mono_gc_get_heap_size");
+		bindFunc(cast(void**)&mono_gc_pending_finalizers, "mono_gc_pending_finalizers");
+		bindFunc(cast(void**)&mono_gc_finalize_notify, "mono_gc_finalize_notify");
+		bindFunc(cast(void**)&mono_gc_invoke_finalizers, "mono_gc_invoke_finalizers");
+		bindFunc(cast(void**)&mono_gc_walk_heap, "mono_gc_walk_heap");
+		// metadata/object.h
+		bindFunc(cast(void**)&mono_string_chars, "mono_string_chars");
+		bindFunc(cast(void**)&mono_string_length, "mono_string_length");
+		bindFunc(cast(void**)&mono_object_new, "mono_object_new");
+		bindFunc(cast(void**)&mono_object_new_specific, "mono_object_new_specific");
+		bindFunc(cast(void**)&mono_object_new_fast, "mono_object_new_fast");
+		bindFunc(cast(void**)&mono_object_new_alloc_specific, "mono_object_new_alloc_specific");
+		bindFunc(cast(void**)&mono_object_new_from_token, "mono_object_new_from_token");
+		bindFunc(cast(void**)&mono_array_new, "mono_array_new");
+		bindFunc(cast(void**)&mono_array_new_full, "mono_array_new_full");
+		bindFunc(cast(void**)&mono_array_new_specific, "mono_array_new_specific");
+		bindFunc(cast(void**)&mono_array_clone, "mono_array_clone");
+		bindFunc(cast(void**)&mono_array_addr_with_size, "mono_array_addr_with_size");
+		bindFunc(cast(void**)&mono_array_length, "mono_array_length");
+		bindFunc(cast(void**)&mono_string_empty, "mono_string_empty");
+		bindFunc(cast(void**)&mono_string_empty_wrapper, "mono_string_empty_wrapper");
+		bindFunc(cast(void**)&mono_string_new_utf16, "mono_string_new_utf16");
+		bindFunc(cast(void**)&mono_string_new_size, "mono_string_new_size");
+		bindFunc(cast(void**)&mono_ldstr, "mono_ldstr");
+		bindFunc(cast(void**)&mono_string_is_interned, "mono_string_is_interned");
+		bindFunc(cast(void**)&mono_string_intern, "mono_string_intern");
+		bindFunc(cast(void**)&mono_string_new, "mono_string_new");
+		bindFunc(cast(void**)&mono_string_new_wrapper, "mono_string_new_wrapper");
+		bindFunc(cast(void**)&mono_string_new_len, "mono_string_new_len");
+		bindFunc(cast(void**)&mono_string_new_utf32, "mono_string_new_utf32");
+		bindFunc(cast(void**)&mono_string_to_utf8, "mono_string_to_utf8");
+		bindFunc(cast(void**)&mono_string_to_utf8_checked, "mono_string_to_utf8_checked");
+		bindFunc(cast(void**)&mono_string_to_utf16, "mono_string_to_utf16");
+		bindFunc(cast(void**)&mono_string_to_utf32, "mono_string_to_utf32");
+		bindFunc(cast(void**)&mono_string_from_utf16, "mono_string_from_utf16");
+		bindFunc(cast(void**)&mono_string_from_utf32, "mono_string_from_utf32");
+		bindFunc(cast(void**)&mono_string_equal, "mono_string_equal");
+		bindFunc(cast(void**)&mono_string_hash, "mono_string_hash");
+		bindFunc(cast(void**)&mono_object_hash, "mono_object_hash");
+		bindFunc(cast(void**)&mono_object_to_string, "mono_object_to_string");
+		bindFunc(cast(void**)&mono_value_box, "mono_value_box");
+		bindFunc(cast(void**)&mono_value_copy, "mono_value_copy");
+		bindFunc(cast(void**)&mono_value_copy_array, "mono_value_copy_array");
+		bindFunc(cast(void**)&mono_object_get_domain, "mono_object_get_domain");
+		bindFunc(cast(void**)&mono_object_get_class, "mono_object_get_class");
+		bindFunc(cast(void**)&mono_object_unbox, "mono_object_unbox");
+		bindFunc(cast(void**)&mono_object_clone, "mono_object_clone");
+		bindFunc(cast(void**)&mono_object_isinst, "mono_object_isinst");
+		bindFunc(cast(void**)&mono_object_isinst_mbyref, "mono_object_isinst_mbyref");
+		bindFunc(cast(void**)&mono_object_castclass_mbyref, "mono_object_castclass_mbyref");
+		bindFunc(cast(void**)&mono_monitor_try_enter, "mono_monitor_try_enter");
+		bindFunc(cast(void**)&mono_monitor_enter, "mono_monitor_enter");
+		bindFunc(cast(void**)&mono_monitor_enter_v4, "mono_monitor_enter_v4");
+		bindFunc(cast(void**)&mono_object_get_size, "mono_object_get_size");
+		bindFunc(cast(void**)&mono_monitor_exit, "mono_monitor_exit");
+		bindFunc(cast(void**)&mono_raise_exception, "mono_raise_exception");
+		bindFunc(cast(void**)&mono_runtime_object_init, "mono_runtime_object_init");
+		bindFunc(cast(void**)&mono_runtime_class_init, "mono_runtime_class_init");
+		bindFunc(cast(void**)&mono_object_get_virtual_method, "mono_object_get_virtual_method");
+		bindFunc(cast(void**)&mono_runtime_invoke, "mono_runtime_invoke");
+		bindFunc(cast(void**)&mono_get_delegate_invoke, "mono_get_delegate_invoke");
+		bindFunc(cast(void**)&mono_get_delegate_begin_invoke, "mono_get_delegate_begin_invoke");
+		bindFunc(cast(void**)&mono_get_delegate_end_invoke, "mono_get_delegate_end_invoke");
+		bindFunc(cast(void**)&mono_runtime_delegate_invoke, "mono_runtime_delegate_invoke");
+		bindFunc(cast(void**)&mono_runtime_invoke_array, "mono_runtime_invoke_array");
+		bindFunc(cast(void**)&mono_method_get_unmanaged_thunk, "mono_method_get_unmanaged_thunk");
+		bindFunc(cast(void**)&mono_runtime_get_main_args, "mono_runtime_get_main_args");
+		bindFunc(cast(void**)&mono_runtime_exec_managed_code, "mono_runtime_exec_managed_code");
+		bindFunc(cast(void**)&mono_runtime_run_main, "mono_runtime_run_main");
+		bindFunc(cast(void**)&mono_runtime_exec_main, "mono_runtime_exec_main");
+		bindFunc(cast(void**)&mono_runtime_set_main_args, "mono_runtime_set_main_args");
+		bindFunc(cast(void**)&mono_load_remote_field, "mono_load_remote_field");
+		bindFunc(cast(void**)&mono_load_remote_field_new, "mono_load_remote_field_new");
+		bindFunc(cast(void**)&mono_store_remote_field, "mono_store_remote_field");
+		bindFunc(cast(void**)&mono_store_remote_field_new, "mono_store_remote_field_new");
+		bindFunc(cast(void**)&mono_unhandled_exception, "mono_unhandled_exception");
+		bindFunc(cast(void**)&mono_print_unhandled_exception, "mono_print_unhandled_exception");
+		bindFunc(cast(void**)&mono_compile_method, "mono_compile_method");
+		bindFunc(cast(void**)&mono_field_set_value, "mono_field_set_value");
+		bindFunc(cast(void**)&mono_field_static_set_value, "mono_field_static_set_value");
+		bindFunc(cast(void**)&mono_field_get_value, "mono_field_get_value");
+		bindFunc(cast(void**)&mono_field_static_get_value, "mono_field_static_get_value");
+		bindFunc(cast(void**)&mono_field_get_value_object, "mono_field_get_value_object");
+		bindFunc(cast(void**)&mono_property_set_value, "mono_property_set_value");
+		bindFunc(cast(void**)&mono_property_get_value, "mono_property_get_value");
+		bindFunc(cast(void**)&mono_gchandle_new, "mono_gchandle_new");
+		bindFunc(cast(void**)&mono_gchandle_new_weakref, "mono_gchandle_new_weakref");
+		bindFunc(cast(void**)&mono_gchandle_get_target, "mono_gchandle_get_target");
+		bindFunc(cast(void**)&mono_gchandle_free, "mono_gchandle_free");
+		bindFunc(cast(void**)&mono_gc_reference_queue_new, "mono_gc_reference_queue_new");
+		bindFunc(cast(void**)&mono_gc_reference_queue_free, "mono_gc_reference_queue_free");
+		bindFunc(cast(void**)&mono_gc_reference_queue_add, "mono_gc_reference_queue_add");
+		bindFunc(cast(void**)&mono_gc_wbarrier_set_field, "mono_gc_wbarrier_set_field");
+		bindFunc(cast(void**)&mono_gc_wbarrier_set_arrayref, "mono_gc_wbarrier_set_arrayref");
+		bindFunc(cast(void**)&mono_gc_wbarrier_arrayref_copy, "mono_gc_wbarrier_arrayref_copy");
+		bindFunc(cast(void**)&mono_gc_wbarrier_generic_store, "mono_gc_wbarrier_generic_store");
+		bindFunc(cast(void**)&mono_gc_wbarrier_generic_store_atomic,
+				"mono_gc_wbarrier_generic_store_atomic");
+		bindFunc(cast(void**)&mono_gc_wbarrier_generic_nostore,
+				"mono_gc_wbarrier_generic_nostore");
+		bindFunc(cast(void**)&mono_gc_wbarrier_value_copy, "mono_gc_wbarrier_value_copy");
+		bindFunc(cast(void**)&mono_gc_wbarrier_object_copy, "mono_gc_wbarrier_object_copy");
+		// metadata/opcodes.h
+		bindFunc(cast(void**)&mono_opcode_name, "mono_opcode_name");
+		bindFunc(cast(void**)&mono_opcode_value, "mono_opcode_value");
+		// metadata/profiler.h
+		bindFunc(cast(void**)&mono_profiler_install, "mono_profiler_install");
+		bindFunc(cast(void**)&mono_profiler_set_events, "mono_profiler_set_events");
+		bindFunc(cast(void**)&mono_profiler_get_events, "mono_profiler_get_events");
+		bindFunc(cast(void**)&mono_profiler_install_appdomain, "mono_profiler_install_appdomain");
+		bindFunc(cast(void**)&mono_profiler_install_appdomain_name,
+				"mono_profiler_install_appdomain_name");
+		bindFunc(cast(void**)&mono_profiler_install_context, "mono_profiler_install_context");
+		bindFunc(cast(void**)&mono_profiler_install_assembly, "mono_profiler_install_assembly");
+		bindFunc(cast(void**)&mono_profiler_install_module, "mono_profiler_install_module");
+		bindFunc(cast(void**)&mono_profiler_install_class, "mono_profiler_install_class");
+		bindFunc(cast(void**)&mono_profiler_install_jit_compile,
+				"mono_profiler_install_jit_compile");
+		bindFunc(cast(void**)&mono_profiler_install_jit_end, "mono_profiler_install_jit_end");
+		bindFunc(cast(void**)&mono_profiler_install_method_free,
+				"mono_profiler_install_method_free");
+		bindFunc(cast(void**)&mono_profiler_install_method_invoke,
+				"mono_profiler_install_method_invoke");
+		bindFunc(cast(void**)&mono_profiler_install_enter_leave,
+				"mono_profiler_install_enter_leave");
+		bindFunc(cast(void**)&mono_profiler_install_thread, "mono_profiler_install_thread");
+		bindFunc(cast(void**)&mono_profiler_install_thread_name,
+				"mono_profiler_install_thread_name");
+		bindFunc(cast(void**)&mono_profiler_install_transition,
+				"mono_profiler_install_transition");
+		bindFunc(cast(void**)&mono_profiler_install_allocation,
+				"mono_profiler_install_allocation");
+		bindFunc(cast(void**)&mono_profiler_install_monitor, "mono_profiler_install_monitor");
+		bindFunc(cast(void**)&mono_profiler_install_statistical,
+				"mono_profiler_install_statistical");
+		bindFunc(cast(void**)&mono_profiler_install_statistical_call_chain,
+				"mono_profiler_install_statistical_call_chain");
+		bindFunc(cast(void**)&mono_profiler_install_exception, "mono_profiler_install_exception");
+		bindFunc(cast(void**)&mono_profiler_install_coverage_filter,
+				"mono_profiler_install_coverage_filter");
+		bindFunc(cast(void**)&mono_profiler_coverage_get, "mono_profiler_coverage_get");
+		bindFunc(cast(void**)&mono_profiler_install_gc, "mono_profiler_install_gc");
+		bindFunc(cast(void**)&mono_profiler_install_gc_moves, "mono_profiler_install_gc_moves");
+		bindFunc(cast(void**)&mono_profiler_install_gc_roots, "mono_profiler_install_gc_roots");
+		bindFunc(cast(void**)&mono_profiler_install_gc_finalize,
+				"mono_profiler_install_gc_finalize");
+		bindFunc(cast(void**)&mono_profiler_install_runtime_initialized,
+				"mono_profiler_install_runtime_initialized");
+		bindFunc(cast(void**)&mono_profiler_install_code_chunk_new,
+				"mono_profiler_install_code_chunk_new");
+		bindFunc(cast(void**)&mono_profiler_install_code_chunk_destroy,
+				"mono_profiler_install_code_chunk_destroy");
+		bindFunc(cast(void**)&mono_profiler_install_code_buffer_new,
+				"mono_profiler_install_code_buffer_new");
+		bindFunc(cast(void**)&mono_profiler_install_iomap, "mono_profiler_install_iomap");
+		bindFunc(cast(void**)&mono_profiler_load, "mono_profiler_load");
+		bindFunc(cast(void**)&mono_profiler_set_statistical_mode,
+				"mono_profiler_set_statistical_mode");
+		// metadata/reflection.h
+		bindFunc(cast(void**)&mono_reflection_parse_type, "mono_reflection_parse_type");
+		bindFunc(cast(void**)&mono_reflection_get_type, "mono_reflection_get_type");
+		bindFunc(cast(void**)&mono_reflection_free_type_info, "mono_reflection_free_type_info");
+		bindFunc(cast(void**)&mono_reflection_type_from_name, "mono_reflection_type_from_name");
+		bindFunc(cast(void**)&mono_reflection_get_token, "mono_reflection_get_token");
+		bindFunc(cast(void**)&mono_assembly_get_object, "mono_assembly_get_object");
+		bindFunc(cast(void**)&mono_module_get_object, "mono_module_get_object");
+		bindFunc(cast(void**)&mono_module_file_get_object, "mono_module_file_get_object");
+		bindFunc(cast(void**)&mono_type_get_object, "mono_type_get_object");
+		bindFunc(cast(void**)&mono_method_get_object, "mono_method_get_object");
+		bindFunc(cast(void**)&mono_field_get_object, "mono_field_get_object");
+		bindFunc(cast(void**)&mono_property_get_object, "mono_property_get_object");
+		bindFunc(cast(void**)&mono_event_get_object, "mono_event_get_object");
+		bindFunc(cast(void**)&mono_param_get_objects, "mono_param_get_objects");
+		bindFunc(cast(void**)&mono_method_body_get_object, "mono_method_body_get_object");
+		bindFunc(cast(void**)&mono_get_dbnull_object, "mono_get_dbnull_object");
+		bindFunc(cast(void**)&mono_reflection_get_custom_attrs_by_type,
+				"mono_reflection_get_custom_attrs_by_type");
+		bindFunc(cast(void**)&mono_reflection_get_custom_attrs,
+				"mono_reflection_get_custom_attrs");
+		bindFunc(cast(void**)&mono_reflection_get_custom_attrs_data,
+				"mono_reflection_get_custom_attrs_data");
+		bindFunc(cast(void**)&mono_reflection_get_custom_attrs_blob,
+				"mono_reflection_get_custom_attrs_blob");
+		bindFunc(cast(void**)&mono_reflection_get_custom_attrs_info,
+				"mono_reflection_get_custom_attrs_info");
+		bindFunc(cast(void**)&mono_custom_attrs_construct, "mono_custom_attrs_construct");
+		bindFunc(cast(void**)&mono_custom_attrs_from_index, "mono_custom_attrs_from_index");
+		bindFunc(cast(void**)&mono_custom_attrs_from_method, "mono_custom_attrs_from_method");
+		bindFunc(cast(void**)&mono_custom_attrs_from_class, "mono_custom_attrs_from_class");
+		bindFunc(cast(void**)&mono_custom_attrs_from_assembly, "mono_custom_attrs_from_assembly");
+		bindFunc(cast(void**)&mono_custom_attrs_from_property, "mono_custom_attrs_from_property");
+		bindFunc(cast(void**)&mono_custom_attrs_from_event, "mono_custom_attrs_from_event");
+		bindFunc(cast(void**)&mono_custom_attrs_from_field, "mono_custom_attrs_from_field");
+		bindFunc(cast(void**)&mono_custom_attrs_from_param, "mono_custom_attrs_from_param");
+		bindFunc(cast(void**)&mono_custom_attrs_has_attr, "mono_custom_attrs_has_attr");
+		bindFunc(cast(void**)&mono_custom_attrs_get_attr, "mono_custom_attrs_get_attr");
+		bindFunc(cast(void**)&mono_custom_attrs_free, "mono_custom_attrs_free");
+		bindFunc(cast(void**)&mono_declsec_flags_from_method, "mono_declsec_flags_from_method");
+		bindFunc(cast(void**)&mono_declsec_flags_from_class, "mono_declsec_flags_from_class");
+		bindFunc(cast(void**)&mono_declsec_flags_from_assembly,
+				"mono_declsec_flags_from_assembly");
+		bindFunc(cast(void**)&mono_declsec_get_demands, "mono_declsec_get_demands");
+		bindFunc(cast(void**)&mono_declsec_get_linkdemands, "mono_declsec_get_linkdemands");
+		bindFunc(cast(void**)&mono_declsec_get_inheritdemands_class,
+				"mono_declsec_get_inheritdemands_class");
+		bindFunc(cast(void**)&mono_declsec_get_inheritdemands_method,
+				"mono_declsec_get_inheritdemands_method");
+		bindFunc(cast(void**)&mono_declsec_get_method_action, "mono_declsec_get_method_action");
+		bindFunc(cast(void**)&mono_declsec_get_class_action, "mono_declsec_get_class_action");
+		bindFunc(cast(void**)&mono_declsec_get_assembly_action,
+				"mono_declsec_get_assembly_action");
+		bindFunc(cast(void**)&mono_reflection_type_get_type, "mono_reflection_type_get_type");
+		bindFunc(cast(void**)&mono_reflection_assembly_get_assembly,
+				"mono_reflection_assembly_get_assembly");
+		// metadata/row-indexes.h
+		// metadata/sgen-bridge.h
+		bindFunc(cast(void**)&mono_gc_register_bridge_callbacks,
+				"mono_gc_register_bridge_callbacks");
+		bindFunc(cast(void**)&mono_gc_wait_for_bridge_processing,
+				"mono_gc_wait_for_bridge_processing");
+		// metadata/threads.h
+		bindFunc(cast(void**)&mono_thread_init, "mono_thread_init");
+		bindFunc(cast(void**)&mono_thread_cleanup, "mono_thread_cleanup");
+		bindFunc(cast(void**)&mono_thread_manage, "mono_thread_manage");
+		bindFunc(cast(void**)&mono_thread_current, "mono_thread_current");
+		bindFunc(cast(void**)&mono_thread_set_main, "mono_thread_set_main");
+		bindFunc(cast(void**)&mono_thread_get_main, "mono_thread_get_main");
+		bindFunc(cast(void**)&mono_thread_stop, "mono_thread_stop");
+		bindFunc(cast(void**)&mono_thread_new_init, "mono_thread_new_init");
+		bindFunc(cast(void**)&mono_thread_create, "mono_thread_create");
+		bindFunc(cast(void**)&mono_thread_attach, "mono_thread_attach");
+		bindFunc(cast(void**)&mono_thread_detach, "mono_thread_detach");
+		bindFunc(cast(void**)&mono_thread_exit, "mono_thread_exit");
+		bindFunc(cast(void**)&mono_thread_get_name_utf8, "mono_thread_get_name_utf8");
+		bindFunc(cast(void**)&mono_thread_get_managed_id, "mono_thread_get_managed_id");
+		bindFunc(cast(void**)&mono_thread_set_manage_callback, "mono_thread_set_manage_callback");
+		bindFunc(cast(void**)&mono_threads_set_default_stacksize,
+				"mono_threads_set_default_stacksize");
+		bindFunc(cast(void**)&mono_threads_get_default_stacksize,
+				"mono_threads_get_default_stacksize");
+		bindFunc(cast(void**)&mono_threads_request_thread_dump,
+				"mono_threads_request_thread_dump");
+		bindFunc(cast(void**)&mono_thread_is_foreign, "mono_thread_is_foreign");
+		bindFunc(cast(void**)&mono_thread_detach_if_exiting, "mono_thread_detach_if_exiting");
+		// metadata/tokentype.h
+		// metadata/verify.h
+		bindFunc(cast(void**)&mono_method_verify, "mono_method_verify");
+		bindFunc(cast(void**)&mono_free_verify_list, "mono_free_verify_list");
+		bindFunc(cast(void**)&mono_verify_corlib, "mono_verify_corlib");
 		// jit/jit.h
-
+		bindFunc(cast(void**)&mono_jit_init, "mono_jit_init");
+		bindFunc(cast(void**)&mono_jit_init_version, "mono_jit_init_version");
+		bindFunc(cast(void**)&mono_jit_exec, "mono_jit_exec");
+		bindFunc(cast(void**)&mono_jit_cleanup, "mono_jit_cleanup");
+		bindFunc(cast(void**)&mono_jit_set_trace_options, "mono_jit_set_trace_options");
+		bindFunc(cast(void**)&mono_set_signal_chaining, "mono_set_signal_chaining");
+		bindFunc(cast(void**)&mono_set_crash_chaining, "mono_set_crash_chaining");
+		bindFunc(cast(void**)&mono_jit_set_aot_only, "mono_jit_set_aot_only");
+		bindFunc(cast(void**)&mono_jit_set_aot_mode, "mono_jit_set_aot_mode");
+		bindFunc(cast(void**)&mono_set_break_policy, "mono_set_break_policy");
+		bindFunc(cast(void**)&mono_jit_parse_options, "mono_jit_parse_options");
+		bindFunc(cast(void**)&mono_get_runtime_build_info, "mono_get_runtime_build_info");
+		bindFunc(cast(void**)&mono_get_jit_info_from_method, "mono_get_jit_info_from_method");
+		bindFunc(cast(void**)&mono_aot_get_method, "mono_aot_get_method");
 	}
 }
 
@@ -165,7 +996,41 @@ int mono_metadata_token_code()(int token)
 	return ((token & 0xff000000));
 }
 
-/*alias MONO_TYPE_ISSTRUCT = mono_type_is_struct;
+void MONO_OBJECT_SETREF(T, alias field, U)(T obj, U value)
+{
+	mono_gc_wbarrier_set_field(cast(MonoObject*) obj, &field, cast(MonoObject*) value);
+}
+
+void MONO_STRUCT_SETREF(alias field, U)(T obj, U value)
+{
+	mono_gc_wbarrier_generic_store(&field, cast(MonoObject*) value);
+}
+
+T* mono_array_addr(T)(MonoArray* array, size_t index)
+{
+	return cast(T*) cast(void*) mono_array_addr_with_size(array, T.sizeof, index);
+}
+
+ref T mono_array_get(T)(MonoArray* array, size_t index)
+{
+	return *mono_array_addr!T(array, index);
+}
+
+void mono_array_setref(T)(MonoArray* array, size_t index, T value)
+{
+	void** p = mono_array_addr!(void*)(array, index);
+	mono_gc_wbarrier_set_arrayref(array, p, cast(MonoObject*) value);
+}
+
+void mono_array_memcpy_refs(MonoArray* dest, size_t destidx, MonoArray* src,
+		size_t srcidx, int count)
+{
+	void** p = mono_array_addr!(void*)(dest, destidx);
+	void** s = mono_array_addr!(void*)(src, srcidx);
+	mono_gc_wbarrier_arrayref_copy(cast(void*) p, cast(void*) s, count);
+}
+
+alias MONO_TYPE_ISSTRUCT = mono_type_is_struct;
 alias MONO_TYPE_IS_VOID = mono_type_is_void;
 alias MONO_TYPE_IS_POINTER = mono_type_is_pointer;
-alias MONO_TYPE_IS_REFERENCE = mono_type_is_reference;*/
+alias MONO_TYPE_IS_REFERENCE = mono_type_is_reference;

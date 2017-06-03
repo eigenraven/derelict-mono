@@ -77,7 +77,943 @@ extern (C) @nogc nothrow
 	alias da_mono_runtime_resource_set_callback = void function(MonoResourceCallback callback);
 	alias da_mono_runtime_resource_check_limit = void function(int resource_type, uintptr_t value);
 	// metadata/appdomain.h
+	alias da_mono_init = MonoDomain* function(const(char)* filename);
+	alias da_mono_init_from_assembly = MonoDomain* function(const(char)* domain_name,
+			const(char)* filename);
+	alias da_mono_init_version = MonoDomain* function(const(char)* domain_name,
+			const(char)* version_);
+	alias da_mono_get_root_domain = MonoDomain* function();
+	alias da_mono_runtime_init = void function(MonoDomain* domain,
+			MonoThreadStartCB start_cb, MonoThreadAttachCB attach_cb);
+	alias da_mono_runtime_cleanup = void function(MonoDomain* domain);
+	alias da_mono_install_runtime_cleanup = void function(MonoDomainFunc func);
+	alias da_mono_runtime_quit = void function();
+	alias da_mono_runtime_set_shutting_down = void function();
+	alias da_mono_runtime_is_shutting_down = mono_bool function();
+	alias da_mono_check_corlib_version = const(char)* function();
+	alias da_mono_domain_create = MonoDomain* function();
+	alias da_mono_domain_create_appdomain = MonoDomain* function(char* friendly_name,
+			char* configuration_file);
+	alias da_mono_domain_set_config = void function(MonoDomain* domain,
+			const(char)* base_dir, const(char)* config_file_name);
+	alias da_mono_domain_get = MonoDomain* function();
+	alias da_mono_domain_get_by_id = MonoDomain* function(int domainid);
+	alias da_mono_domain_get_id = int function(MonoDomain* domain);
+	alias da_mono_domain_get_friendly_name = const(char)* function(MonoDomain* domain);
+	alias da_mono_domain_set = mono_bool function(MonoDomain* domain, mono_bool force);
+	alias da_mono_domain_set_internal = void function(MonoDomain* domain);
+	alias da_mono_domain_unload = void function(MonoDomain* domain);
+	alias da_mono_domain_try_unload = void function(MonoDomain* domain, MonoObject** exc);
+	alias da_mono_domain_is_unloading = mono_bool function(MonoDomain* domain);
+	alias da_mono_domain_from_appdomain = MonoDomain* function(MonoAppDomain* appdomain);
+	alias da_mono_domain_foreach = void function(MonoDomainFunc func, void* user_data);
+	alias da_mono_domain_assembly_open = MonoAssembly* function(MonoDomain* domain,
+			const(char)* name);
+	alias da_mono_domain_finalize = mono_bool function(MonoDomain* domain, uint timeout);
+	alias da_mono_domain_free = void function(MonoDomain* domain, mono_bool force);
+	alias da_mono_domain_has_type_resolve = mono_bool function(MonoDomain* domain);
+	alias da_mono_domain_try_type_resolve = MonoReflectionAssembly* function(
+			MonoDomain* domain, char* name, MonoObject* tb);
+	alias da_mono_domain_owns_vtable_slot = mono_bool function(MonoDomain* domain,
+			void* vtable_slot);
+	alias da_mono_context_init = void function(MonoDomain* domain);
+	alias da_mono_context_set = void function(MonoAppContext* new_context);
+	alias da_mono_context_get = MonoAppContext* function();
+	alias da_mono_context_get_id = int function(MonoAppContext* context);
+	alias da_mono_context_get_domain_id = int function(MonoAppContext* context);
+	alias da_mono_jit_info_table_find = MonoJitInfo* function(MonoDomain* domain, char* addr);
+	alias da_mono_jit_info_get_code_start = void* function(MonoJitInfo* ji);
+	alias da_mono_jit_info_get_code_size = int function(MonoJitInfo* ji);
+	alias da_mono_jit_info_get_method = MonoMethod* function(MonoJitInfo* ji);
+	alias da_mono_get_corlib = MonoImage* function();
+	alias da_mono_get_object_class = MonoClass* function();
+	alias da_mono_get_byte_class = MonoClass* function();
+	alias da_mono_get_void_class = MonoClass* function();
+	alias da_mono_get_boolean_class = MonoClass* function();
+	alias da_mono_get_sbyte_class = MonoClass* function();
+	alias da_mono_get_int16_class = MonoClass* function();
+	alias da_mono_get_uint16_class = MonoClass* function();
+	alias da_mono_get_int32_class = MonoClass* function();
+	alias da_mono_get_uint32_class = MonoClass* function();
+	alias da_mono_get_intptr_class = MonoClass* function();
+	alias da_mono_get_uintptr_class = MonoClass* function();
+	alias da_mono_get_int64_class = MonoClass* function();
+	alias da_mono_get_uint64_class = MonoClass* function();
+	alias da_mono_get_single_class = MonoClass* function();
+	alias da_mono_get_double_class = MonoClass* function();
+	alias da_mono_get_char_class = MonoClass* function();
+	alias da_mono_get_string_class = MonoClass* function();
+	alias da_mono_get_enum_class = MonoClass* function();
+	alias da_mono_get_array_class = MonoClass* function();
+	alias da_mono_get_thread_class = MonoClass* function();
+	alias da_mono_get_exception_class = MonoClass* function();
+	alias da_mono_security_enable_core_clr = void function();
+	alias da_mono_security_set_core_clr_platform_callback = void function(
+			MonoCoreClrPlatformCB callback);
+	// metadata/assembly.h
+	alias da_mono_assemblies_init = void function();
+	alias da_mono_assemblies_cleanup = void function();
+	alias da_mono_assembly_open = MonoAssembly* function(const(char)* filename,
+			MonoImageOpenStatus* status);
+	alias da_mono_assembly_open_full = MonoAssembly* function(const(char)* filename,
+			MonoImageOpenStatus* status, mono_bool refonly);
+	alias da_mono_assembly_load = MonoAssembly* function(MonoAssemblyName* aname,
+			const(char)* basedir, MonoImageOpenStatus* status);
+	alias da_mono_assembly_load_full = MonoAssembly* function(MonoAssemblyName* aname,
+			const(char)* basedir, MonoImageOpenStatus* status, mono_bool refonly);
+	alias da_mono_assembly_load_from = MonoAssembly* function(MonoImage* image,
+			const(char)* fname, MonoImageOpenStatus* status);
+	alias da_mono_assembly_load_from_full = MonoAssembly* function(MonoImage* image,
+			const(char)* fname, MonoImageOpenStatus* status, mono_bool refonly);
+	alias da_mono_assembly_load_with_partial_name = MonoAssembly* function(
+			const(char)* name, MonoImageOpenStatus* status);
+	alias da_mono_assembly_loaded = MonoAssembly* function(MonoAssemblyName* aname);
+	alias da_mono_assembly_loaded_full = MonoAssembly* function(MonoAssemblyName* aname,
+			mono_bool refonly);
+	alias da_mono_assembly_get_assemblyref = void function(MonoImage* image,
+			int index, MonoAssemblyName* aname);
+	alias da_mono_assembly_load_reference = void function(MonoImage* image, int index);
+	alias da_mono_assembly_load_references = void function(MonoImage* image,
+			MonoImageOpenStatus* status);
+	alias da_mono_assembly_load_module = MonoImage* function(MonoAssembly* assembly, uint idx);
+	alias da_mono_assembly_close = void function(MonoAssembly* assembly);
+	alias da_mono_assembly_setrootdir = void function(const(char)* root_dir);
+	alias da_mono_assembly_getrootdir = const(char)* function();
+	alias da_mono_native_getrootdir = char* function();
+	alias da_mono_assembly_foreach = void function(MonoFunc func, void* user_data);
+	alias da_mono_assembly_set_main = void function(MonoAssembly* assembly);
+	alias da_mono_assembly_get_main = MonoAssembly* function();
+	alias da_mono_assembly_get_image = MonoImage* function(MonoAssembly* assembly);
+	alias da_mono_assembly_get_name = MonoAssemblyName* function(MonoAssembly* assembly);
+	alias da_mono_assembly_fill_assembly_name = mono_bool function(MonoImage* image,
+			MonoAssemblyName* aname);
+	alias da_mono_assembly_names_equal = mono_bool function(MonoAssemblyName* l,
+			MonoAssemblyName* r);
+	alias da_mono_stringify_assembly_name = char* function(MonoAssemblyName* aname);
+	alias da_mono_install_assembly_load_hook = void function(MonoAssemblyLoadFunc func,
+			void* user_data);
+	alias da_mono_install_assembly_search_hook = void function(
+			MonoAssemblySearchFunc func, void* user_data);
+	alias da_mono_install_assembly_refonly_search_hook = void function(
+			MonoAssemblySearchFunc func, void* user_data);
+	alias da_mono_assembly_invoke_search_hook = MonoAssembly* function(MonoAssemblyName* aname);
+	alias da_mono_install_assembly_postload_search_hook = void function(
+			MonoAssemblySearchFunc func, void* user_data);
+	alias da_mono_install_assembly_postload_refonly_search_hook = void function(
+			MonoAssemblySearchFunc func, void* user_data);
+	alias da_mono_install_assembly_preload_hook = void function(
+			MonoAssemblyPreLoadFunc func, void* user_data);
+	alias da_mono_install_assembly_refonly_preload_hook = void function(
+			MonoAssemblyPreLoadFunc func, void* user_data);
+	alias da_mono_assembly_invoke_load_hook = void function(MonoAssembly* ass);
+	alias da_mono_assembly_name_new = MonoAssemblyName* function(const(char)* name);
+	alias da_mono_assembly_name_get_name = const(char)* function(MonoAssemblyName* aname);
+	alias da_mono_assembly_name_get_culture = const(char)* function(MonoAssemblyName* aname);
+	alias da_mono_assembly_name_get_version = ushort function(MonoAssemblyName* aname,
+			ushort* minor, ushort* build, ushort* revision);
+	alias da_mono_assembly_name_get_pubkeytoken = mono_byte* function(MonoAssemblyName* aname);
+	alias da_mono_assembly_name_free = void function(MonoAssemblyName* aname);
+	alias da_mono_register_bundled_assemblies = void function(
+			const(MonoBundledAssembly*)* assemblies);
+	alias da_mono_register_config_for_assembly = void function(
+			const(char)* assembly_name, const(char)* config_xml);
+	alias da_mono_register_symfile_for_assembly = void function(
+			const(char)* assembly_name, const(mono_byte)* raw_contents, int size);
+	alias da_mono_register_machine_config = void function(const(char)* config_xml);
+	alias da_mono_set_rootdir = void function();
+	alias da_mono_set_dirs = void function(const(char)* assembly_dir, const(char)* config_dir);
+	alias da_mono_set_assemblies_path = void function(const(char)* path);
+	// metadata/attrdefs.h
+	// metadata/blob.h
+	// metadata/class.h
+	alias da_mono_class_get = MonoClass* function(MonoImage* image, uint type_token);
+	alias da_mono_class_get_full = MonoClass* function(MonoImage* image,
+			uint type_token, MonoGenericContext* context);
+	alias da_mono_class_init = mono_bool function(MonoClass* klass);
+	alias da_mono_class_vtable = MonoVTable* function(MonoDomain* domain, MonoClass* klass);
+	alias da_mono_class_from_name = MonoClass* function(MonoImage* image,
+			const(char)* name_space, const(char)* name);
+	alias da_mono_class_from_name_case = MonoClass* function(MonoImage* image,
+			const(char)* name_space, const(char)* name);
+	alias da_mono_class_get_method_from_name_flags = MonoMethod* function(
+			MonoClass* klass, const(char)* name, int param_count, int flags);
+	alias da_mono_class_from_typeref = MonoClass* function(MonoImage* image, uint type_token);
+	alias da_mono_class_from_typeref_checked = MonoClass* function(MonoImage* image,
+			uint type_token, MonoError* error);
+	alias da_mono_class_from_generic_parameter = MonoClass* function(
+			MonoGenericParam* param, MonoImage* image, mono_bool is_mvar);
+	alias da_mono_class_inflate_generic_type = MonoType* function(MonoType* type,
+			MonoGenericContext* context);
+	alias da_mono_class_inflate_generic_method = MonoMethod* function(
+			MonoMethod* method, MonoGenericContext* context);
+	alias da_mono_get_inflated_method = MonoMethod* function(MonoMethod* method);
+	alias da_mono_field_from_token = MonoClassField* function(MonoImage* image,
+			uint token, MonoClass** retklass, MonoGenericContext* context);
+	alias da_mono_bounded_array_class_get = MonoClass* function(
+			MonoClass* element_class, uint rank, mono_bool bounded);
+	alias da_mono_array_class_get = MonoClass* function(MonoClass* element_class, uint rank);
+	alias da_mono_ptr_class_get = MonoClass* function(MonoType* type);
+	alias da_mono_class_get_field = MonoClassField* function(MonoClass* klass, uint field_token);
+	alias da_mono_class_get_field_from_name = MonoClassField* function(MonoClass* klass,
+			const(char)* name);
+	alias da_mono_class_get_field_token = uint function(MonoClassField* field);
+	alias da_mono_class_get_event_token = uint function(MonoEvent* event);
+	alias da_mono_class_get_property_from_name = MonoProperty* function(
+			MonoClass* klass, const(char)* name);
+	alias da_mono_class_get_property_token = uint function(MonoProperty* prop);
+	alias da_mono_array_element_size = int function(MonoClass* ac);
+	alias da_mono_class_instance_size = int function(MonoClass* klass);
+	alias da_mono_class_array_element_size = int function(MonoClass* klass);
+	alias da_mono_class_data_size = int function(MonoClass* klass);
+	alias da_mono_class_value_size = int function(MonoClass* klass, uint* align_);
+	alias da_mono_class_min_align = int function(MonoClass* klass);
+	alias da_mono_class_from_mono_type = MonoClass* function(MonoType* type);
+	alias da_mono_class_is_subclass_of = mono_bool function(MonoClass* klass,
+			MonoClass* klassc, mono_bool check_interfaces);
+	alias da_mono_class_is_assignable_from = mono_bool function(MonoClass* klass, MonoClass* oklass);
+	alias da_mono_ldtoken = void* function(MonoImage* image, uint token,
+			MonoClass** retclass, MonoGenericContext* context);
+	alias da_mono_type_get_name = char* function(MonoType* type);
+	alias da_mono_type_get_underlying_type = MonoType* function(MonoType* type);
+	alias da_mono_class_get_image = MonoImage* function(MonoClass* klass);
+	alias da_mono_class_get_element_class = MonoClass* function(MonoClass* klass);
+	alias da_mono_class_is_valuetype = mono_bool function(MonoClass* klass);
+	alias da_mono_class_is_enum = mono_bool function(MonoClass* klass);
+	alias da_mono_class_enum_basetype = MonoType* function(MonoClass* klass);
+	alias da_mono_class_get_parent = MonoClass* function(MonoClass* klass);
+	alias da_mono_class_get_nesting_type = MonoClass* function(MonoClass* klass);
+	alias da_mono_class_get_rank = int function(MonoClass* klass);
+	alias da_mono_class_get_flags = uint function(MonoClass* klass);
+	alias da_mono_class_get_name = const(char)* function(MonoClass* klass);
+	alias da_mono_class_get_namespace = const(char)* function(MonoClass* klass);
+	alias da_mono_class_get_type = MonoType* function(MonoClass* klass);
+	alias da_mono_class_get_type_token = uint function(MonoClass* klass);
+	alias da_mono_class_get_byref_type = MonoType* function(MonoClass* klass);
+	alias da_mono_class_num_fields = int function(MonoClass* klass);
+	alias da_mono_class_num_methods = int function(MonoClass* klass);
+	alias da_mono_class_num_properties = int function(MonoClass* klass);
+	alias da_mono_class_num_events = int function(MonoClass* klass);
+	alias da_mono_class_get_fields = MonoClassField* function(MonoClass* klass, void** iter);
+	alias da_mono_class_get_methods = MonoMethod* function(MonoClass* klass, void** iter);
+	alias da_mono_class_get_properties = MonoProperty* function(MonoClass* klass, void** iter);
+	alias da_mono_class_get_events = MonoEvent* function(MonoClass* klass, void** iter);
+	alias da_mono_class_get_interfaces = MonoClass* function(MonoClass* klass, void** iter);
+	alias da_mono_class_get_nested_types = MonoClass* function(MonoClass* klass, void** iter);
+	alias da_mono_class_is_delegate = mono_bool function(MonoClass* klass);
+	alias da_mono_class_implements_interface = mono_bool function(MonoClass* klass,
+			MonoClass* iface);
+	alias da_mono_field_get_name = const(char)* function(MonoClassField* field);
+	alias da_mono_field_get_type = MonoType* function(MonoClassField* field);
+	alias da_mono_field_get_parent = MonoClass* function(MonoClassField* field);
+	alias da_mono_field_get_flags = uint function(MonoClassField* field);
+	alias da_mono_field_get_offset = uint function(MonoClassField* field);
+	alias da_mono_field_get_data = const(char)* function(MonoClassField* field);
+	alias da_mono_property_get_name = const(char)* function(MonoProperty* prop);
+	alias da_mono_property_get_set_method = MonoMethod* function(MonoProperty* prop);
+	alias da_mono_property_get_get_method = MonoMethod* function(MonoProperty* prop);
+	alias da_mono_property_get_parent = MonoClass* function(MonoProperty* prop);
+	alias da_mono_property_get_flags = uint function(MonoProperty* prop);
+	alias da_mono_event_get_name = const(char)* function(MonoEvent* event);
+	alias da_mono_event_get_add_method = MonoMethod* function(MonoEvent* event);
+	alias da_mono_event_get_remove_method = MonoMethod* function(MonoEvent* event);
+	alias da_mono_event_get_raise_method = MonoMethod* function(MonoEvent* event);
+	alias da_mono_event_get_parent = MonoClass* function(MonoEvent* event);
+	alias da_mono_event_get_flags = uint function(MonoEvent* event);
+	alias da_mono_class_get_method_from_name = MonoMethod* function(MonoClass* klass,
+			const(char)* name, int param_count);
+	alias da_mono_class_name_from_token = char* function(MonoImage* image, uint type_token);
+	alias da_mono_method_can_access_field = mono_bool function(MonoMethod* method,
+			MonoClassField* field);
+	alias da_mono_method_can_access_method = mono_bool function(MonoMethod* method,
+			MonoMethod* called);
+	// metadata/debug-helpers.h
+	alias da_mono_disasm_code_one = char* function(MonoDisHelper* dh,
+			MonoMethod* method, const(mono_byte)* ip, const(mono_byte*)* endp);
+	alias da_mono_disasm_code = char* function(MonoDisHelper* dh,
+			MonoMethod* method, const(mono_byte)* ip, const(mono_byte)* end);
+	alias da_mono_type_full_name = char* function(MonoType* type);
+	alias da_mono_signature_get_desc = char* function(MonoMethodSignature* sig,
+			mono_bool include_namespace);
+	alias da_mono_context_get_desc = char* function(MonoGenericContext* context);
+	alias da_mono_method_desc_new = MonoMethodDesc* function(const(char)* name,
+			mono_bool include_namespace);
+	alias da_mono_method_desc_from_method = MonoMethodDesc* function(MonoMethod* method);
+	alias da_mono_method_desc_free = void function(MonoMethodDesc* desc);
+	alias da_mono_method_desc_match = mono_bool function(MonoMethodDesc* desc, MonoMethod* method);
+	alias da_mono_method_desc_full_match = mono_bool function(MonoMethodDesc* desc,
+			MonoMethod* method);
+	alias da_mono_method_desc_search_in_class = MonoMethod* function(
+			MonoMethodDesc* desc, MonoClass* klass);
+	alias da_mono_method_desc_search_in_image = MonoMethod* function(
+			MonoMethodDesc* desc, MonoImage* image);
+	alias da_mono_method_full_name = char* function(MonoMethod* method, mono_bool signature);
+	alias da_mono_field_full_name = char* function(MonoClassField* field);
+	// metadata/debug-mono-symfile.h
+	alias da_mono_debug_open_mono_symbols = MonoSymbolFile* function(MonoDebugHandle* handle,
+			const(ubyte)* raw_contents, int size, mono_bool in_the_debugger);
+	alias da_mono_debug_close_mono_symbol_file = void function(MonoSymbolFile* symfile);
+	alias da_mono_debug_symfile_is_loaded = mono_bool function(MonoSymbolFile* symfile);
+	alias da_mono_debug_symfile_lookup_location = MonoDebugSourceLocation* function(
+			MonoDebugMethodInfo* minfo, uint offset);
+	alias da_mono_debug_symfile_free_location = void function(MonoDebugSourceLocation* location);
+	alias da_mono_debug_symfile_lookup_method = MonoDebugMethodInfo* function(
+			MonoDebugHandle* handle, MonoMethod* method);
+	alias da_mono_debug_symfile_lookup_locals = MonoDebugLocalsInfo* function(
+			MonoDebugMethodInfo* minfo);
+	alias da_mono_debug_image_has_debug_info = int function(MonoImage* image);
+	// metadata/environment.h
+	alias da_mono_environment_exitcode_get = int function();
+	alias da_mono_environment_exitcode_set = void function(int value);
+	// metadata/exception.h
+	alias da_mono_exception_from_name = MonoException* function(MonoImage* image,
+			const(char)* name_space, const(char)* name);
+	alias da_mono_exception_from_token = MonoException* function(MonoImage* image, uint token);
+	alias da_mono_exception_from_name_two_strings = MonoException* function(MonoImage* image,
+			const(char)* name_space, const(char)* name, MonoString* a1, MonoString* a2);
+	alias da_mono_exception_from_name_msg = MonoException* function(MonoImage* image,
+			const(char)* name_space, const(char)* name, const(char)* msg);
+	alias da_mono_exception_from_token_two_strings = MonoException* function(
+			MonoImage* image, uint token, MonoString* a1, MonoString* a2);
+	alias da_mono_exception_from_name_domain = MonoException* function(MonoDomain* domain,
+			MonoImage* image, const(char)* name_space, const(char)* name);
+	alias da_mono_get_exception_divide_by_zero = MonoException* function();
+	alias da_mono_get_exception_security = MonoException* function();
+	alias da_mono_get_exception_arithmetic = MonoException* function();
+	alias da_mono_get_exception_overflow = MonoException* function();
+	alias da_mono_get_exception_null_reference = MonoException* function();
+	alias da_mono_get_exception_execution_engine = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_thread_abort = MonoException* function();
+	alias da_mono_get_exception_thread_state = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_thread_interrupted = MonoException* function();
+	alias da_mono_get_exception_serialization = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_invalid_cast = MonoException* function();
+	alias da_mono_get_exception_invalid_operation = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_index_out_of_range = MonoException* function();
+	alias da_mono_get_exception_array_type_mismatch = MonoException* function();
+	alias da_mono_get_exception_type_load = MonoException* function(
+			MonoString* class_name, char* assembly_name);
+	alias da_mono_get_exception_missing_method = MonoException* function(
+			const(char)* class_name, const(char)* member_name);
+	alias da_mono_get_exception_missing_field = MonoException* function(
+			const(char)* class_name, const(char)* member_name);
+	alias da_mono_get_exception_not_implemented = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_not_supported = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_argument_null = MonoException* function(const(char)* arg);
+	alias da_mono_get_exception_argument = MonoException* function(const(char)* arg,
+			const(char)* msg);
+	alias da_mono_get_exception_argument_out_of_range = MonoException* function(const(char)* arg);
+	alias da_mono_get_exception_io = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_file_not_found = MonoException* function(MonoString* fname);
+	alias da_mono_get_exception_file_not_found2 = MonoException* function(
+			const(char)* msg, MonoString* fname);
+	alias da_mono_get_exception_type_initialization = MonoException* function(
+			const(char)* type_name, MonoException* inner);
+	alias da_mono_get_exception_synchronization_lock = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_cannot_unload_appdomain = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_appdomain_unloaded = MonoException* function();
+	alias da_mono_get_exception_bad_image_format = MonoException* function(const(char)* msg);
+	alias da_mono_get_exception_bad_image_format2 = MonoException* function(
+			const(char)* msg, MonoString* fname);
+	alias da_mono_get_exception_stack_overflow = MonoException* function();
+	alias da_mono_get_exception_out_of_memory = MonoException* function();
+	alias da_mono_get_exception_field_access = MonoException* function();
+	alias da_mono_get_exception_method_access = MonoException* function();
+	alias da_mono_get_exception_reflection_type_load = MonoException* function(
+			MonoArray* types, MonoArray* exceptions);
+	alias da_mono_get_exception_runtime_wrapped = MonoException* function(
+			MonoObject* wrapped_exception);
+	alias da_mono_install_unhandled_exception_hook = void function(
+			MonoUnhandledExceptionFunc func, void* user_data);
+	alias da_mono_invoke_unhandled_exception_hook = void function(MonoObject* exc);
+	// metadata/image.h
+	alias da_mono_images_init = void function();
+	alias da_mono_images_cleanup = void function();
+	alias da_mono_image_open = MonoImage* function(const(char)* fname, MonoImageOpenStatus* status);
+	alias da_mono_image_open_full = MonoImage* function(const(char)* fname,
+			MonoImageOpenStatus* status, mono_bool refonly);
+	alias da_mono_pe_file_open = MonoImage* function(const(char)* fname,
+			MonoImageOpenStatus* status);
+	alias da_mono_image_open_from_data = MonoImage* function(char* data,
+			uint data_len, mono_bool need_copy, MonoImageOpenStatus* status);
+	alias da_mono_image_open_from_data_full = MonoImage* function(char* data,
+			uint data_len, mono_bool need_copy, MonoImageOpenStatus* status, mono_bool refonly);
+	alias da_mono_image_open_from_data_with_name = MonoImage* function(char* data, uint data_len,
+			mono_bool need_copy, MonoImageOpenStatus* status, mono_bool refonly, const(char)* name);
+	alias da_mono_image_fixup_vtable = void function(MonoImage* image);
+	alias da_mono_image_loaded = MonoImage* function(const(char)* name);
+	alias da_mono_image_loaded_full = MonoImage* function(const(char)* name, mono_bool refonly);
+	alias da_mono_image_loaded_by_guid = MonoImage* function(const(char)* guid);
+	alias da_mono_image_loaded_by_guid_full = MonoImage* function(const(char)* guid,
+			mono_bool refonly);
+	alias da_mono_image_init = void function(MonoImage* image);
+	alias da_mono_image_close = void function(MonoImage* image);
+	alias da_mono_image_addref = void function(MonoImage* image);
+	alias da_mono_image_strerror = const(char)* function(MonoImageOpenStatus status);
+	alias da_mono_image_ensure_section = int function(MonoImage* image, const(char)* section);
+	alias da_mono_image_ensure_section_idx = int function(MonoImage* image, int section);
+	alias da_mono_image_get_entry_point = uint function(MonoImage* image);
+	alias da_mono_image_get_resource = const(char)* function(MonoImage* image,
+			uint offset, uint* size);
+	alias da_mono_image_load_file_for_image = MonoImage* function(MonoImage* image, int fileidx);
+	alias da_mono_image_load_module = MonoImage* function(MonoImage* image, int idx);
+	alias da_mono_image_get_name = const(char)* function(MonoImage* image);
+	alias da_mono_image_get_filename = const(char)* function(MonoImage* image);
+	alias da_mono_image_get_guid = const(char)* function(MonoImage* image);
+	alias da_mono_image_get_assembly = MonoAssembly* function(MonoImage* image);
+	alias da_mono_image_is_dynamic = mono_bool function(MonoImage* image);
+	alias da_mono_image_rva_map = char* function(MonoImage* image, uint rva);
+	alias da_mono_image_get_table_info = const(MonoTableInfo)* function(
+			MonoImage* image, int table_id);
+	alias da_mono_image_get_table_rows = int function(MonoImage* image, int table_id);
+	alias da_mono_table_info_get_rows = int function(const(MonoTableInfo)* table);
+	alias da_mono_image_lookup_resource = void* function(MonoImage* image,
+			uint res_id, uint lang_id, mono_unichar2* name);
+	alias da_mono_image_get_public_key = const(char)* function(MonoImage* image, uint* size);
+	alias da_mono_image_get_strong_name = const(char)* function(MonoImage* image, uint* size);
+	alias da_mono_image_strong_name_position = uint function(MonoImage* image, uint* size);
+	alias da_mono_image_add_to_name_cache = void function(MonoImage* image,
+			const(char)* nspace, const(char)* name, uint idx);
+	alias da_mono_image_has_authenticode_entry = mono_bool function(MonoImage* image);
+	// metadata/loader.h
+	alias da_mono_get_method = MonoMethod* function(MonoImage* image, uint token, MonoClass* klass);
+	alias da_mono_get_method_full = MonoMethod* function(MonoImage* image,
+			uint token, MonoClass* klass, MonoGenericContext* context);
+	alias da_mono_get_method_constrained = MonoMethod* function(MonoImage* image, uint token,
+			MonoClass* constrained_class, MonoGenericContext* context, MonoMethod** cil_method);
+	alias da_mono_free_method = void function(MonoMethod* method);
+	alias da_mono_method_get_signature_full = MonoMethodSignature* function(
+			MonoMethod* method, MonoImage* image, uint token, MonoGenericContext* context);
+	alias da_mono_method_get_signature = MonoMethodSignature* function(
+			MonoMethod* method, MonoImage* image, uint token);
+	alias da_mono_method_signature = MonoMethodSignature* function(MonoMethod* method);
+	alias da_mono_method_get_header = MonoMethodHeader* function(MonoMethod* method);
+	alias da_mono_method_get_name = const(char)* function(MonoMethod* method);
+	alias da_mono_method_get_class = MonoClass* function(MonoMethod* method);
+	alias da_mono_method_get_token = uint function(MonoMethod* method);
+	alias da_mono_method_get_flags = uint function(MonoMethod* method, uint* iflags);
+	alias da_mono_method_get_index = uint function(MonoMethod* method);
+	alias da_mono_load_image = MonoImage* function(const(char)* fname, MonoImageOpenStatus* status);
+	alias da_mono_add_internal_call = void function(const(char)* name, const(void)* method);
+	alias da_mono_lookup_internal_call = void* function(MonoMethod* method);
+	alias da_mono_lookup_internal_call_full = void* function(MonoMethod* method,
+			mono_bool* uses_handles);
+	alias da_mono_lookup_icall_symbol = const(char)* function(MonoMethod* m);
+	alias da_mono_dllmap_insert = void function(MonoImage* assembly,
+			const(char)* dll, const(char)* func, const(char)* tdll, const(char)* tfunc);
+	alias da_mono_lookup_pinvoke_call = void* function(MonoMethod* method,
+			const(char*)* exc_class, const(char*)* exc_arg);
+	alias da_mono_method_get_param_names = void function(MonoMethod* method, const(char*)* names);
+	alias da_mono_method_get_param_token = uint function(MonoMethod* method, int idx);
+	alias da_mono_method_get_marshal_info = void function(MonoMethod* method,
+			MonoMarshalSpec** mspecs);
+	alias da_mono_method_has_marshal_info = mono_bool function(MonoMethod* method);
+	alias da_mono_method_get_last_managed = MonoMethod* function();
+	alias da_mono_stack_walk = void function(MonoStackWalk func, void* user_data);
+	alias da_mono_stack_walk_no_il = void function(MonoStackWalk func, void* user_data);
+	alias da_mono_stack_walk_async_safe = void function(MonoStackWalkAsyncSafe func,
+			void* initial_sig_context, void* user_data);
+	alias da_mono_method_get_header_checked = MonoMethodHeader* function(
+			MonoMethod* method, MonoError* error);
+	// metadata/metadata.h
+	alias da_mono_metadata_init = void function();
+	alias da_mono_metadata_decode_row = void function(const(MonoTableInfo)* t,
+			int idx, uint* res, int res_size);
+	alias da_mono_metadata_decode_row_col = uint function(const(MonoTableInfo)* t, int idx, uint col);
+	alias da_mono_metadata_compute_size = int function(MonoImage* meta,
+			int tableindex, uint* result_bitfield);
+	alias da_mono_metadata_locate = const(char)* function(MonoImage* meta, int table, int idx);
+	alias da_mono_metadata_locate_token = const(char)* function(MonoImage* meta, uint token);
+	alias da_mono_metadata_string_heap = const(char)* function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_blob_heap = const(char)* function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_user_string = const(char)* function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_guid_heap = const(char)* function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_typedef_from_field = uint function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_typedef_from_method = uint function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_nested_in_typedef = uint function(MonoImage* meta, uint table_index);
+	alias da_mono_metadata_nesting_typedef = uint function(MonoImage* meta,
+			uint table_index, uint start_index);
+	alias da_mono_metadata_interfaces_from_typedef = MonoClass** function(
+			MonoImage* meta, uint table_index, uint* count);
+	alias da_mono_metadata_events_from_typedef = uint function(MonoImage* meta,
+			uint table_index, uint* end_idx);
+	alias da_mono_metadata_methods_from_event = uint function(MonoImage* meta,
+			uint table_index, uint* end);
+	alias da_mono_metadata_properties_from_typedef = uint function(MonoImage* meta,
+			uint table_index, uint* end);
+	alias da_mono_metadata_methods_from_property = uint function(MonoImage* meta,
+			uint table_index, uint* end);
+	alias da_mono_metadata_packing_from_typedef = uint function(MonoImage* meta,
+			uint table_index, uint* packing, uint* size);
+	alias da_mono_metadata_get_marshal_info = const(char)* function(MonoImage* meta,
+			uint idx, mono_bool is_field);
+	alias da_mono_metadata_custom_attrs_from_index = uint function(MonoImage* meta, uint cattr_index);
+	alias da_mono_metadata_parse_marshal_spec = MonoMarshalSpec* function(
+			MonoImage* image, const(char)* ptr);
+	alias da_mono_metadata_free_marshal_spec = void function(MonoMarshalSpec* spec);
+	alias da_mono_metadata_implmap_from_method = uint function(MonoImage* meta, uint method_idx);
+	alias da_mono_metadata_field_info = void function(MonoImage* meta,
+			uint table_index, uint* offset, uint* rva, MonoMarshalSpec** marshal_spec);
+	alias da_mono_metadata_get_constant_index = uint function(MonoImage* meta, uint token, uint hint);
+	alias da_mono_metadata_decode_value = uint function(const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_decode_signed_value = int function(const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_decode_blob_size = uint function(const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_encode_value = void function(uint value, char* bug, char** endbuf);
+	alias da_mono_type_is_byref = mono_bool function(MonoType* type);
+	alias da_mono_type_get_type = int function(MonoType* type);
+	alias da_mono_type_get_signature = MonoMethodSignature* function(MonoType* type);
+	alias da_mono_type_get_class = MonoClass* function(MonoType* type);
+	alias da_mono_type_get_array_type = MonoArrayType* function(MonoType* type);
+	alias da_mono_type_get_ptr_type = MonoType* function(MonoType* type);
+	alias da_mono_type_get_modifiers = MonoClass* function(MonoType* type,
+			mono_bool* is_required, void** iter);
+	alias da_mono_type_is_struct = mono_bool function(MonoType* type);
+	alias da_mono_type_is_void = mono_bool function(MonoType* type);
+	alias da_mono_type_is_pointer = mono_bool function(MonoType* type);
+	alias da_mono_type_is_reference = mono_bool function(MonoType* type);
+	alias da_mono_type_is_generic_parameter = mono_bool function(MonoType* type);
+	alias da_mono_signature_get_return_type = MonoType* function(MonoMethodSignature* sig);
+	alias da_mono_signature_get_params = MonoType* function(MonoMethodSignature* sig, void** iter);
+	alias da_mono_signature_get_param_count = uint function(MonoMethodSignature* sig);
+	alias da_mono_signature_get_call_conv = uint function(MonoMethodSignature* sig);
+	alias da_mono_signature_vararg_start = int function(MonoMethodSignature* sig);
+	alias da_mono_signature_is_instance = mono_bool function(MonoMethodSignature* sig);
+	alias da_mono_signature_explicit_this = mono_bool function(MonoMethodSignature* sig);
+	alias da_mono_signature_param_is_out = mono_bool function(MonoMethodSignature* sig,
+			int param_num);
+	alias da_mono_metadata_parse_typedef_or_ref = uint function(MonoImage* m,
+			const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_parse_custom_mod = int function(MonoImage* m,
+			MonoCustomMod* dest, const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_parse_array = MonoArrayType* function(MonoImage* m,
+			const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_free_array = void function(MonoArrayType* array);
+	alias da_mono_metadata_parse_type = MonoType* function(MonoImage* m,
+			MonoParseTypeMode mode, short opt_attrs, const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_parse_param = MonoType* function(MonoImage* m,
+			const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_parse_ret_type = MonoType* function(MonoImage* m,
+			const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_parse_field_type = MonoType* function(MonoImage* m,
+			short field_flags, const(char)* ptr, const(char*)* rptr);
+	alias da_mono_type_create_from_typespec = MonoType* function(MonoImage* image, uint type_spec);
+	alias da_mono_metadata_free_type = void function(MonoType* type);
+	alias da_mono_type_size = int function(MonoType* type, int* alignment);
+	alias da_mono_type_stack_size = int function(MonoType* type, int* alignment);
+	alias da_mono_type_generic_inst_is_valuetype = mono_bool function(MonoType* type);
+	alias da_mono_metadata_generic_class_is_valuetype = mono_bool function(MonoGenericClass* gclass);
+	alias da_mono_metadata_generic_class_hash = uint function(MonoGenericClass* gclass);
+	alias da_mono_metadata_generic_class_equal = mono_bool function(
+			MonoGenericClass* g1, MonoGenericClass* g2);
+	alias da_mono_metadata_type_hash = uint function(MonoType* t1);
+	alias da_mono_metadata_type_equal = mono_bool function(MonoType* t1, MonoType* t2);
+	alias da_mono_metadata_signature_alloc = MonoMethodSignature* function(
+			MonoImage* image, uint nparams);
+	alias da_mono_metadata_signature_dup = MonoMethodSignature* function(MonoMethodSignature* sig);
+	alias da_mono_metadata_parse_signature = MonoMethodSignature* function(
+			MonoImage* image, uint token);
+	alias da_mono_metadata_parse_method_signature = MonoMethodSignature* function(
+			MonoImage* m, int def, const(char)* ptr, const(char*)* rptr);
+	alias da_mono_metadata_free_method_signature = void function(MonoMethodSignature* method);
+	alias da_mono_metadata_signature_equal = mono_bool function(
+			MonoMethodSignature* sig1, MonoMethodSignature* sig2);
+	alias da_mono_signature_hash = uint function(MonoMethodSignature* sig);
+	alias da_mono_metadata_parse_mh = MonoMethodHeader* function(MonoImage* m, const(char)* ptr);
+	alias da_mono_metadata_free_mh = void function(MonoMethodHeader* mh);
+	alias da_mono_method_header_get_code = const(ubyte)* function(
+			MonoMethodHeader* header, uint* code_size, uint* max_stack);
+	alias da_mono_method_header_get_locals = MonoType** function(
+			MonoMethodHeader* header, uint* num_locals, mono_bool* init_locals);
+	alias da_mono_method_header_get_num_clauses = int function(MonoMethodHeader* header);
+	alias da_mono_method_header_get_clauses = int function(MonoMethodHeader* header,
+			MonoMethod* method, void** iter, MonoExceptionClause* clause);
+	alias da_mono_type_to_unmanaged = uint function(MonoType* type,
+			MonoMarshalSpec* mspec, mono_bool as_field, mono_bool unicode, MonoMarshalConv* conv);
+	alias da_mono_metadata_token_from_dor = uint function(uint dor_index);
+	alias da_mono_guid_to_string = char* function(const(ubyte)* guid);
+	alias da_mono_guid_to_string_minimal = char* function(const(ubyte)* guid);
+	alias da_mono_metadata_declsec_from_index = uint function(MonoImage* meta, uint idx);
+	alias da_mono_metadata_translate_token_index = uint function(MonoImage* image,
+			int table, uint idx);
+	alias da_mono_metadata_decode_table_row = void function(MonoImage* image,
+			int table, int idx, uint* res, int res_size);
+	alias da_mono_metadata_decode_table_row_col = uint function(MonoImage* image,
+			int table, int idx, uint col);
+	// metadata/mono-config.h
+	alias da_mono_config_get_os = const(char)* function();
+	alias da_mono_config_get_cpu = const(char)* function();
+	alias da_mono_config_get_wordsize = const(char)* function();
+	alias da_mono_get_config_dir = const(char)* function();
+	alias da_mono_set_config_dir = void function(const(char)* dir);
+	alias da_mono_get_machine_config = const(char)* function();
+	alias da_mono_config_cleanup = void function();
+	alias da_mono_config_parse = void function(const(char)* filename);
+	alias da_mono_config_for_assembly = void function(MonoImage* assembly);
+	alias da_mono_config_parse_memory = void function(const(char)* buffer);
+	alias da_mono_config_string_for_assembly_file = const(char)* function(const(char)* filename);
+	alias da_mono_config_set_server_mode = void function(mono_bool server_mode);
+	alias da_mono_config_is_server_mode = mono_bool function();
+	// metadata/mono-debug.h
+	alias da_mono_debug_init = void function(MonoDebugFormat format);
+	alias da_mono_debug_open_image_from_memory = void function(MonoImage* image,
+			const(mono_byte)* raw_contents, int size);
+	alias da_mono_debug_cleanup = void function();
+	alias da_mono_debug_close_image = void function(MonoImage* image);
+	alias da_mono_debug_domain_unload = void function(MonoDomain* domain);
+	alias da_mono_debug_domain_create = void function(MonoDomain* domain);
+	alias da_mono_debug_add_method = MonoDebugMethodAddress* function(
+			MonoMethod* method, MonoDebugMethodJitInfo* jit, MonoDomain* domain);
+	alias da_mono_debug_remove_method = void function(MonoMethod* method, MonoDomain* domain);
+	alias da_mono_debug_lookup_method = MonoDebugMethodInfo* function(MonoMethod* method);
+	alias da_mono_debug_lookup_method_addresses = MonoDebugMethodAddressList* function(
+			MonoMethod* method);
+	alias da_mono_debug_find_method = MonoDebugMethodJitInfo* function(
+			MonoMethod* method, MonoDomain* domain);
+	alias da_mono_debug_free_method_jit_info = void function(MonoDebugMethodJitInfo* jit);
+	alias da_mono_debug_add_delegate_trampoline = void function(void* code, int size);
+	alias da_mono_debug_lookup_locals = MonoDebugLocalsInfo* function(MonoMethod* method);
+	alias da_mono_debug_lookup_method_async_debug_info = MonoDebugMethodAsyncInfo* function(
+			MonoMethod* method);
+	alias da_mono_debug_method_lookup_location = MonoDebugSourceLocation* function(
+			MonoDebugMethodInfo* minfo, int il_offset);
+	alias da_mono_debug_lookup_source_location = MonoDebugSourceLocation* function(
+			MonoMethod* method, uint address, MonoDomain* domain);
+	alias da_mono_debug_il_offset_from_address = int function(MonoMethod* method,
+			MonoDomain* domain, uint native_offset);
+	alias da_mono_debug_free_source_location = void function(MonoDebugSourceLocation* location);
+	alias da_mono_debug_print_stack_frame = char* function(MonoMethod* method,
+			uint native_offset, MonoDomain* domain);
+	alias da_mono_debugger_method_has_breakpoint = int function(MonoMethod* method);
+	alias da_mono_debugger_insert_breakpoint = int function(const(char)* method_name,
+			mono_bool include_namespace);
+	alias da_mono_set_is_debugger_attached = void function(mono_bool attached);
+	alias da_mono_is_debugger_attached = mono_bool function();
+	// metadata/mono-gc.h
+	alias da_mono_gc_collect = void function(int generation);
+	alias da_mono_gc_max_generation = int function();
+	alias da_mono_gc_get_generation = int function(MonoObject* object);
+	alias da_mono_gc_collection_count = int function(int generation);
+	alias da_mono_gc_get_used_size = long function();
+	alias da_mono_gc_get_heap_size = long function();
+	alias da_mono_gc_pending_finalizers = MonoBoolean function();
+	alias da_mono_gc_finalize_notify = void function();
+	alias da_mono_gc_invoke_finalizers = int function();
+	alias da_mono_gc_walk_heap = int function(int flags, MonoGCReferences callback, void* data);
+	// metadata/object.h
+	alias da_mono_string_chars = mono_unichar2* function(MonoString* s);
+	alias da_mono_string_length = int function(MonoString* s);
+	alias da_mono_object_new = MonoObject* function(MonoDomain* domain, MonoClass* klass);
+	alias da_mono_object_new_specific = MonoObject* function(MonoVTable* vtable);
+	alias da_mono_object_new_fast = MonoObject* function(MonoVTable* vtable);
+	alias da_mono_object_new_alloc_specific = MonoObject* function(MonoVTable* vtable);
+	alias da_mono_object_new_from_token = MonoObject* function(MonoDomain* domain,
+			MonoImage* image, uint token);
+	alias da_mono_array_new = MonoArray* function(MonoDomain* domain, MonoClass* eclass, uintptr_t n);
+	alias da_mono_array_new_full = MonoArray* function(MonoDomain* domain,
+			MonoClass* array_class, uintptr_t* lengths, intptr_t* lower_bounds);
+	alias da_mono_array_new_specific = MonoArray* function(MonoVTable* vtable, uintptr_t n);
+	alias da_mono_array_clone = MonoArray* function(MonoArray* array);
+	alias da_mono_array_addr_with_size = char* function(MonoArray* array, int size, uintptr_t idx);
+	alias da_mono_array_length = uintptr_t function(MonoArray* array);
+	alias da_mono_string_empty = MonoString* function(MonoDomain* domain);
+	alias da_mono_string_empty_wrapper = MonoString* function();
+	alias da_mono_string_new_utf16 = MonoString* function(MonoDomain* domain,
+			const(mono_unichar2)* text, int len);
+	alias da_mono_string_new_size = MonoString* function(MonoDomain* domain, int len);
+	alias da_mono_ldstr = MonoString* function(MonoDomain* domain, MonoImage* image, uint str_index);
+	alias da_mono_string_is_interned = MonoString* function(MonoString* str);
+	alias da_mono_string_intern = MonoString* function(MonoString* str);
+	alias da_mono_string_new = MonoString* function(MonoDomain* domain, const(char)* text);
+	alias da_mono_string_new_wrapper = MonoString* function(const(char)* text);
+	alias da_mono_string_new_len = MonoString* function(MonoDomain* domain,
+			const(char)* text, uint length);
+	alias da_mono_string_new_utf32 = MonoString* function(MonoDomain* domain,
+			const(mono_unichar4)* text, int len);
+	alias da_mono_string_to_utf8 = char* function(MonoString* string_obj);
+	alias da_mono_string_to_utf8_checked = char* function(MonoString* string_obj, MonoError* error);
+	alias da_mono_string_to_utf16 = mono_unichar2* function(MonoString* string_obj);
+	alias da_mono_string_to_utf32 = mono_unichar4* function(MonoString* string_obj);
+	alias da_mono_string_from_utf16 = MonoString* function(mono_unichar2* data);
+	alias da_mono_string_from_utf32 = MonoString* function(mono_unichar4* data);
+	alias da_mono_string_equal = mono_bool function(MonoString* s1, MonoString* s2);
+	alias da_mono_string_hash = uint function(MonoString* s);
+	alias da_mono_object_hash = int function(MonoObject* obj);
+	alias da_mono_object_to_string = MonoString* function(MonoObject* obj, MonoObject** exc);
+	alias da_mono_value_box = MonoObject* function(MonoDomain* domain, MonoClass* klass, void* val);
+	alias da_mono_value_copy = void function(void* dest, void* src, MonoClass* klass);
+	alias da_mono_value_copy_array = void function(MonoArray* dest,
+			int dest_idx, void* src, int count);
+	alias da_mono_object_get_domain = MonoDomain* function(MonoObject* obj);
+	alias da_mono_object_get_class = MonoClass* function(MonoObject* obj);
+	alias da_mono_object_unbox = void* function(MonoObject* obj);
+	alias da_mono_object_clone = MonoObject* function(MonoObject* obj);
+	alias da_mono_object_isinst = MonoObject* function(MonoObject* obj, MonoClass* klass);
+	alias da_mono_object_isinst_mbyref = MonoObject* function(MonoObject* obj, MonoClass* klass);
+	alias da_mono_object_castclass_mbyref = MonoObject* function(MonoObject* obj, MonoClass* klass);
+	alias da_mono_monitor_try_enter = mono_bool function(MonoObject* obj, uint ms);
+	alias da_mono_monitor_enter = mono_bool function(MonoObject* obj);
+	alias da_mono_monitor_enter_v4 = void function(MonoObject* obj, char* lock_taken);
+	alias da_mono_object_get_size = uint function(MonoObject* o);
+	alias da_mono_monitor_exit = void function(MonoObject* obj);
+	alias da_mono_raise_exception = void function(MonoException* ex);
+	alias da_mono_runtime_object_init = void function(MonoObject* this_obj);
+	alias da_mono_runtime_class_init = void function(MonoVTable* vtable);
+	alias da_mono_object_get_virtual_method = MonoMethod* function(MonoObject* obj,
+			MonoMethod* method);
+	alias da_mono_runtime_invoke = MonoObject* function(MonoMethod* method,
+			void* obj, void** params, MonoObject** exc);
+	alias da_mono_get_delegate_invoke = MonoMethod* function(MonoClass* klass);
+	alias da_mono_get_delegate_begin_invoke = MonoMethod* function(MonoClass* klass);
+	alias da_mono_get_delegate_end_invoke = MonoMethod* function(MonoClass* klass);
+	alias da_mono_runtime_delegate_invoke = MonoObject* function(MonoObject* delegate_,
+			void** params, MonoObject** exc);
+	alias da_mono_runtime_invoke_array = MonoObject* function(MonoMethod* method,
+			void* obj, MonoArray* params, MonoObject** exc);
+	alias da_mono_method_get_unmanaged_thunk = void* function(MonoMethod* method);
+	alias da_mono_runtime_get_main_args = MonoArray* function();
+	alias da_mono_runtime_exec_managed_code = void function(MonoDomain* domain,
+			MonoMainThreadFunc main_func, void* main_args);
+	alias da_mono_runtime_run_main = int function(MonoMethod* method, int argc,
+			char** argv, MonoObject** exc);
+	alias da_mono_runtime_exec_main = int function(MonoMethod* method,
+			MonoArray* args, MonoObject** exc);
+	alias da_mono_runtime_set_main_args = int function(int argc, char** argv);
+	alias da_mono_load_remote_field = void* function(MonoObject* this_obj,
+			MonoClass* klass, MonoClassField* field, void** res);
+	alias da_mono_load_remote_field_new = MonoObject* function(MonoObject* this_obj,
+			MonoClass* klass, MonoClassField* field);
+	alias da_mono_store_remote_field = void function(MonoObject* this_obj,
+			MonoClass* klass, MonoClassField* field, void* val);
+	alias da_mono_store_remote_field_new = void function(MonoObject* this_obj,
+			MonoClass* klass, MonoClassField* field, MonoObject* arg);
+	alias da_mono_unhandled_exception = void function(MonoObject* exc);
+	alias da_mono_print_unhandled_exception = void function(MonoObject* exc);
+	alias da_mono_compile_method = void* function(MonoMethod* method);
+	alias da_mono_field_set_value = void function(MonoObject* obj,
+			MonoClassField* field, void* value);
+	alias da_mono_field_static_set_value = void function(MonoVTable* vt,
+			MonoClassField* field, void* value);
+	alias da_mono_field_get_value = void function(MonoObject* obj,
+			MonoClassField* field, void* value);
+	alias da_mono_field_static_get_value = void function(MonoVTable* vt,
+			MonoClassField* field, void* value);
+	alias da_mono_field_get_value_object = MonoObject* function(MonoDomain* domain,
+			MonoClassField* field, MonoObject* obj);
+	alias da_mono_property_set_value = void function(MonoProperty* prop,
+			void* obj, void** params, MonoObject** exc);
+	alias da_mono_property_get_value = MonoObject* function(MonoProperty* prop,
+			void* obj, void** params, MonoObject** exc);
+	alias da_mono_gchandle_new = uint function(MonoObject* obj, mono_bool pinned);
+	alias da_mono_gchandle_new_weakref = uint function(MonoObject* obj, mono_bool track_resurrection);
+	alias da_mono_gchandle_get_target = MonoObject* function(uint gchandle);
+	alias da_mono_gchandle_free = void function(uint gchandle);
+	alias da_mono_gc_reference_queue_new = MonoReferenceQueue* function(
+			mono_reference_queue_callback callback);
+	alias da_mono_gc_reference_queue_free = void function(MonoReferenceQueue* queue);
+	alias da_mono_gc_reference_queue_add = mono_bool function(MonoReferenceQueue* queue,
+			MonoObject* obj, void* user_data);
+	alias da_mono_gc_wbarrier_set_field = void function(MonoObject* obj,
+			void* field_ptr, MonoObject* value);
+	alias da_mono_gc_wbarrier_set_arrayref = void function(MonoArray* arr,
+			void* slot_ptr, MonoObject* value);
+	alias da_mono_gc_wbarrier_arrayref_copy = void function(void* dest_ptr, void* src_ptr, int count);
+	alias da_mono_gc_wbarrier_generic_store = void function(void* ptr, MonoObject* value);
+	alias da_mono_gc_wbarrier_generic_store_atomic = void function(void* ptr, MonoObject* value);
+	alias da_mono_gc_wbarrier_generic_nostore = void function(void* ptr);
+	alias da_mono_gc_wbarrier_value_copy = void function(void* dest, void* src,
+			int count, MonoClass* klass);
+	alias da_mono_gc_wbarrier_object_copy = void function(MonoObject* obj, MonoObject* src);
+	// metadata/opcodes.h
+	alias da_mono_opcode_name = const(char)* function(int opcode);
+	alias da_mono_opcode_value = MonoOpcodeEnum function(const(mono_byte*)* ip,
+			const(mono_byte)* end);
+	// metadata/profiler.h
+	alias da_mono_profiler_install = void function(MonoProfiler* prof,
+			MonoProfileFunc shutdown_callback);
+	alias da_mono_profiler_set_events = void function(MonoProfileFlags events);
+	alias da_mono_profiler_get_events = MonoProfileFlags function();
+	alias da_mono_profiler_install_appdomain = void function(
+			MonoProfileAppDomainFunc start_load, MonoProfileAppDomainResult end_load,
+			MonoProfileAppDomainFunc start_unload, MonoProfileAppDomainFunc end_unload);
+	alias da_mono_profiler_install_appdomain_name = void function(
+			MonoProfileAppDomainFriendlyNameFunc domain_name_cb);
+	alias da_mono_profiler_install_context = void function(MonoProfileContextFunc load,
+			MonoProfileContextFunc unload);
+	alias da_mono_profiler_install_assembly = void function(MonoProfileAssemblyFunc start_load,
+			MonoProfileAssemblyResult end_load, MonoProfileAssemblyFunc start_unload,
+			MonoProfileAssemblyFunc end_unload);
+	alias da_mono_profiler_install_module = void function(MonoProfileModuleFunc start_load,
+			MonoProfileModuleResult end_load, MonoProfileModuleFunc start_unload,
+			MonoProfileModuleFunc end_unload);
+	alias da_mono_profiler_install_class = void function(MonoProfileClassFunc start_load,
+			MonoProfileClassResult end_load, MonoProfileClassFunc start_unload,
+			MonoProfileClassFunc end_unload);
+	alias da_mono_profiler_install_jit_compile = void function(
+			MonoProfileMethodFunc start, MonoProfileMethodResult end);
+	alias da_mono_profiler_install_jit_end = void function(MonoProfileJitResult end);
+	alias da_mono_profiler_install_method_free = void function(MonoProfileMethodFunc callback);
+	alias da_mono_profiler_install_method_invoke = void function(
+			MonoProfileMethodFunc start, MonoProfileMethodFunc end);
+	alias da_mono_profiler_install_enter_leave = void function(
+			MonoProfileMethodFunc enter, MonoProfileMethodFunc fleave);
+	alias da_mono_profiler_install_thread = void function(MonoProfileThreadFunc start,
+			MonoProfileThreadFunc end);
+	alias da_mono_profiler_install_thread_name = void function(
+			MonoProfileThreadNameFunc thread_name_cb);
+	alias da_mono_profiler_install_transition = void function(MonoProfileMethodResult callback);
+	alias da_mono_profiler_install_allocation = void function(MonoProfileAllocFunc callback);
+	alias da_mono_profiler_install_monitor = void function(MonoProfileMonitorFunc callback);
+	alias da_mono_profiler_install_statistical = void function(MonoProfileStatFunc callback);
+	alias da_mono_profiler_install_statistical_call_chain = void function(MonoProfileStatCallChainFunc callback,
+			int call_chain_depth, MonoProfilerCallChainStrategy call_chain_strategy);
+	alias da_mono_profiler_install_exception = void function(MonoProfileExceptionFunc throw_callback,
+			MonoProfileMethodFunc exc_method_leave, MonoProfileExceptionClauseFunc clause_callback);
+	alias da_mono_profiler_install_coverage_filter = void function(
+			MonoProfileCoverageFilterFunc callback);
+	alias da_mono_profiler_coverage_get = void function(MonoProfiler* prof,
+			MonoMethod* method, MonoProfileCoverageFunc func);
+	alias da_mono_profiler_install_gc = void function(MonoProfileGCFunc callback,
+			MonoProfileGCResizeFunc heap_resize_callback);
+	alias da_mono_profiler_install_gc_moves = void function(MonoProfileGCMoveFunc callback);
+	alias da_mono_profiler_install_gc_roots = void function(
+			MonoProfileGCHandleFunc handle_callback, MonoProfileGCRootFunc roots_callback);
+	alias da_mono_profiler_install_gc_finalize = void function(MonoProfileGCFinalizeFunc begin,
+			MonoProfileGCFinalizeObjectFunc begin_obj,
+			MonoProfileGCFinalizeObjectFunc end_obj, MonoProfileGCFinalizeFunc end);
+	alias da_mono_profiler_install_runtime_initialized = void function(
+			MonoProfileFunc runtime_initialized_callback);
+	alias da_mono_profiler_install_code_chunk_new = void function(MonoProfilerCodeChunkNew callback);
+	alias da_mono_profiler_install_code_chunk_destroy = void function(
+			MonoProfilerCodeChunkDestroy callback);
+	alias da_mono_profiler_install_code_buffer_new = void function(
+			MonoProfilerCodeBufferNew callback);
+	alias da_mono_profiler_install_iomap = void function(MonoProfileIomapFunc callback);
+	alias da_mono_profiler_load = void function(const(char)* desc);
+	alias da_mono_profiler_set_statistical_mode = void function(
+			MonoProfileSamplingMode mode, long sampling_frequency_hz);
+	// metadata/reflection.h
+	alias da_mono_reflection_parse_type = int function(char* name, MonoTypeNameParse* info);
+	alias da_mono_reflection_get_type = MonoType* function(MonoImage* image,
+			MonoTypeNameParse* info, mono_bool ignorecase, mono_bool* type_resolve);
+	alias da_mono_reflection_free_type_info = void function(MonoTypeNameParse* info);
+	alias da_mono_reflection_type_from_name = MonoType* function(char* name, MonoImage* image);
+	alias da_mono_reflection_get_token = uint function(MonoObject* obj);
+	alias da_mono_assembly_get_object = MonoReflectionAssembly* function(
+			MonoDomain* domain, MonoAssembly* assembly);
+	alias da_mono_module_get_object = MonoReflectionModule* function(MonoDomain* domain,
+			MonoImage* image);
+	alias da_mono_module_file_get_object = MonoReflectionModule* function(
+			MonoDomain* domain, MonoImage* image, int table_index);
+	alias da_mono_type_get_object = MonoReflectionType* function(MonoDomain* domain, MonoType* type);
+	alias da_mono_method_get_object = MonoReflectionMethod* function(MonoDomain* domain,
+			MonoMethod* method, MonoClass* refclass);
+	alias da_mono_field_get_object = MonoReflectionField* function(MonoDomain* domain,
+			MonoClass* klass, MonoClassField* field);
+	alias da_mono_property_get_object = MonoReflectionProperty* function(
+			MonoDomain* domain, MonoClass* klass, MonoProperty* property);
+	alias da_mono_event_get_object = MonoReflectionEvent* function(MonoDomain* domain,
+			MonoClass* klass, MonoEvent* event);
+	alias da_mono_param_get_objects = MonoArray* function(MonoDomain* domain, MonoMethod* method);
+	alias da_mono_method_body_get_object = MonoReflectionMethodBody* function(
+			MonoDomain* domain, MonoMethod* method);
+	alias da_mono_get_dbnull_object = MonoObject* function(MonoDomain* domain);
+	alias da_mono_reflection_get_custom_attrs_by_type = MonoArray* function(
+			MonoObject* obj, MonoClass* attr_klass, MonoError* error);
+	alias da_mono_reflection_get_custom_attrs = MonoArray* function(MonoObject* obj);
+	alias da_mono_reflection_get_custom_attrs_data = MonoArray* function(MonoObject* obj);
+	alias da_mono_reflection_get_custom_attrs_blob = MonoArray* function(
+			MonoReflectionAssembly* assembly, MonoObject* ctor,
+			MonoArray* ctorArgs,
+			MonoArray* properties, MonoArray* porpValues, MonoArray* fields,
+			MonoArray* fieldValues);
+	alias da_mono_reflection_get_custom_attrs_info = MonoCustomAttrInfo* function(MonoObject* obj);
+	alias da_mono_custom_attrs_construct = MonoArray* function(MonoCustomAttrInfo* cinfo);
+	alias da_mono_custom_attrs_from_index = MonoCustomAttrInfo* function(MonoImage* image, uint idx);
+	alias da_mono_custom_attrs_from_method = MonoCustomAttrInfo* function(MonoMethod* method);
+	alias da_mono_custom_attrs_from_class = MonoCustomAttrInfo* function(MonoClass* klass);
+	alias da_mono_custom_attrs_from_assembly = MonoCustomAttrInfo* function(MonoAssembly* assembly);
+	alias da_mono_custom_attrs_from_property = MonoCustomAttrInfo* function(
+			MonoClass* klass, MonoProperty* property);
+	alias da_mono_custom_attrs_from_event = MonoCustomAttrInfo* function(
+			MonoClass* klass, MonoEvent* event);
+	alias da_mono_custom_attrs_from_field = MonoCustomAttrInfo* function(
+			MonoClass* klass, MonoClassField* field);
+	alias da_mono_custom_attrs_from_param = MonoCustomAttrInfo* function(
+			MonoMethod* method, uint param);
+	alias da_mono_custom_attrs_has_attr = mono_bool function(MonoCustomAttrInfo* ainfo,
+			MonoClass* attr_klass);
+	alias da_mono_custom_attrs_get_attr = MonoObject* function(
+			MonoCustomAttrInfo* ainfo, MonoClass* attr_klass);
+	alias da_mono_custom_attrs_free = void function(MonoCustomAttrInfo* ainfo);
+	alias da_mono_declsec_flags_from_method = uint function(MonoMethod* method);
+	alias da_mono_declsec_flags_from_class = uint function(MonoClass* klass);
+	alias da_mono_declsec_flags_from_assembly = uint function(MonoAssembly* assembly);
+	alias da_mono_declsec_get_demands = MonoBoolean function(MonoMethod* callee,
+			MonoDeclSecurityActions* demands);
+	alias da_mono_declsec_get_linkdemands = MonoBoolean function(MonoMethod* callee,
+			MonoDeclSecurityActions* klass, MonoDeclSecurityActions* cmethod);
+	alias da_mono_declsec_get_inheritdemands_class = MonoBoolean function(
+			MonoClass* klass, MonoDeclSecurityActions* demands);
+	alias da_mono_declsec_get_inheritdemands_method = MonoBoolean function(
+			MonoMethod* callee, MonoDeclSecurityActions* demands);
+	alias da_mono_declsec_get_method_action = MonoBoolean function(MonoMethod* method,
+			uint action, MonoDeclSecurityEntry* entry);
+	alias da_mono_declsec_get_class_action = MonoBoolean function(MonoClass* klass,
+			uint action, MonoDeclSecurityEntry* entry);
+	alias da_mono_declsec_get_assembly_action = MonoBoolean function(
+			MonoAssembly* assembly, uint action, MonoDeclSecurityEntry* entry);
+	alias da_mono_reflection_type_get_type = MonoType* function(MonoReflectionType* reftype);
+	alias da_mono_reflection_assembly_get_assembly = MonoAssembly* function(
+			MonoReflectionAssembly* refassembly);
+	// metadata/row-indexes.h
+	// metadata/sgen-bridge.h
+	alias da_mono_gc_register_bridge_callbacks = void function(MonoGCBridgeCallbacks* callbacks);
+	alias da_mono_gc_wait_for_bridge_processing = void function();
+	// metadata/threads.h
+	alias da_mono_thread_init = void function(MonoThreadStartCB start_cb,
+			MonoThreadAttachCB attach_cb);
+	alias da_mono_thread_cleanup = void function();
+	alias da_mono_thread_manage = void function();
+	alias da_mono_thread_current = MonoThread* function();
+	alias da_mono_thread_set_main = void function(MonoThread* thread);
+	alias da_mono_thread_get_main = MonoThread* function();
+	alias da_mono_thread_stop = void function(MonoThread* thread);
+	alias da_mono_thread_new_init = void function(intptr_t tid, void* stack_start, void* func);
+	alias da_mono_thread_create = void function(MonoDomain* domain, void* func, void* arg);
+	alias da_mono_thread_attach = MonoThread* function(MonoDomain* domain);
+	alias da_mono_thread_detach = void function(MonoThread* thread);
+	alias da_mono_thread_exit = void function();
+	alias da_mono_thread_get_name_utf8 = char* function(MonoThread* thread);
+	alias da_mono_thread_get_managed_id = int function(MonoThread* thread);
+	alias da_mono_thread_set_manage_callback = void function(MonoThread* thread,
+			MonoThreadManageCallback func);
+	alias da_mono_threads_set_default_stacksize = void function(uint stacksize);
+	alias da_mono_threads_get_default_stacksize = uint function();
+	alias da_mono_threads_request_thread_dump = void function();
+	alias da_mono_thread_is_foreign = mono_bool function(MonoThread* thread);
+	alias da_mono_thread_detach_if_exiting = mono_bool function();
+	// metadata/tokentype.h
+	// metadata/verify.h
+	alias da_mono_method_verify = void* function(MonoMethod* method, int level);
+	alias da_mono_free_verify_list = void function(void* list);
+	alias da_mono_verify_corlib = char* function();
 	// jit/jit.h
+	alias da_mono_jit_init = MonoDomain* function(const(char)* file);
+	alias da_mono_jit_init_version = MonoDomain* function(const(char)* root_domain_name,
+			const(char)* runtime_version);
+	alias da_mono_jit_exec = int function(MonoDomain* domain,
+			MonoAssembly* assembly, int argc, char** argv);
+	alias da_mono_jit_cleanup = void function(MonoDomain* domain);
+	alias da_mono_jit_set_trace_options = mono_bool function(const(char)* options);
+	alias da_mono_set_signal_chaining = void function(mono_bool chain_signals);
+	alias da_mono_set_crash_chaining = void function(mono_bool chain_signals);
+	alias da_mono_jit_set_aot_only = void function(mono_bool aot_only);
+	alias da_mono_jit_set_aot_mode = void function(MonoAotMode mode);
+	alias da_mono_set_break_policy = void function(MonoBreakPolicyFunc policy_callback);
+	alias da_mono_jit_parse_options = void function(int argc, char** argv);
+	alias da_mono_get_runtime_build_info = char* function();
+	alias da_mono_get_jit_info_from_method = MonoJitInfo* function(MonoDomain* domain,
+			MonoMethod* method);
+	alias da_mono_aot_get_method = void* function(MonoDomain* domain, MonoMethod* method);
 }
 
 __gshared
@@ -121,5 +1057,711 @@ __gshared
 	da_mono_runtime_resource_set_callback mono_runtime_resource_set_callback;
 	da_mono_runtime_resource_check_limit mono_runtime_resource_check_limit;
 	// metadata/appdomain.h
+	da_mono_init mono_init;
+	da_mono_init_from_assembly mono_init_from_assembly;
+	da_mono_init_version mono_init_version;
+	da_mono_get_root_domain mono_get_root_domain;
+	da_mono_runtime_init mono_runtime_init;
+	da_mono_runtime_cleanup mono_runtime_cleanup;
+	da_mono_install_runtime_cleanup mono_install_runtime_cleanup;
+	da_mono_runtime_quit mono_runtime_quit;
+	da_mono_runtime_set_shutting_down mono_runtime_set_shutting_down;
+	da_mono_runtime_is_shutting_down mono_runtime_is_shutting_down;
+	da_mono_check_corlib_version mono_check_corlib_version;
+	da_mono_domain_create mono_domain_create;
+	da_mono_domain_create_appdomain mono_domain_create_appdomain;
+	da_mono_domain_set_config mono_domain_set_config;
+	da_mono_domain_get mono_domain_get;
+	da_mono_domain_get_by_id mono_domain_get_by_id;
+	da_mono_domain_get_id mono_domain_get_id;
+	da_mono_domain_get_friendly_name mono_domain_get_friendly_name;
+	da_mono_domain_set mono_domain_set;
+	da_mono_domain_set_internal mono_domain_set_internal;
+	da_mono_domain_unload mono_domain_unload;
+	da_mono_domain_try_unload mono_domain_try_unload;
+	da_mono_domain_is_unloading mono_domain_is_unloading;
+	da_mono_domain_from_appdomain mono_domain_from_appdomain;
+	da_mono_domain_foreach mono_domain_foreach;
+	da_mono_domain_assembly_open mono_domain_assembly_open;
+	da_mono_domain_finalize mono_domain_finalize;
+	da_mono_domain_free mono_domain_free;
+	da_mono_domain_has_type_resolve mono_domain_has_type_resolve;
+	da_mono_domain_try_type_resolve mono_domain_try_type_resolve;
+	da_mono_domain_owns_vtable_slot mono_domain_owns_vtable_slot;
+	da_mono_context_init mono_context_init;
+	da_mono_context_set mono_context_set;
+	da_mono_context_get mono_context_get;
+	da_mono_context_get_id mono_context_get_id;
+	da_mono_context_get_domain_id mono_context_get_domain_id;
+	da_mono_jit_info_table_find mono_jit_info_table_find;
+	da_mono_jit_info_get_code_start mono_jit_info_get_code_start;
+	da_mono_jit_info_get_code_size mono_jit_info_get_code_size;
+	da_mono_jit_info_get_method mono_jit_info_get_method;
+	da_mono_get_corlib mono_get_corlib;
+	da_mono_get_object_class mono_get_object_class;
+	da_mono_get_byte_class mono_get_byte_class;
+	da_mono_get_void_class mono_get_void_class;
+	da_mono_get_boolean_class mono_get_boolean_class;
+	da_mono_get_sbyte_class mono_get_sbyte_class;
+	da_mono_get_int16_class mono_get_int16_class;
+	da_mono_get_uint16_class mono_get_uint16_class;
+	da_mono_get_int32_class mono_get_int32_class;
+	da_mono_get_uint32_class mono_get_uint32_class;
+	da_mono_get_intptr_class mono_get_intptr_class;
+	da_mono_get_uintptr_class mono_get_uintptr_class;
+	da_mono_get_int64_class mono_get_int64_class;
+	da_mono_get_uint64_class mono_get_uint64_class;
+	da_mono_get_single_class mono_get_single_class;
+	da_mono_get_double_class mono_get_double_class;
+	da_mono_get_char_class mono_get_char_class;
+	da_mono_get_string_class mono_get_string_class;
+	da_mono_get_enum_class mono_get_enum_class;
+	da_mono_get_array_class mono_get_array_class;
+	da_mono_get_thread_class mono_get_thread_class;
+	da_mono_get_exception_class mono_get_exception_class;
+	da_mono_security_enable_core_clr mono_security_enable_core_clr;
+	da_mono_security_set_core_clr_platform_callback mono_security_set_core_clr_platform_callback;
+	// metadata/assembly.h
+	da_mono_assemblies_init mono_assemblies_init;
+	da_mono_assemblies_cleanup mono_assemblies_cleanup;
+	da_mono_assembly_open mono_assembly_open;
+	da_mono_assembly_open_full mono_assembly_open_full;
+	da_mono_assembly_load mono_assembly_load;
+	da_mono_assembly_load_full mono_assembly_load_full;
+	da_mono_assembly_load_from mono_assembly_load_from;
+	da_mono_assembly_load_from_full mono_assembly_load_from_full;
+	da_mono_assembly_load_with_partial_name mono_assembly_load_with_partial_name;
+	da_mono_assembly_loaded mono_assembly_loaded;
+	da_mono_assembly_loaded_full mono_assembly_loaded_full;
+	da_mono_assembly_get_assemblyref mono_assembly_get_assemblyref;
+	da_mono_assembly_load_reference mono_assembly_load_reference;
+	da_mono_assembly_load_references mono_assembly_load_references;
+	da_mono_assembly_load_module mono_assembly_load_module;
+	da_mono_assembly_close mono_assembly_close;
+	da_mono_assembly_setrootdir mono_assembly_setrootdir;
+	da_mono_assembly_getrootdir mono_assembly_getrootdir;
+	da_mono_native_getrootdir mono_native_getrootdir;
+	da_mono_assembly_foreach mono_assembly_foreach;
+	da_mono_assembly_set_main mono_assembly_set_main;
+	da_mono_assembly_get_main mono_assembly_get_main;
+	da_mono_assembly_get_image mono_assembly_get_image;
+	da_mono_assembly_get_name mono_assembly_get_name;
+	da_mono_assembly_fill_assembly_name mono_assembly_fill_assembly_name;
+	da_mono_assembly_names_equal mono_assembly_names_equal;
+	da_mono_stringify_assembly_name mono_stringify_assembly_name;
+	da_mono_install_assembly_load_hook mono_install_assembly_load_hook;
+	da_mono_install_assembly_search_hook mono_install_assembly_search_hook;
+	da_mono_install_assembly_refonly_search_hook mono_install_assembly_refonly_search_hook;
+	da_mono_assembly_invoke_search_hook mono_assembly_invoke_search_hook;
+	da_mono_install_assembly_postload_search_hook mono_install_assembly_postload_search_hook;
+	da_mono_install_assembly_postload_refonly_search_hook mono_install_assembly_postload_refonly_search_hook;
+	da_mono_install_assembly_preload_hook mono_install_assembly_preload_hook;
+	da_mono_install_assembly_refonly_preload_hook mono_install_assembly_refonly_preload_hook;
+	da_mono_assembly_invoke_load_hook mono_assembly_invoke_load_hook;
+	da_mono_assembly_name_new mono_assembly_name_new;
+	da_mono_assembly_name_get_name mono_assembly_name_get_name;
+	da_mono_assembly_name_get_culture mono_assembly_name_get_culture;
+	da_mono_assembly_name_get_version mono_assembly_name_get_version;
+	da_mono_assembly_name_get_pubkeytoken mono_assembly_name_get_pubkeytoken;
+	da_mono_assembly_name_free mono_assembly_name_free;
+	da_mono_register_bundled_assemblies mono_register_bundled_assemblies;
+	da_mono_register_config_for_assembly mono_register_config_for_assembly;
+	da_mono_register_symfile_for_assembly mono_register_symfile_for_assembly;
+	da_mono_register_machine_config mono_register_machine_config;
+	da_mono_set_rootdir mono_set_rootdir;
+	da_mono_set_dirs mono_set_dirs;
+	da_mono_set_assemblies_path mono_set_assemblies_path;
+	// metadata/attrdefs.h
+	// metadata/blob.h
+	// metadata/class.h
+	da_mono_class_get mono_class_get;
+	da_mono_class_get_full mono_class_get_full;
+	da_mono_class_init mono_class_init;
+	da_mono_class_vtable mono_class_vtable;
+	da_mono_class_from_name mono_class_from_name;
+	da_mono_class_from_name_case mono_class_from_name_case;
+	da_mono_class_get_method_from_name_flags mono_class_get_method_from_name_flags;
+	da_mono_class_from_typeref mono_class_from_typeref;
+	da_mono_class_from_typeref_checked mono_class_from_typeref_checked;
+	da_mono_class_from_generic_parameter mono_class_from_generic_parameter;
+	da_mono_class_inflate_generic_type mono_class_inflate_generic_type;
+	da_mono_class_inflate_generic_method mono_class_inflate_generic_method;
+	da_mono_get_inflated_method mono_get_inflated_method;
+	da_mono_field_from_token mono_field_from_token;
+	da_mono_bounded_array_class_get mono_bounded_array_class_get;
+	da_mono_array_class_get mono_array_class_get;
+	da_mono_ptr_class_get mono_ptr_class_get;
+	da_mono_class_get_field mono_class_get_field;
+	da_mono_class_get_field_from_name mono_class_get_field_from_name;
+	da_mono_class_get_field_token mono_class_get_field_token;
+	da_mono_class_get_event_token mono_class_get_event_token;
+	da_mono_class_get_property_from_name mono_class_get_property_from_name;
+	da_mono_class_get_property_token mono_class_get_property_token;
+	da_mono_array_element_size mono_array_element_size;
+	da_mono_class_instance_size mono_class_instance_size;
+	da_mono_class_array_element_size mono_class_array_element_size;
+	da_mono_class_data_size mono_class_data_size;
+	da_mono_class_value_size mono_class_value_size;
+	da_mono_class_min_align mono_class_min_align;
+	da_mono_class_from_mono_type mono_class_from_mono_type;
+	da_mono_class_is_subclass_of mono_class_is_subclass_of;
+	da_mono_class_is_assignable_from mono_class_is_assignable_from;
+	da_mono_ldtoken mono_ldtoken;
+	da_mono_type_get_name mono_type_get_name;
+	da_mono_type_get_underlying_type mono_type_get_underlying_type;
+	da_mono_class_get_image mono_class_get_image;
+	da_mono_class_get_element_class mono_class_get_element_class;
+	da_mono_class_is_valuetype mono_class_is_valuetype;
+	da_mono_class_is_enum mono_class_is_enum;
+	da_mono_class_enum_basetype mono_class_enum_basetype;
+	da_mono_class_get_parent mono_class_get_parent;
+	da_mono_class_get_nesting_type mono_class_get_nesting_type;
+	da_mono_class_get_rank mono_class_get_rank;
+	da_mono_class_get_flags mono_class_get_flags;
+	da_mono_class_get_name mono_class_get_name;
+	da_mono_class_get_namespace mono_class_get_namespace;
+	da_mono_class_get_type mono_class_get_type;
+	da_mono_class_get_type_token mono_class_get_type_token;
+	da_mono_class_get_byref_type mono_class_get_byref_type;
+	da_mono_class_num_fields mono_class_num_fields;
+	da_mono_class_num_methods mono_class_num_methods;
+	da_mono_class_num_properties mono_class_num_properties;
+	da_mono_class_num_events mono_class_num_events;
+	da_mono_class_get_fields mono_class_get_fields;
+	da_mono_class_get_methods mono_class_get_methods;
+	da_mono_class_get_properties mono_class_get_properties;
+	da_mono_class_get_events mono_class_get_events;
+	da_mono_class_get_interfaces mono_class_get_interfaces;
+	da_mono_class_get_nested_types mono_class_get_nested_types;
+	da_mono_class_is_delegate mono_class_is_delegate;
+	da_mono_class_implements_interface mono_class_implements_interface;
+	da_mono_field_get_name mono_field_get_name;
+	da_mono_field_get_type mono_field_get_type;
+	da_mono_field_get_parent mono_field_get_parent;
+	da_mono_field_get_flags mono_field_get_flags;
+	da_mono_field_get_offset mono_field_get_offset;
+	da_mono_field_get_data mono_field_get_data;
+	da_mono_property_get_name mono_property_get_name;
+	da_mono_property_get_set_method mono_property_get_set_method;
+	da_mono_property_get_get_method mono_property_get_get_method;
+	da_mono_property_get_parent mono_property_get_parent;
+	da_mono_property_get_flags mono_property_get_flags;
+	da_mono_event_get_name mono_event_get_name;
+	da_mono_event_get_add_method mono_event_get_add_method;
+	da_mono_event_get_remove_method mono_event_get_remove_method;
+	da_mono_event_get_raise_method mono_event_get_raise_method;
+	da_mono_event_get_parent mono_event_get_parent;
+	da_mono_event_get_flags mono_event_get_flags;
+	da_mono_class_get_method_from_name mono_class_get_method_from_name;
+	da_mono_class_name_from_token mono_class_name_from_token;
+	da_mono_method_can_access_field mono_method_can_access_field;
+	da_mono_method_can_access_method mono_method_can_access_method;
+	// metadata/debug-helpers.h
+	da_mono_disasm_code_one mono_disasm_code_one;
+	da_mono_disasm_code mono_disasm_code;
+	da_mono_type_full_name mono_type_full_name;
+	da_mono_signature_get_desc mono_signature_get_desc;
+	da_mono_context_get_desc mono_context_get_desc;
+	da_mono_method_desc_new mono_method_desc_new;
+	da_mono_method_desc_from_method mono_method_desc_from_method;
+	da_mono_method_desc_free mono_method_desc_free;
+	da_mono_method_desc_match mono_method_desc_match;
+	da_mono_method_desc_full_match mono_method_desc_full_match;
+	da_mono_method_desc_search_in_class mono_method_desc_search_in_class;
+	da_mono_method_desc_search_in_image mono_method_desc_search_in_image;
+	da_mono_method_full_name mono_method_full_name;
+	da_mono_field_full_name mono_field_full_name;
+	// metadata/debug-mono-symfile.h
+	da_mono_debug_open_mono_symbols mono_debug_open_mono_symbols;
+	da_mono_debug_close_mono_symbol_file mono_debug_close_mono_symbol_file;
+	da_mono_debug_symfile_is_loaded mono_debug_symfile_is_loaded;
+	da_mono_debug_symfile_lookup_location mono_debug_symfile_lookup_location;
+	da_mono_debug_symfile_free_location mono_debug_symfile_free_location;
+	da_mono_debug_symfile_lookup_method mono_debug_symfile_lookup_method;
+	da_mono_debug_symfile_lookup_locals mono_debug_symfile_lookup_locals;
+	da_mono_debug_image_has_debug_info mono_debug_image_has_debug_info;
+	// metadata/environment.h
+	da_mono_environment_exitcode_get mono_environment_exitcode_get;
+	da_mono_environment_exitcode_set mono_environment_exitcode_set;
+	// metadata/exception.h
+	da_mono_exception_from_name mono_exception_from_name;
+	da_mono_exception_from_token mono_exception_from_token;
+	da_mono_exception_from_name_two_strings mono_exception_from_name_two_strings;
+	da_mono_exception_from_name_msg mono_exception_from_name_msg;
+	da_mono_exception_from_token_two_strings mono_exception_from_token_two_strings;
+	da_mono_exception_from_name_domain mono_exception_from_name_domain;
+	da_mono_get_exception_divide_by_zero mono_get_exception_divide_by_zero;
+	da_mono_get_exception_security mono_get_exception_security;
+	da_mono_get_exception_arithmetic mono_get_exception_arithmetic;
+	da_mono_get_exception_overflow mono_get_exception_overflow;
+	da_mono_get_exception_null_reference mono_get_exception_null_reference;
+	da_mono_get_exception_execution_engine mono_get_exception_execution_engine;
+	da_mono_get_exception_thread_abort mono_get_exception_thread_abort;
+	da_mono_get_exception_thread_state mono_get_exception_thread_state;
+	da_mono_get_exception_thread_interrupted mono_get_exception_thread_interrupted;
+	da_mono_get_exception_serialization mono_get_exception_serialization;
+	da_mono_get_exception_invalid_cast mono_get_exception_invalid_cast;
+	da_mono_get_exception_invalid_operation mono_get_exception_invalid_operation;
+	da_mono_get_exception_index_out_of_range mono_get_exception_index_out_of_range;
+	da_mono_get_exception_array_type_mismatch mono_get_exception_array_type_mismatch;
+	da_mono_get_exception_type_load mono_get_exception_type_load;
+	da_mono_get_exception_missing_method mono_get_exception_missing_method;
+	da_mono_get_exception_missing_field mono_get_exception_missing_field;
+	da_mono_get_exception_not_implemented mono_get_exception_not_implemented;
+	da_mono_get_exception_not_supported mono_get_exception_not_supported;
+	da_mono_get_exception_argument_null mono_get_exception_argument_null;
+	da_mono_get_exception_argument mono_get_exception_argument;
+	da_mono_get_exception_argument_out_of_range mono_get_exception_argument_out_of_range;
+	da_mono_get_exception_io mono_get_exception_io;
+	da_mono_get_exception_file_not_found mono_get_exception_file_not_found;
+	da_mono_get_exception_file_not_found2 mono_get_exception_file_not_found2;
+	da_mono_get_exception_type_initialization mono_get_exception_type_initialization;
+	da_mono_get_exception_synchronization_lock mono_get_exception_synchronization_lock;
+	da_mono_get_exception_cannot_unload_appdomain mono_get_exception_cannot_unload_appdomain;
+	da_mono_get_exception_appdomain_unloaded mono_get_exception_appdomain_unloaded;
+	da_mono_get_exception_bad_image_format mono_get_exception_bad_image_format;
+	da_mono_get_exception_bad_image_format2 mono_get_exception_bad_image_format2;
+	da_mono_get_exception_stack_overflow mono_get_exception_stack_overflow;
+	da_mono_get_exception_out_of_memory mono_get_exception_out_of_memory;
+	da_mono_get_exception_field_access mono_get_exception_field_access;
+	da_mono_get_exception_method_access mono_get_exception_method_access;
+	da_mono_get_exception_reflection_type_load mono_get_exception_reflection_type_load;
+	da_mono_get_exception_runtime_wrapped mono_get_exception_runtime_wrapped;
+	da_mono_install_unhandled_exception_hook mono_install_unhandled_exception_hook;
+	da_mono_invoke_unhandled_exception_hook mono_invoke_unhandled_exception_hook;
+	// metadata/image.h
+	da_mono_images_init mono_images_init;
+	da_mono_images_cleanup mono_images_cleanup;
+	da_mono_image_open mono_image_open;
+	da_mono_image_open_full mono_image_open_full;
+	da_mono_pe_file_open mono_pe_file_open;
+	da_mono_image_open_from_data mono_image_open_from_data;
+	da_mono_image_open_from_data_full mono_image_open_from_data_full;
+	da_mono_image_open_from_data_with_name mono_image_open_from_data_with_name;
+	da_mono_image_fixup_vtable mono_image_fixup_vtable;
+	da_mono_image_loaded mono_image_loaded;
+	da_mono_image_loaded_full mono_image_loaded_full;
+	da_mono_image_loaded_by_guid mono_image_loaded_by_guid;
+	da_mono_image_loaded_by_guid_full mono_image_loaded_by_guid_full;
+	da_mono_image_init mono_image_init;
+	da_mono_image_close mono_image_close;
+	da_mono_image_addref mono_image_addref;
+	da_mono_image_strerror mono_image_strerror;
+	da_mono_image_ensure_section mono_image_ensure_section;
+	da_mono_image_ensure_section_idx mono_image_ensure_section_idx;
+	da_mono_image_get_entry_point mono_image_get_entry_point;
+	da_mono_image_get_resource mono_image_get_resource;
+	da_mono_image_load_file_for_image mono_image_load_file_for_image;
+	da_mono_image_load_module mono_image_load_module;
+	da_mono_image_get_name mono_image_get_name;
+	da_mono_image_get_filename mono_image_get_filename;
+	da_mono_image_get_guid mono_image_get_guid;
+	da_mono_image_get_assembly mono_image_get_assembly;
+	da_mono_image_is_dynamic mono_image_is_dynamic;
+	da_mono_image_rva_map mono_image_rva_map;
+	da_mono_image_get_table_info mono_image_get_table_info;
+	da_mono_image_get_table_rows mono_image_get_table_rows;
+	da_mono_table_info_get_rows mono_table_info_get_rows;
+	da_mono_image_lookup_resource mono_image_lookup_resource;
+	da_mono_image_get_public_key mono_image_get_public_key;
+	da_mono_image_get_strong_name mono_image_get_strong_name;
+	da_mono_image_strong_name_position mono_image_strong_name_position;
+	da_mono_image_add_to_name_cache mono_image_add_to_name_cache;
+	da_mono_image_has_authenticode_entry mono_image_has_authenticode_entry;
+	// metadata/loader.h
+	da_mono_get_method mono_get_method;
+	da_mono_get_method_full mono_get_method_full;
+	da_mono_get_method_constrained mono_get_method_constrained;
+	da_mono_free_method mono_free_method;
+	da_mono_method_get_signature_full mono_method_get_signature_full;
+	da_mono_method_get_signature mono_method_get_signature;
+	da_mono_method_signature mono_method_signature;
+	da_mono_method_get_header mono_method_get_header;
+	da_mono_method_get_name mono_method_get_name;
+	da_mono_method_get_class mono_method_get_class;
+	da_mono_method_get_token mono_method_get_token;
+	da_mono_method_get_flags mono_method_get_flags;
+	da_mono_method_get_index mono_method_get_index;
+	da_mono_load_image mono_load_image;
+	da_mono_add_internal_call mono_add_internal_call;
+	da_mono_lookup_internal_call mono_lookup_internal_call;
+	da_mono_lookup_internal_call_full mono_lookup_internal_call_full;
+	da_mono_lookup_icall_symbol mono_lookup_icall_symbol;
+	da_mono_dllmap_insert mono_dllmap_insert;
+	da_mono_lookup_pinvoke_call mono_lookup_pinvoke_call;
+	da_mono_method_get_param_names mono_method_get_param_names;
+	da_mono_method_get_param_token mono_method_get_param_token;
+	da_mono_method_get_marshal_info mono_method_get_marshal_info;
+	da_mono_method_has_marshal_info mono_method_has_marshal_info;
+	da_mono_method_get_last_managed mono_method_get_last_managed;
+	da_mono_stack_walk mono_stack_walk;
+	da_mono_stack_walk_no_il mono_stack_walk_no_il;
+	da_mono_stack_walk_async_safe mono_stack_walk_async_safe;
+	da_mono_method_get_header_checked mono_method_get_header_checked;
+	// metadata/metadata.h
+	da_mono_metadata_init mono_metadata_init;
+	da_mono_metadata_decode_row mono_metadata_decode_row;
+	da_mono_metadata_decode_row_col mono_metadata_decode_row_col;
+	da_mono_metadata_compute_size mono_metadata_compute_size;
+	da_mono_metadata_locate mono_metadata_locate;
+	da_mono_metadata_locate_token mono_metadata_locate_token;
+	da_mono_metadata_string_heap mono_metadata_string_heap;
+	da_mono_metadata_blob_heap mono_metadata_blob_heap;
+	da_mono_metadata_user_string mono_metadata_user_string;
+	da_mono_metadata_guid_heap mono_metadata_guid_heap;
+	da_mono_metadata_typedef_from_field mono_metadata_typedef_from_field;
+	da_mono_metadata_typedef_from_method mono_metadata_typedef_from_method;
+	da_mono_metadata_nested_in_typedef mono_metadata_nested_in_typedef;
+	da_mono_metadata_nesting_typedef mono_metadata_nesting_typedef;
+	da_mono_metadata_interfaces_from_typedef mono_metadata_interfaces_from_typedef;
+	da_mono_metadata_events_from_typedef mono_metadata_events_from_typedef;
+	da_mono_metadata_methods_from_event mono_metadata_methods_from_event;
+	da_mono_metadata_properties_from_typedef mono_metadata_properties_from_typedef;
+	da_mono_metadata_methods_from_property mono_metadata_methods_from_property;
+	da_mono_metadata_packing_from_typedef mono_metadata_packing_from_typedef;
+	da_mono_metadata_get_marshal_info mono_metadata_get_marshal_info;
+	da_mono_metadata_custom_attrs_from_index mono_metadata_custom_attrs_from_index;
+	da_mono_metadata_parse_marshal_spec mono_metadata_parse_marshal_spec;
+	da_mono_metadata_free_marshal_spec mono_metadata_free_marshal_spec;
+	da_mono_metadata_implmap_from_method mono_metadata_implmap_from_method;
+	da_mono_metadata_field_info mono_metadata_field_info;
+	da_mono_metadata_get_constant_index mono_metadata_get_constant_index;
+	da_mono_metadata_decode_value mono_metadata_decode_value;
+	da_mono_metadata_decode_signed_value mono_metadata_decode_signed_value;
+	da_mono_metadata_decode_blob_size mono_metadata_decode_blob_size;
+	da_mono_metadata_encode_value mono_metadata_encode_value;
+	da_mono_type_is_byref mono_type_is_byref;
+	da_mono_type_get_type mono_type_get_type;
+	da_mono_type_get_signature mono_type_get_signature;
+	da_mono_type_get_class mono_type_get_class;
+	da_mono_type_get_array_type mono_type_get_array_type;
+	da_mono_type_get_ptr_type mono_type_get_ptr_type;
+	da_mono_type_get_modifiers mono_type_get_modifiers;
+	da_mono_type_is_struct mono_type_is_struct;
+	da_mono_type_is_void mono_type_is_void;
+	da_mono_type_is_pointer mono_type_is_pointer;
+	da_mono_type_is_reference mono_type_is_reference;
+	da_mono_type_is_generic_parameter mono_type_is_generic_parameter;
+	da_mono_signature_get_return_type mono_signature_get_return_type;
+	da_mono_signature_get_params mono_signature_get_params;
+	da_mono_signature_get_param_count mono_signature_get_param_count;
+	da_mono_signature_get_call_conv mono_signature_get_call_conv;
+	da_mono_signature_vararg_start mono_signature_vararg_start;
+	da_mono_signature_is_instance mono_signature_is_instance;
+	da_mono_signature_explicit_this mono_signature_explicit_this;
+	da_mono_signature_param_is_out mono_signature_param_is_out;
+	da_mono_metadata_parse_typedef_or_ref mono_metadata_parse_typedef_or_ref;
+	da_mono_metadata_parse_custom_mod mono_metadata_parse_custom_mod;
+	da_mono_metadata_parse_array mono_metadata_parse_array;
+	da_mono_metadata_free_array mono_metadata_free_array;
+	da_mono_metadata_parse_type mono_metadata_parse_type;
+	da_mono_metadata_parse_param mono_metadata_parse_param;
+	da_mono_metadata_parse_ret_type mono_metadata_parse_ret_type;
+	da_mono_metadata_parse_field_type mono_metadata_parse_field_type;
+	da_mono_type_create_from_typespec mono_type_create_from_typespec;
+	da_mono_metadata_free_type mono_metadata_free_type;
+	da_mono_type_size mono_type_size;
+	da_mono_type_stack_size mono_type_stack_size;
+	da_mono_type_generic_inst_is_valuetype mono_type_generic_inst_is_valuetype;
+	da_mono_metadata_generic_class_is_valuetype mono_metadata_generic_class_is_valuetype;
+	da_mono_metadata_generic_class_hash mono_metadata_generic_class_hash;
+	da_mono_metadata_generic_class_equal mono_metadata_generic_class_equal;
+	da_mono_metadata_type_hash mono_metadata_type_hash;
+	da_mono_metadata_type_equal mono_metadata_type_equal;
+	da_mono_metadata_signature_alloc mono_metadata_signature_alloc;
+	da_mono_metadata_signature_dup mono_metadata_signature_dup;
+	da_mono_metadata_parse_signature mono_metadata_parse_signature;
+	da_mono_metadata_parse_method_signature mono_metadata_parse_method_signature;
+	da_mono_metadata_free_method_signature mono_metadata_free_method_signature;
+	da_mono_metadata_signature_equal mono_metadata_signature_equal;
+	da_mono_signature_hash mono_signature_hash;
+	da_mono_metadata_parse_mh mono_metadata_parse_mh;
+	da_mono_metadata_free_mh mono_metadata_free_mh;
+	da_mono_method_header_get_code mono_method_header_get_code;
+	da_mono_method_header_get_locals mono_method_header_get_locals;
+	da_mono_method_header_get_num_clauses mono_method_header_get_num_clauses;
+	da_mono_method_header_get_clauses mono_method_header_get_clauses;
+	da_mono_type_to_unmanaged mono_type_to_unmanaged;
+	da_mono_metadata_token_from_dor mono_metadata_token_from_dor;
+	da_mono_guid_to_string mono_guid_to_string;
+	da_mono_guid_to_string_minimal mono_guid_to_string_minimal;
+	da_mono_metadata_declsec_from_index mono_metadata_declsec_from_index;
+	da_mono_metadata_translate_token_index mono_metadata_translate_token_index;
+	da_mono_metadata_decode_table_row mono_metadata_decode_table_row;
+	da_mono_metadata_decode_table_row_col mono_metadata_decode_table_row_col;
+	// metadata/mono-config.h
+	da_mono_config_get_os mono_config_get_os;
+	da_mono_config_get_cpu mono_config_get_cpu;
+	da_mono_config_get_wordsize mono_config_get_wordsize;
+	da_mono_get_config_dir mono_get_config_dir;
+	da_mono_set_config_dir mono_set_config_dir;
+	da_mono_get_machine_config mono_get_machine_config;
+	da_mono_config_cleanup mono_config_cleanup;
+	da_mono_config_parse mono_config_parse;
+	da_mono_config_for_assembly mono_config_for_assembly;
+	da_mono_config_parse_memory mono_config_parse_memory;
+	da_mono_config_string_for_assembly_file mono_config_string_for_assembly_file;
+	da_mono_config_set_server_mode mono_config_set_server_mode;
+	da_mono_config_is_server_mode mono_config_is_server_mode;
+	// metadata/mono-debug.h
+	da_mono_debug_init mono_debug_init;
+	da_mono_debug_open_image_from_memory mono_debug_open_image_from_memory;
+	da_mono_debug_cleanup mono_debug_cleanup;
+	da_mono_debug_close_image mono_debug_close_image;
+	da_mono_debug_domain_unload mono_debug_domain_unload;
+	da_mono_debug_domain_create mono_debug_domain_create;
+	da_mono_debug_add_method mono_debug_add_method;
+	da_mono_debug_remove_method mono_debug_remove_method;
+	da_mono_debug_lookup_method mono_debug_lookup_method;
+	da_mono_debug_lookup_method_addresses mono_debug_lookup_method_addresses;
+	da_mono_debug_find_method mono_debug_find_method;
+	da_mono_debug_free_method_jit_info mono_debug_free_method_jit_info;
+	da_mono_debug_add_delegate_trampoline mono_debug_add_delegate_trampoline;
+	da_mono_debug_lookup_locals mono_debug_lookup_locals;
+	da_mono_debug_lookup_method_async_debug_info mono_debug_lookup_method_async_debug_info;
+	da_mono_debug_method_lookup_location mono_debug_method_lookup_location;
+	da_mono_debug_lookup_source_location mono_debug_lookup_source_location;
+	da_mono_debug_il_offset_from_address mono_debug_il_offset_from_address;
+	da_mono_debug_free_source_location mono_debug_free_source_location;
+	da_mono_debug_print_stack_frame mono_debug_print_stack_frame;
+	da_mono_debugger_method_has_breakpoint mono_debugger_method_has_breakpoint;
+	da_mono_debugger_insert_breakpoint mono_debugger_insert_breakpoint;
+	da_mono_set_is_debugger_attached mono_set_is_debugger_attached;
+	da_mono_is_debugger_attached mono_is_debugger_attached;
+	// metadata/mono-gc.h
+	da_mono_gc_collect mono_gc_collect;
+	da_mono_gc_max_generation mono_gc_max_generation;
+	da_mono_gc_get_generation mono_gc_get_generation;
+	da_mono_gc_collection_count mono_gc_collection_count;
+	da_mono_gc_get_used_size mono_gc_get_used_size;
+	da_mono_gc_get_heap_size mono_gc_get_heap_size;
+	da_mono_gc_pending_finalizers mono_gc_pending_finalizers;
+	da_mono_gc_finalize_notify mono_gc_finalize_notify;
+	da_mono_gc_invoke_finalizers mono_gc_invoke_finalizers;
+	da_mono_gc_walk_heap mono_gc_walk_heap;
+	// metadata/object.h
+	da_mono_string_chars mono_string_chars;
+	da_mono_string_length mono_string_length;
+	da_mono_object_new mono_object_new;
+	da_mono_object_new_specific mono_object_new_specific;
+	da_mono_object_new_fast mono_object_new_fast;
+	da_mono_object_new_alloc_specific mono_object_new_alloc_specific;
+	da_mono_object_new_from_token mono_object_new_from_token;
+	da_mono_array_new mono_array_new;
+	da_mono_array_new_full mono_array_new_full;
+	da_mono_array_new_specific mono_array_new_specific;
+	da_mono_array_clone mono_array_clone;
+	da_mono_array_addr_with_size mono_array_addr_with_size;
+	da_mono_array_length mono_array_length;
+	da_mono_string_empty mono_string_empty;
+	da_mono_string_empty_wrapper mono_string_empty_wrapper;
+	da_mono_string_new_utf16 mono_string_new_utf16;
+	da_mono_string_new_size mono_string_new_size;
+	da_mono_ldstr mono_ldstr;
+	da_mono_string_is_interned mono_string_is_interned;
+	da_mono_string_intern mono_string_intern;
+	da_mono_string_new mono_string_new;
+	da_mono_string_new_wrapper mono_string_new_wrapper;
+	da_mono_string_new_len mono_string_new_len;
+	da_mono_string_new_utf32 mono_string_new_utf32;
+	da_mono_string_to_utf8 mono_string_to_utf8;
+	da_mono_string_to_utf8_checked mono_string_to_utf8_checked;
+	da_mono_string_to_utf16 mono_string_to_utf16;
+	da_mono_string_to_utf32 mono_string_to_utf32;
+	da_mono_string_from_utf16 mono_string_from_utf16;
+	da_mono_string_from_utf32 mono_string_from_utf32;
+	da_mono_string_equal mono_string_equal;
+	da_mono_string_hash mono_string_hash;
+	da_mono_object_hash mono_object_hash;
+	da_mono_object_to_string mono_object_to_string;
+	da_mono_value_box mono_value_box;
+	da_mono_value_copy mono_value_copy;
+	da_mono_value_copy_array mono_value_copy_array;
+	da_mono_object_get_domain mono_object_get_domain;
+	da_mono_object_get_class mono_object_get_class;
+	da_mono_object_unbox mono_object_unbox;
+	da_mono_object_clone mono_object_clone;
+	da_mono_object_isinst mono_object_isinst;
+	da_mono_object_isinst_mbyref mono_object_isinst_mbyref;
+	da_mono_object_castclass_mbyref mono_object_castclass_mbyref;
+	da_mono_monitor_try_enter mono_monitor_try_enter;
+	da_mono_monitor_enter mono_monitor_enter;
+	da_mono_monitor_enter_v4 mono_monitor_enter_v4;
+	da_mono_object_get_size mono_object_get_size;
+	da_mono_monitor_exit mono_monitor_exit;
+	da_mono_raise_exception mono_raise_exception;
+	da_mono_runtime_object_init mono_runtime_object_init;
+	da_mono_runtime_class_init mono_runtime_class_init;
+	da_mono_object_get_virtual_method mono_object_get_virtual_method;
+	da_mono_runtime_invoke mono_runtime_invoke;
+	da_mono_get_delegate_invoke mono_get_delegate_invoke;
+	da_mono_get_delegate_begin_invoke mono_get_delegate_begin_invoke;
+	da_mono_get_delegate_end_invoke mono_get_delegate_end_invoke;
+	da_mono_runtime_delegate_invoke mono_runtime_delegate_invoke;
+	da_mono_runtime_invoke_array mono_runtime_invoke_array;
+	da_mono_method_get_unmanaged_thunk mono_method_get_unmanaged_thunk;
+	da_mono_runtime_get_main_args mono_runtime_get_main_args;
+	da_mono_runtime_exec_managed_code mono_runtime_exec_managed_code;
+	da_mono_runtime_run_main mono_runtime_run_main;
+	da_mono_runtime_exec_main mono_runtime_exec_main;
+	da_mono_runtime_set_main_args mono_runtime_set_main_args;
+	da_mono_load_remote_field mono_load_remote_field;
+	da_mono_load_remote_field_new mono_load_remote_field_new;
+	da_mono_store_remote_field mono_store_remote_field;
+	da_mono_store_remote_field_new mono_store_remote_field_new;
+	da_mono_unhandled_exception mono_unhandled_exception;
+	da_mono_print_unhandled_exception mono_print_unhandled_exception;
+	da_mono_compile_method mono_compile_method;
+	da_mono_field_set_value mono_field_set_value;
+	da_mono_field_static_set_value mono_field_static_set_value;
+	da_mono_field_get_value mono_field_get_value;
+	da_mono_field_static_get_value mono_field_static_get_value;
+	da_mono_field_get_value_object mono_field_get_value_object;
+	da_mono_property_set_value mono_property_set_value;
+	da_mono_property_get_value mono_property_get_value;
+	da_mono_gchandle_new mono_gchandle_new;
+	da_mono_gchandle_new_weakref mono_gchandle_new_weakref;
+	da_mono_gchandle_get_target mono_gchandle_get_target;
+	da_mono_gchandle_free mono_gchandle_free;
+	da_mono_gc_reference_queue_new mono_gc_reference_queue_new;
+	da_mono_gc_reference_queue_free mono_gc_reference_queue_free;
+	da_mono_gc_reference_queue_add mono_gc_reference_queue_add;
+	da_mono_gc_wbarrier_set_field mono_gc_wbarrier_set_field;
+	da_mono_gc_wbarrier_set_arrayref mono_gc_wbarrier_set_arrayref;
+	da_mono_gc_wbarrier_arrayref_copy mono_gc_wbarrier_arrayref_copy;
+	da_mono_gc_wbarrier_generic_store mono_gc_wbarrier_generic_store;
+	da_mono_gc_wbarrier_generic_store_atomic mono_gc_wbarrier_generic_store_atomic;
+	da_mono_gc_wbarrier_generic_nostore mono_gc_wbarrier_generic_nostore;
+	da_mono_gc_wbarrier_value_copy mono_gc_wbarrier_value_copy;
+	da_mono_gc_wbarrier_object_copy mono_gc_wbarrier_object_copy;
+	// metadata/opcodes.h
+	da_mono_opcode_name mono_opcode_name;
+	da_mono_opcode_value mono_opcode_value;
+	// metadata/profiler.h
+	da_mono_profiler_install mono_profiler_install;
+	da_mono_profiler_set_events mono_profiler_set_events;
+	da_mono_profiler_get_events mono_profiler_get_events;
+	da_mono_profiler_install_appdomain mono_profiler_install_appdomain;
+	da_mono_profiler_install_appdomain_name mono_profiler_install_appdomain_name;
+	da_mono_profiler_install_context mono_profiler_install_context;
+	da_mono_profiler_install_assembly mono_profiler_install_assembly;
+	da_mono_profiler_install_module mono_profiler_install_module;
+	da_mono_profiler_install_class mono_profiler_install_class;
+	da_mono_profiler_install_jit_compile mono_profiler_install_jit_compile;
+	da_mono_profiler_install_jit_end mono_profiler_install_jit_end;
+	da_mono_profiler_install_method_free mono_profiler_install_method_free;
+	da_mono_profiler_install_method_invoke mono_profiler_install_method_invoke;
+	da_mono_profiler_install_enter_leave mono_profiler_install_enter_leave;
+	da_mono_profiler_install_thread mono_profiler_install_thread;
+	da_mono_profiler_install_thread_name mono_profiler_install_thread_name;
+	da_mono_profiler_install_transition mono_profiler_install_transition;
+	da_mono_profiler_install_allocation mono_profiler_install_allocation;
+	da_mono_profiler_install_monitor mono_profiler_install_monitor;
+	da_mono_profiler_install_statistical mono_profiler_install_statistical;
+	da_mono_profiler_install_statistical_call_chain mono_profiler_install_statistical_call_chain;
+	da_mono_profiler_install_exception mono_profiler_install_exception;
+	da_mono_profiler_install_coverage_filter mono_profiler_install_coverage_filter;
+	da_mono_profiler_coverage_get mono_profiler_coverage_get;
+	da_mono_profiler_install_gc mono_profiler_install_gc;
+	da_mono_profiler_install_gc_moves mono_profiler_install_gc_moves;
+	da_mono_profiler_install_gc_roots mono_profiler_install_gc_roots;
+	da_mono_profiler_install_gc_finalize mono_profiler_install_gc_finalize;
+	da_mono_profiler_install_runtime_initialized mono_profiler_install_runtime_initialized;
+	da_mono_profiler_install_code_chunk_new mono_profiler_install_code_chunk_new;
+	da_mono_profiler_install_code_chunk_destroy mono_profiler_install_code_chunk_destroy;
+	da_mono_profiler_install_code_buffer_new mono_profiler_install_code_buffer_new;
+	da_mono_profiler_install_iomap mono_profiler_install_iomap;
+	da_mono_profiler_load mono_profiler_load;
+	da_mono_profiler_set_statistical_mode mono_profiler_set_statistical_mode;
+	// metadata/reflection.h
+	da_mono_reflection_parse_type mono_reflection_parse_type;
+	da_mono_reflection_get_type mono_reflection_get_type;
+	da_mono_reflection_free_type_info mono_reflection_free_type_info;
+	da_mono_reflection_type_from_name mono_reflection_type_from_name;
+	da_mono_reflection_get_token mono_reflection_get_token;
+	da_mono_assembly_get_object mono_assembly_get_object;
+	da_mono_module_get_object mono_module_get_object;
+	da_mono_module_file_get_object mono_module_file_get_object;
+	da_mono_type_get_object mono_type_get_object;
+	da_mono_method_get_object mono_method_get_object;
+	da_mono_field_get_object mono_field_get_object;
+	da_mono_property_get_object mono_property_get_object;
+	da_mono_event_get_object mono_event_get_object;
+	da_mono_param_get_objects mono_param_get_objects;
+	da_mono_method_body_get_object mono_method_body_get_object;
+	da_mono_get_dbnull_object mono_get_dbnull_object;
+	da_mono_reflection_get_custom_attrs_by_type mono_reflection_get_custom_attrs_by_type;
+	da_mono_reflection_get_custom_attrs mono_reflection_get_custom_attrs;
+	da_mono_reflection_get_custom_attrs_data mono_reflection_get_custom_attrs_data;
+	da_mono_reflection_get_custom_attrs_blob mono_reflection_get_custom_attrs_blob;
+	da_mono_reflection_get_custom_attrs_info mono_reflection_get_custom_attrs_info;
+	da_mono_custom_attrs_construct mono_custom_attrs_construct;
+	da_mono_custom_attrs_from_index mono_custom_attrs_from_index;
+	da_mono_custom_attrs_from_method mono_custom_attrs_from_method;
+	da_mono_custom_attrs_from_class mono_custom_attrs_from_class;
+	da_mono_custom_attrs_from_assembly mono_custom_attrs_from_assembly;
+	da_mono_custom_attrs_from_property mono_custom_attrs_from_property;
+	da_mono_custom_attrs_from_event mono_custom_attrs_from_event;
+	da_mono_custom_attrs_from_field mono_custom_attrs_from_field;
+	da_mono_custom_attrs_from_param mono_custom_attrs_from_param;
+	da_mono_custom_attrs_has_attr mono_custom_attrs_has_attr;
+	da_mono_custom_attrs_get_attr mono_custom_attrs_get_attr;
+	da_mono_custom_attrs_free mono_custom_attrs_free;
+	da_mono_declsec_flags_from_method mono_declsec_flags_from_method;
+	da_mono_declsec_flags_from_class mono_declsec_flags_from_class;
+	da_mono_declsec_flags_from_assembly mono_declsec_flags_from_assembly;
+	da_mono_declsec_get_demands mono_declsec_get_demands;
+	da_mono_declsec_get_linkdemands mono_declsec_get_linkdemands;
+	da_mono_declsec_get_inheritdemands_class mono_declsec_get_inheritdemands_class;
+	da_mono_declsec_get_inheritdemands_method mono_declsec_get_inheritdemands_method;
+	da_mono_declsec_get_method_action mono_declsec_get_method_action;
+	da_mono_declsec_get_class_action mono_declsec_get_class_action;
+	da_mono_declsec_get_assembly_action mono_declsec_get_assembly_action;
+	da_mono_reflection_type_get_type mono_reflection_type_get_type;
+	da_mono_reflection_assembly_get_assembly mono_reflection_assembly_get_assembly;
+	// metadata/row-indexes.h
+	// metadata/sgen-bridge.h
+	da_mono_gc_register_bridge_callbacks mono_gc_register_bridge_callbacks;
+	da_mono_gc_wait_for_bridge_processing mono_gc_wait_for_bridge_processing;
+	// metadata/threads.h
+	da_mono_thread_init mono_thread_init;
+	da_mono_thread_cleanup mono_thread_cleanup;
+	da_mono_thread_manage mono_thread_manage;
+	da_mono_thread_current mono_thread_current;
+	da_mono_thread_set_main mono_thread_set_main;
+	da_mono_thread_get_main mono_thread_get_main;
+	da_mono_thread_stop mono_thread_stop;
+	da_mono_thread_new_init mono_thread_new_init;
+	da_mono_thread_create mono_thread_create;
+	da_mono_thread_attach mono_thread_attach;
+	da_mono_thread_detach mono_thread_detach;
+	da_mono_thread_exit mono_thread_exit;
+	da_mono_thread_get_name_utf8 mono_thread_get_name_utf8;
+	da_mono_thread_get_managed_id mono_thread_get_managed_id;
+	da_mono_thread_set_manage_callback mono_thread_set_manage_callback;
+	da_mono_threads_set_default_stacksize mono_threads_set_default_stacksize;
+	da_mono_threads_get_default_stacksize mono_threads_get_default_stacksize;
+	da_mono_threads_request_thread_dump mono_threads_request_thread_dump;
+	da_mono_thread_is_foreign mono_thread_is_foreign;
+	da_mono_thread_detach_if_exiting mono_thread_detach_if_exiting;
+	// metadata/tokentype.h
+	// metadata/verify.h
+	da_mono_method_verify mono_method_verify;
+	da_mono_free_verify_list mono_free_verify_list;
+	da_mono_verify_corlib mono_verify_corlib;
 	// jit/jit.h
+	da_mono_jit_init mono_jit_init;
+	da_mono_jit_init_version mono_jit_init_version;
+	da_mono_jit_exec mono_jit_exec;
+	da_mono_jit_cleanup mono_jit_cleanup;
+	da_mono_jit_set_trace_options mono_jit_set_trace_options;
+	da_mono_set_signal_chaining mono_set_signal_chaining;
+	da_mono_set_crash_chaining mono_set_crash_chaining;
+	da_mono_jit_set_aot_only mono_jit_set_aot_only;
+	da_mono_jit_set_aot_mode mono_jit_set_aot_mode;
+	da_mono_set_break_policy mono_set_break_policy;
+	da_mono_jit_parse_options mono_jit_parse_options;
+	da_mono_get_runtime_build_info mono_get_runtime_build_info;
+	da_mono_get_jit_info_from_method mono_get_jit_info_from_method;
+	da_mono_aot_get_method mono_aot_get_method;
 }
