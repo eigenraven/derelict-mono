@@ -1,5 +1,6 @@
 DerelictMono
 ============
+[![Dub version](https://img.shields.io/dub/v/derelict-mono.svg)](https://code.dlang.org/packages/derelict-mono)
 
 A dynamic binding to version 5.0 of the [Mono Runtime][1] for the D Programming Language. It can be used for [embedding][2] a Common Language Runtime in D.
 
