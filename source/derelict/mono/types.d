@@ -1,4 +1,4 @@
-/*
+/**
 Boost Software License - Version 1.0 - August 17th, 2003
 Permission is hereby granted,free of charge,to any person or organization
 obtaining a copy of the software and accompanying documentation covered by
@@ -32,17 +32,17 @@ private
 	import derelict.util.system;
 }
 
+extern (C):
+nothrow:
+
 // utils/mono-publib.h
 alias mono_bool = int;
 alias mono_byte = ubyte;
 alias mono_unichar2 = wchar;
 alias mono_unichar4 = dchar;
 
-extern (C)
-{
-	alias MonoFunc = void function(void* data, void* user_data) nothrow;
-	alias MonoHFunc = void function(void* key, void* value, void* user_data) nothrow;
-}
+alias MonoFunc = void function(void* data, void* user_data);
+alias MonoHFunc = void function(void* key, void* value, void* user_data);
 
 enum MONO_ALLOCATOR_VTABLE_VERSION = 1;
 struct MonoAllocatorVTable
@@ -58,3 +58,2669 @@ static if (Derelict_OS_Linux)
 	enum MONO_ZERO_LEN_ARRAY = 0;
 else
 	enum MONO_ZERO_LEN_ARRAY = 1;
+
+// utils/mono-logger.h
+
+alias MonoPrintCallback = void function(const(char)* string_, mono_bool is_stdout);
+alias MonoLogCallback = void function(const(char)* log_domain,
+		const(char)* log_level, const(char)* message, mono_bool fatal, void* user_data);
+
+// utils/mono-error.h
+enum : int
+{
+	/**
+	The supplied strings were dup'd by means of calling mono_error_dup_strings.
+	*/
+	MONO_ERROR_FREE_STRINGS = 0x0001,
+
+	/**
+	Something happened while processing the error and the resulting message is incomplete.
+	*/
+	MONO_ERROR_INCOMPLETE = 0x0002,
+	/**
+	This MonoError is heap allocated in a mempool
+        */
+	MONO_ERROR_MEMPOOL_BOXED = 0x0004
+}
+
+enum : int
+{
+	MONO_ERROR_NONE = 0,
+	MONO_ERROR_MISSING_METHOD = 1,
+	MONO_ERROR_MISSING_FIELD = 2,
+	MONO_ERROR_TYPE_LOAD = 3,
+	MONO_ERROR_FILE_NOT_FOUND = 4,
+	MONO_ERROR_BAD_IMAGE = 5,
+	MONO_ERROR_OUT_OF_MEMORY = 6,
+	MONO_ERROR_ARGUMENT = 7,
+	MONO_ERROR_ARGUMENT_NULL = 11,
+	MONO_ERROR_NOT_VERIFIABLE = 8,
+	MONO_ERROR_INVALID_PROGRAM = 12,
+
+	/**
+	 * This is a generic error mechanism is you need to raise an arbitrary corlib exception.
+	 * You must pass the exception name otherwise prepare_exception will fail with internal execution. 
+	 */
+	MONO_ERROR_GENERIC = 9,
+	/** This one encapsulates a managed exception instance */
+	MONO_ERROR_EXCEPTION_INSTANCE = 10,
+
+	/** Not a valid error code - indicates that the error was cleaned up and reused */
+	MONO_ERROR_CLEANUP_CALLED_SENTINEL = 0xffff
+}
+
+struct MonoError
+{
+	ushort error_code;
+	ushort hidden_0; /**DON'T TOUCH */
+	void*[12] hidden_1; /**DON'T TOUCH */
+}
+
+alias _MonoError = MonoError;
+
+struct MonoErrorBoxed;
+alias _MonoErrorBoxed = MonoErrorBoxed;
+
+// utils/mono-dl-fallback.h
+enum : int
+{
+	MONO_DL_EAGER = 0,
+	MONO_DL_LAZY = 1,
+	MONO_DL_LOCAL = 2,
+	MONO_DL_MASK = 3
+}
+
+struct MonoDlFallbackHandler;
+
+alias MonoDlFallbackLoad = void* function(const(char)* name, int flags,
+		char** err, void* user_data);
+alias MonoDlFallbackSymbol = void* function(void* handle, const(char)* name,
+		char** err, void* user_data);
+alias MonoDlFallbackClose = void* function(void* handle, void* user_data);
+
+// utils/mono-counters.h
+enum : int
+{
+	/** Counter type, bits 0-7. */
+	MONO_COUNTER_INT, /** 32 bit int */
+	MONO_COUNTER_UINT, /** 32 bit uint */
+	MONO_COUNTER_WORD, /** pointer-sized int */
+	MONO_COUNTER_LONG, /** 64 bit int */
+	MONO_COUNTER_ULONG, /** 64 bit uint */
+	MONO_COUNTER_DOUBLE,
+	MONO_COUNTER_STRING, /** char* */
+	MONO_COUNTER_TIME_INTERVAL, /** 64 bits signed int holding usecs. */
+	MONO_COUNTER_TYPE_MASK = 0xf,
+	MONO_COUNTER_CALLBACK = 128, /** ORed with the other values */
+	MONO_COUNTER_SECTION_MASK = 0x00ffff00,
+	/** Sections, bits 8-23 (16 bits) */
+	MONO_COUNTER_JIT = 1 << 8,
+	MONO_COUNTER_GC = 1 << 9,
+	MONO_COUNTER_METADATA = 1 << 10,
+	MONO_COUNTER_GENERICS = 1 << 11,
+	MONO_COUNTER_SECURITY = 1 << 12,
+	MONO_COUNTER_RUNTIME = 1 << 13,
+	MONO_COUNTER_SYSTEM = 1 << 14,
+	MONO_COUNTER_PERFCOUNTERS = 1 << 15,
+	MONO_COUNTER_PROFILER = 1 << 16,
+	MONO_COUNTER_LAST_SECTION,
+
+	/** Unit, bits 24-27 (4 bits) */
+	MONO_COUNTER_UNIT_SHIFT = 24,
+	MONO_COUNTER_UNIT_MASK = (0xFu << MONO_COUNTER_UNIT_SHIFT),
+	MONO_COUNTER_RAW = 0 << 24, /** Raw value */
+	MONO_COUNTER_BYTES = 1 << 24, /** Quantity of bytes. RSS, active heap, etc */
+	MONO_COUNTER_TIME = 2 << 24, /** Time interval in 100ns units. Minor pause, JIT compilation*/
+	MONO_COUNTER_COUNT = 3 << 24, /**  Number of things (threads, queued jobs) or Number of events triggered (Major collections, Compiled methods).*/
+	MONO_COUNTER_PERCENTAGE = 4 << 24, /** [0-1] Fraction Percentage of something. Load average. */
+
+	/** Monotonicity, bits 28-31 (4 bits) */
+	MONO_COUNTER_VARIANCE_SHIFT = 28,
+	MONO_COUNTER_VARIANCE_MASK = (
+			0xFu << MONO_COUNTER_VARIANCE_SHIFT),
+	MONO_COUNTER_MONOTONIC = 1 << 28, /** This counter value always increase/decreases over time. Reported by --stat. */
+	MONO_COUNTER_CONSTANT = 1 << 29, /** Fixed value. Used by configuration data. */
+	MONO_COUNTER_VARIABLE = 1 << 30, /** This counter value can be anything on each sampling. Only interesting when sampling. */
+
+
+
+}
+
+struct MonoCounter;
+alias _MonoCounter = MonoCounter;
+alias MonoResourceType = int;
+enum : MonoResourceType
+{
+	MONO_RESOURCE_JIT_CODE, /** bytes */
+	MONO_RESOURCE_METADATA, /** bytes */
+	MONO_RESOURCE_GC_HEAP, /** bytes */
+	MONO_RESOURCE_COUNT /** non-ABI value */
+}
+
+alias MonoCounterRegisterCallback = void function(MonoCounter*);
+alias CountersEnumCallback = mono_bool function(MonoCounter* counter, void* user_data);
+alias MonoResourceCallback = void function(int resource_type, uintptr_t value, int is_soft);
+
+// metadata/appdomain.h
+alias MonoThreadStartCB = void function(intptr_t tid, void* stack_start, void* func);
+alias MonoThreadAttachCB = void function(intptr_t tid, void* stack_start);
+
+struct _MonoAppDomain;
+alias MonoAppDomain = _MonoAppDomain;
+struct _MonoJitInfo;
+alias MonoJitInfo = _MonoJitInfo;
+
+alias MonoDomainFunc = void function(MonoDomain* domain, void* user_data);
+alias MonoCoreClrPlatformCB = int function(const(char)* image_name);
+
+// metadata/assembly.d
+alias MonoAssemblyLoadFunc = void function(MonoAssembly* assembly, void* user_data);
+alias MonoAssemblySearchFunc = _MonoAssembly* function(MonoAssemblyName* aname, void* user_data);
+alias MonoAssemblyPreLoadFunc = _MonoAssembly* function(MonoAssemblyName* aname,
+		char** assemblies_path, void* user_data);
+struct MonoBundledAssembly
+{
+	const(char)* name;
+	const(ubyte)* data;
+	const uint size;
+}
+
+// metadata/attrdefs.h
+
+/**
+ * 23.1.1  Values for AssemblyHashAlgorithm
+ */
+enum
+{
+	MONO_ASSEMBLY_HASH_NONE = 0,
+	MONO_ASSEMBLY_HASH_MD5 = 32771,
+	MONO_ASSEMBLY_HASH_SHA1 = 32772
+}
+
+/**
+ * 23.1.2 AssemblyRefs
+ */
+enum
+{
+	MONO_ASSEMBLYREF_FULL_PUBLIC_KEY = 1,
+	MONO_ASSEMBLYREF_RETARGETABLE = 256,
+	MONO_ASSEMBLYREF_JIT_TRACKING = 32768,
+	MONO_ASSEMBLYREF_NO_JIT_OPT = 16384
+}
+
+/**
+ * 23.1.4 Flags for Event.EventAttributes
+ */
+enum
+{
+	MONO_EVENT_SPECIALNAME = 512,
+	MONO_EVENT_RTSPECIALNAME = 1024
+}
+
+/**
+ * Field Attributes (23.1.5).
+ */
+enum
+{
+	MONO_FIELD_ATTR_FIELD_ACCESS_MASK = 7,
+	MONO_FIELD_ATTR_COMPILER_CONTROLLED = 0,
+	MONO_FIELD_ATTR_PRIVATE = 1,
+	MONO_FIELD_ATTR_FAM_AND_ASSEM = 2,
+	MONO_FIELD_ATTR_ASSEMBLY = 3,
+	MONO_FIELD_ATTR_FAMILY = 4,
+	MONO_FIELD_ATTR_FAM_OR_ASSEM = 5,
+	MONO_FIELD_ATTR_PUBLIC = 6,
+
+	MONO_FIELD_ATTR_STATIC = 16,
+	MONO_FIELD_ATTR_INIT_ONLY = 32,
+	MONO_FIELD_ATTR_LITERAL = 64,
+	MONO_FIELD_ATTR_NOT_SERIALIZED = 128,
+	MONO_FIELD_ATTR_SPECIAL_NAME = 512,
+	MONO_FIELD_ATTR_PINVOKE_IMPL = 8192,
+
+	/** For runtime use only */
+	MONO_FIELD_ATTR_RESERVED_MASK = 38144,
+	MONO_FIELD_ATTR_RT_SPECIAL_NAME = 1024,
+	MONO_FIELD_ATTR_HAS_MARSHAL = 4096,
+	MONO_FIELD_ATTR_HAS_DEFAULT = 32768,
+	MONO_FIELD_ATTR_HAS_RVA = 256
+}
+
+/**
+ * 23.1.6 Flags for FileAttributes
+ */
+enum
+{
+	MONO_FILE_HAS_METADATA = 0,
+	MONO_FILE_HAS_NO_METADATA = 1
+}
+
+/**
+ * 23.1.7 Flags for generic parameters
+ */
+enum
+{
+	MONO_GEN_PARAM_VARIANCE_MASK = 3,
+	MONO_GEN_PARAM_NON_VARIANT = 0,
+	MONO_GEN_PARAM_VARIANT = 1,
+	MONO_GEN_PARAM_COVARIANT = 2,
+	MONO_GEN_PARAM_CONSTRAINT_MASK = 28,
+	MONO_GEN_PARAM_CONSTRAINT_CLASS = 4,
+	MONO_GEN_PARAM_CONSTRAINT_VTYPE = 8,
+	MONO_GEN_PARAM_CONSTRAINT_DCTOR = 16
+}
+
+/**
+ * 23.1.8 Flags for ImplMap [PInvokeAttributes]
+ */
+enum
+{
+	MONO_PINVOKE_NO_MANGLE = 1,
+	MONO_PINVOKE_CHAR_SET_MASK = 6,
+	MONO_PINVOKE_CHAR_SET_NOT_SPEC = 0,
+	MONO_PINVOKE_CHAR_SET_ANSI = 2,
+	MONO_PINVOKE_CHAR_SET_UNICODE = 4,
+	MONO_PINVOKE_CHAR_SET_AUTO = 6,
+	MONO_PINVOKE_BEST_FIT_ENABLED = 16,
+	MONO_PINVOKE_BEST_FIT_DISABLED = 32,
+	MONO_PINVOKE_BEST_FIT_MASK = 48,
+	MONO_PINVOKE_SUPPORTS_LAST_ERROR = 64,
+	MONO_PINVOKE_CALL_CONV_MASK = 1792,
+	MONO_PINVOKE_CALL_CONV_WINAPI = 256,
+	MONO_PINVOKE_CALL_CONV_CDECL = 512,
+	MONO_PINVOKE_CALL_CONV_STDCALL = 768,
+	MONO_PINVOKE_CALL_CONV_THISCALL = 1024,
+	MONO_PINVOKE_CALL_CONV_FASTCALL = 1280,
+	MONO_PINVOKE_THROW_ON_UNMAPPABLE_ENABLED = 4096,
+	MONO_PINVOKE_THROW_ON_UNMAPPABLE_DISABLED = 8192,
+	MONO_PINVOKE_THROW_ON_UNMAPPABLE_MASK = 12288,
+	MONO_PINVOKE_CALL_CONV_GENERIC = 16,
+	MONO_PINVOKE_CALL_CONV_GENERICINST = 10
+}
+
+/**
+ * 23.1.9 Flags for ManifestResource
+ */
+enum
+{
+	MONO_MANIFEST_RESOURCE_VISIBILITY_MASK = 7,
+	MONO_MANIFEST_RESOURCE_PUBLIC = 1,
+	MONO_MANIFEST_RESOURCE_PRIVATE = 2
+}
+
+/**
+ * Method Attributes (23.1.10)
+ */
+enum
+{
+	MONO_METHOD_ATTR_ACCESS_MASK = 7,
+	MONO_METHOD_ATTR_COMPILER_CONTROLLED = 0,
+	MONO_METHOD_ATTR_PRIVATE = 1,
+	MONO_METHOD_ATTR_FAM_AND_ASSEM = 2,
+	MONO_METHOD_ATTR_ASSEM = 3,
+	MONO_METHOD_ATTR_FAMILY = 4,
+	MONO_METHOD_ATTR_FAM_OR_ASSEM = 5,
+	MONO_METHOD_ATTR_PUBLIC = 6,
+
+	MONO_METHOD_ATTR_STATIC = 16,
+	MONO_METHOD_ATTR_FINAL = 32,
+	MONO_METHOD_ATTR_VIRTUAL = 64,
+	MONO_METHOD_ATTR_HIDE_BY_SIG = 128,
+
+	MONO_METHOD_ATTR_VTABLE_LAYOUT_MASK = 256,
+	MONO_METHOD_ATTR_REUSE_SLOT = 0,
+	MONO_METHOD_ATTR_NEW_SLOT = 256,
+	MONO_METHOD_ATTR_STRICT = 512,
+	MONO_METHOD_ATTR_ABSTRACT = 1024,
+
+	MONO_METHOD_ATTR_SPECIAL_NAME = 2048,
+
+	MONO_METHOD_ATTR_PINVOKE_IMPL = 8192,
+	MONO_METHOD_ATTR_UNMANAGED_EXPORT = 8,
+
+	/**
+     * For runtime use only
+     */
+	MONO_METHOD_ATTR_RESERVED_MASK = 53248,
+	MONO_METHOD_ATTR_RT_SPECIAL_NAME = 4096,
+	MONO_METHOD_ATTR_HAS_SECURITY = 16384,
+	MONO_METHOD_ATTR_REQUIRE_SEC_OBJECT = 32768
+}
+
+/**
+ * Method Impl Attributes (23.1.11)
+ */
+enum
+{
+	MONO_METHOD_IMPL_ATTR_CODE_TYPE_MASK = 3,
+	MONO_METHOD_IMPL_ATTR_IL = 0,
+	MONO_METHOD_IMPL_ATTR_NATIVE = 1,
+	MONO_METHOD_IMPL_ATTR_OPTIL = 2,
+	MONO_METHOD_IMPL_ATTR_RUNTIME = 3,
+
+	MONO_METHOD_IMPL_ATTR_MANAGED_MASK = 4,
+	MONO_METHOD_IMPL_ATTR_UNMANAGED = 4,
+	MONO_METHOD_IMPL_ATTR_MANAGED = 0,
+
+	MONO_METHOD_IMPL_ATTR_FORWARD_REF = 16,
+	MONO_METHOD_IMPL_ATTR_PRESERVE_SIG = 128,
+	MONO_METHOD_IMPL_ATTR_INTERNAL_CALL = 4096,
+	MONO_METHOD_IMPL_ATTR_SYNCHRONIZED = 32,
+	MONO_METHOD_IMPL_ATTR_NOINLINING = 8,
+	MONO_METHOD_IMPL_ATTR_NOOPTIMIZATION = 64,
+	MONO_METHOD_IMPL_ATTR_MAX_METHOD_IMPL_VAL = 65535
+}
+
+/**
+ * Method Semantics ([MethodSemanticAttributes]) 23.1.12,
+ */
+enum
+{
+	MONO_METHOD_SEMANTIC_SETTER = 1,
+	MONO_METHOD_SEMANTIC_GETTER = 2,
+	MONO_METHOD_SEMANTIC_OTHER = 4,
+	MONO_METHOD_SEMANTIC_ADD_ON = 8,
+	MONO_METHOD_SEMANTIC_REMOVE_ON = 16,
+	MONO_METHOD_SEMANTIC_FIRE = 32
+}
+
+/**
+ * Flags for Params (23.1.13)
+ */
+enum
+{
+	MONO_PARAM_ATTR_IN = 1,
+	MONO_PARAM_ATTR_OUT = 2,
+	MONO_PARAM_ATTR_OPTIONAL = 16,
+	MONO_PARAM_ATTR_RESERVED_MASK = 61440,
+	MONO_PARAM_ATTR_HAS_DEFAULT = 4096,
+	MONO_PARAM_ATTR_HAS_MARSHAL = 8192,
+	MONO_PARAM_ATTR_UNUSED = 53216
+}
+
+/**
+ * 23.1.14 PropertyAttributes
+ */
+enum
+{
+	MONO_PROPERTY_ATTR_SPECIAL_NAME = 512,
+	MONO_PROPERTY_ATTR_RESERVED_MASK = 62464,
+	MONO_PROPERTY_ATTR_RT_SPECIAL_NAME = 1024,
+	MONO_PROPERTY_ATTR_HAS_DEFAULT = 4096,
+	MONO_PROPERTY_ATTR_UNUSED = 59903
+}
+
+/**
+ * Type Attributes (23.1.15).
+ */
+enum
+{
+	MONO_TYPE_ATTR_VISIBILITY_MASK = 7,
+	MONO_TYPE_ATTR_NOT_PUBLIC = 0,
+	MONO_TYPE_ATTR_PUBLIC = 1,
+	MONO_TYPE_ATTR_NESTED_PUBLIC = 2,
+	MONO_TYPE_ATTR_NESTED_PRIVATE = 3,
+	MONO_TYPE_ATTR_NESTED_FAMILY = 4,
+	MONO_TYPE_ATTR_NESTED_ASSEMBLY = 5,
+	MONO_TYPE_ATTR_NESTED_FAM_AND_ASSEM = 6,
+	MONO_TYPE_ATTR_NESTED_FAM_OR_ASSEM = 7,
+
+	MONO_TYPE_ATTR_LAYOUT_MASK = 24,
+	MONO_TYPE_ATTR_AUTO_LAYOUT = 0,
+	MONO_TYPE_ATTR_SEQUENTIAL_LAYOUT = 8,
+	MONO_TYPE_ATTR_EXPLICIT_LAYOUT = 16,
+
+	MONO_TYPE_ATTR_CLASS_SEMANTIC_MASK = 32,
+	MONO_TYPE_ATTR_CLASS = 0,
+	MONO_TYPE_ATTR_INTERFACE = 32,
+
+	MONO_TYPE_ATTR_ABSTRACT = 128,
+	MONO_TYPE_ATTR_SEALED = 256,
+	MONO_TYPE_ATTR_SPECIAL_NAME = 1024,
+
+	MONO_TYPE_ATTR_IMPORT = 4096,
+	MONO_TYPE_ATTR_SERIALIZABLE = 8192,
+
+	MONO_TYPE_ATTR_STRING_FORMAT_MASK = 196608,
+	MONO_TYPE_ATTR_ANSI_CLASS = 0,
+	MONO_TYPE_ATTR_UNICODE_CLASS = 65536,
+	MONO_TYPE_ATTR_AUTO_CLASS = 131072,
+	MONO_TYPE_ATTR_CUSTOM_CLASS = 196608,
+	MONO_TYPE_ATTR_CUSTOM_MASK = 12582912,
+
+	MONO_TYPE_ATTR_BEFORE_FIELD_INIT = 1048576,
+	MONO_TYPE_ATTR_FORWARDER = 2097152,
+
+	MONO_TYPE_ATTR_RESERVED_MASK = 264192,
+	MONO_TYPE_ATTR_RT_SPECIAL_NAME = 2048,
+	MONO_TYPE_ATTR_HAS_SECURITY = 262144
+}
+
+// metadata/blob.h
+/**
+ * Encoding for type signatures used in the Metadata
+ */
+alias MonoTypeEnum = int;
+enum : MonoTypeEnum
+{
+	MONO_TYPE_END = 0, /** End of List */
+	MONO_TYPE_VOID = 1,
+	MONO_TYPE_BOOLEAN = 2,
+	MONO_TYPE_CHAR = 3,
+	MONO_TYPE_I1 = 4,
+	MONO_TYPE_U1 = 5,
+	MONO_TYPE_I2 = 6,
+	MONO_TYPE_U2 = 7,
+	MONO_TYPE_I4 = 8,
+	MONO_TYPE_U4 = 9,
+	MONO_TYPE_I8 = 10,
+	MONO_TYPE_U8 = 11,
+	MONO_TYPE_R4 = 12,
+	MONO_TYPE_R8 = 13,
+	MONO_TYPE_STRING = 14,
+	MONO_TYPE_PTR = 15, /** arg: <type> token */
+	MONO_TYPE_BYREF = 16, /** arg: <type> token */
+	MONO_TYPE_VALUETYPE = 17, /** arg: <type> token */
+	MONO_TYPE_CLASS = 18, /** arg: <type> token */
+	MONO_TYPE_VAR = 19, /** number */
+	MONO_TYPE_ARRAY = 20, /** type, rank, boundsCount, bound1, loCount, lo1 */
+	MONO_TYPE_GENERICINST = 21, /** <type> <type-arg-count> <type-1> \x{2026} <type-n> */
+	MONO_TYPE_TYPEDBYREF = 22,
+	MONO_TYPE_I = 24,
+	MONO_TYPE_U = 25,
+	MONO_TYPE_FNPTR = 27, /** arg: full method signature */
+	MONO_TYPE_OBJECT = 28,
+	MONO_TYPE_SZARRAY = 29, /** 0-based one-dim-array */
+	MONO_TYPE_MVAR = 30, /** number */
+	MONO_TYPE_CMOD_REQD = 31, /** arg: typedef or typeref token */
+	MONO_TYPE_CMOD_OPT = 32, /** optional arg: typedef or typref token */
+	MONO_TYPE_INTERNAL = 33, /** CLR internal type */
+
+	MONO_TYPE_MODIFIER = 64, /** Or with the following types */
+	MONO_TYPE_SENTINEL = 65, /** Sentinel for varargs method signature */
+	MONO_TYPE_PINNED = 69, /** Local var that points to pinned object */
+
+	MONO_TYPE_ENUM = 85 /** an enumeration */
+}
+
+alias MonoMetaTableEnum = int;
+enum : MonoMetaTableEnum
+{
+	MONO_TABLE_MODULE = 0,
+	MONO_TABLE_TYPEREF = 1,
+	MONO_TABLE_TYPEDEF = 2,
+	MONO_TABLE_FIELD_POINTER = 3,
+	MONO_TABLE_FIELD = 4,
+	MONO_TABLE_METHOD_POINTER = 5,
+	MONO_TABLE_METHOD = 6,
+	MONO_TABLE_PARAM_POINTER = 7,
+	MONO_TABLE_PARAM = 8,
+	MONO_TABLE_INTERFACEIMPL = 9,
+	MONO_TABLE_MEMBERREF = 10, /** 0xa */
+	MONO_TABLE_CONSTANT = 11,
+	MONO_TABLE_CUSTOMATTRIBUTE = 12,
+	MONO_TABLE_FIELDMARSHAL = 13,
+	MONO_TABLE_DECLSECURITY = 14,
+	MONO_TABLE_CLASSLAYOUT = 15,
+	MONO_TABLE_FIELDLAYOUT = 16, /** 0x10 */
+	MONO_TABLE_STANDALONESIG = 17,
+	MONO_TABLE_EVENTMAP = 18,
+	MONO_TABLE_EVENT_POINTER = 19,
+	MONO_TABLE_EVENT = 20,
+	MONO_TABLE_PROPERTYMAP = 21,
+	MONO_TABLE_PROPERTY_POINTER = 22,
+	MONO_TABLE_PROPERTY = 23,
+	MONO_TABLE_METHODSEMANTICS = 24,
+	MONO_TABLE_METHODIMPL = 25,
+	MONO_TABLE_MODULEREF = 26, /** 0x1a */
+	MONO_TABLE_TYPESPEC = 27,
+	MONO_TABLE_IMPLMAP = 28,
+	MONO_TABLE_FIELDRVA = 29,
+	MONO_TABLE_UNUSED6 = 30,
+	MONO_TABLE_UNUSED7 = 31,
+	MONO_TABLE_ASSEMBLY = 32, /** 0x20 */
+	MONO_TABLE_ASSEMBLYPROCESSOR = 33,
+	MONO_TABLE_ASSEMBLYOS = 34,
+	MONO_TABLE_ASSEMBLYREF = 35,
+	MONO_TABLE_ASSEMBLYREFPROCESSOR = 36,
+	MONO_TABLE_ASSEMBLYREFOS = 37,
+	MONO_TABLE_FILE = 38,
+	MONO_TABLE_EXPORTEDTYPE = 39,
+	MONO_TABLE_MANIFESTRESOURCE = 40,
+	MONO_TABLE_NESTEDCLASS = 41,
+	MONO_TABLE_GENERICPARAM = 42, /** 0x2a */
+	MONO_TABLE_METHODSPEC = 43,
+	MONO_TABLE_GENERICPARAMCONSTRAINT = 44,
+	MONO_TABLE_UNUSED8 = 45,
+	MONO_TABLE_UNUSED9 = 46,
+	MONO_TABLE_UNUSED10 = 47,
+	/** Portable PDB tables */
+	MONO_TABLE_DOCUMENT = 48, /** 0x30 */
+	MONO_TABLE_METHODBODY = 49,
+	MONO_TABLE_LOCALSCOPE = 50,
+	MONO_TABLE_LOCALVARIABLE = 51,
+	MONO_TABLE_LOCALCONSTANT = 52,
+	MONO_TABLE_IMPORTSCOPE = 53,
+	MONO_TABLE_STATEMACHINEMETHOD = 54,
+	MONO_TABLE_CUSTOMDEBUGINFORMATION = 55
+}
+
+enum MONO_TABLE_LAST = MONO_TABLE_CUSTOMDEBUGINFORMATION;
+enum MONO_TABLE_NUM = MONO_TABLE_LAST + 1;
+
+// metadata/class.h
+struct MonoVTable;
+struct _MonoClassField;
+alias MonoClassField = _MonoClassField;
+struct _MonoProperty;
+alias MonoProperty = _MonoProperty;
+struct _MonoEvent;
+alias MonoEvent = _MonoEvent;
+
+// metadata/debug-helpers.h
+alias MonoDisIndenter = char* function(MonoDisHelper* dh, MonoMethod* method, uint32_t ip_offset);
+alias MonoDisTokener = char* function(MonoDisHelper* dh, MonoMethod* method, uint32_t token);
+struct MonoDisHelper
+{
+	const char* newline;
+	const char* label_format;
+	const char* label_target;
+	MonoDisIndenter indenter;
+	MonoDisTokener tokener;
+	void* user_data;
+}
+
+struct MonoMethodDesc;
+
+// metadata/debug-mono-symfile.h
+struct MonoSymbolFileOffsetTable
+{
+	uint32_t _total_file_size;
+	uint32_t _data_section_offset;
+	uint32_t _data_section_size;
+	uint32_t _compile_unit_count;
+	uint32_t _compile_unit_table_offset;
+	uint32_t _compile_unit_table_size;
+	uint32_t _source_count;
+	uint32_t _source_table_offset;
+	uint32_t _source_table_size;
+	uint32_t _method_count;
+	uint32_t _method_table_offset;
+	uint32_t _method_table_size;
+	uint32_t _type_count;
+	uint32_t _anonymous_scope_count;
+	uint32_t _anonymous_scope_table_offset;
+	uint32_t _anonymous_scope_table_size;
+	uint32_t _line_number_table_line_base;
+	uint32_t _line_number_table_line_range;
+	uint32_t _line_number_table_opcode_base;
+	uint32_t _is_aspx_source;
+}
+
+struct MonoSymbolFileSourceEntry
+{
+	uint32_t _index;
+	uint32_t _data_offset;
+}
+
+struct MonoSymbolFileMethodEntry
+{
+	uint32_t _token;
+	uint32_t _data_offset;
+	uint32_t _line_number_table;
+}
+
+struct MonoSymbolFileMethodAddress
+{
+	uint32_t size;
+	const(uint8_t)* start_address;
+	const(uint8_t)* end_address;
+	const(uint8_t)* method_start_address;
+	const(uint8_t)* method_end_address;
+	const(uint8_t)* wrapper_address;
+	uint32_t has_this;
+	uint32_t num_params;
+	uint32_t variable_table_offset;
+	uint32_t type_table_offset;
+	uint32_t num_line_numbers;
+	uint32_t line_number_offset;
+	uint8_t[MONO_ZERO_LEN_ARRAY] data;
+}
+
+struct _MonoDebugMethodInfo
+{
+	MonoMethod* method;
+	MonoDebugHandle* handle;
+	uint32_t index;
+	uint32_t data_offset;
+	uint32_t lnt_offset;
+}
+
+struct MonoDebugCodeBlock
+{
+	int parent;
+	int type;
+	/** IL offsets */
+	int start_offset, end_offset;
+};
+
+struct MonoDebugLocalVar
+{
+	char* name;
+	int index;
+	/** Might be null for the main scope */
+	MonoDebugCodeBlock* block;
+}
+
+/**
+ * Information about local variables retrieved from a symbol file.
+ */
+struct _MonoDebugLocalsInfo
+{
+	int num_locals;
+	MonoDebugLocalVar* locals;
+	int num_blocks;
+	MonoDebugCodeBlock* code_blocks;
+}
+
+/**
+* Information about method await yield and resume offsets retrieved from a symbol file.
+*/
+struct _MonoDebugMethodAsyncInfo
+{
+	uint32_t catch_handler_offset;
+	int num_awaits;
+	uint32_t* yield_offsets;
+	uint32_t* resume_offsets;
+	uint32_t* move_next_method_token;
+}
+
+struct _MonoDebugLineNumberEntry
+{
+	uint32_t il_offset;
+	uint32_t native_offset;
+}
+
+/**
+ * Information about a source file retrieved from a symbol file.
+ */
+struct MonoDebugSourceInfo
+{
+	char* source_file;
+	/** 16 byte long */
+	ubyte* guid, hash;
+}
+
+struct MonoSymSeqPoint
+{
+	int il_offset;
+	int line, column;
+	int end_line, end_column;
+}
+
+enum MONO_SYMBOL_FILE_MAJOR_VERSION = 50;
+enum MONO_SYMBOL_FILE_MINOR_VERSION = 0;
+enum ulong MONO_SYMBOL_FILE_MAGIC = 0x45e82623fd7fa614UL;
+
+// metadata/environment.h
+
+// metadata/exception.h
+alias MonoUnhandledExceptionFunc = void function(MonoObject* exc, void* user_data);
+
+// metadata/image.h
+struct _MonoImage;
+alias MonoImage = _MonoImage;
+struct _MonoAssembly;
+alias MonoAssembly = _MonoAssembly;
+struct _MonoAssemblyName;
+alias MonoAssemblyName = _MonoAssemblyName;
+struct _MonoTableInfo;
+alias MonoTableInfo = _MonoTableInfo;
+alias MonoImageOpenStatus = int;
+enum : MonoImageOpenStatus
+{
+	MONO_IMAGE_OK = 0,
+	MONO_IMAGE_ERROR_ERRNO = 1,
+	MONO_IMAGE_MISSING_ASSEMBLYREF = 2,
+	MONO_IMAGE_IMAGE_INVALID = 3
+}
+
+// metadata/loader.h
+alias MonoStackWalk = int function(MonoMethod* method, int native_offset,
+		int il_offset, mono_bool managed, void* data);
+alias MonoStackWalkAsyncSafe = int function(MonoMethod* method,
+		MonoDomain* domain, void* base_address, int offset, void* data);
+
+// metadata/metadata.h
+
+struct MonoClass;
+struct MonoDomain;
+struct MonoMethod;
+
+alias MonoExceptionEnum = int;
+enum : MonoExceptionEnum
+{
+	MONO_EXCEPTION_CLAUSE_NONE,
+	MONO_EXCEPTION_CLAUSE_FILTER,
+	MONO_EXCEPTION_CLAUSE_FINALLY,
+	MONO_EXCEPTION_CLAUSE_FAULT = 4
+}
+
+alias MonoCallConvention = int;
+enum : MonoCallConvention
+{
+	MONO_CALL_DEFAULT,
+	MONO_CALL_C,
+	MONO_CALL_STDCALL,
+	MONO_CALL_THISCALL,
+	MONO_CALL_FASTCALL,
+	MONO_CALL_VARARG
+}
+
+alias MonoMarshalNative = int;
+enum : MonoMarshalNative
+{
+	MONO_NATIVE_BOOLEAN = 0x02, /** 4 bytes, 0 is false, != 0 is true */
+	MONO_NATIVE_I1 = 0x03,
+	MONO_NATIVE_U1 = 0x04,
+	MONO_NATIVE_I2 = 0x05,
+	MONO_NATIVE_U2 = 0x06,
+	MONO_NATIVE_I4 = 0x07,
+	MONO_NATIVE_U4 = 0x08,
+	MONO_NATIVE_I8 = 0x09,
+	MONO_NATIVE_U8 = 0x0a,
+	MONO_NATIVE_R4 = 0x0b,
+	MONO_NATIVE_R8 = 0x0c,
+	MONO_NATIVE_CURRENCY = 0x0f,
+	MONO_NATIVE_BSTR = 0x13, /** prefixed length, Unicode */
+	MONO_NATIVE_LPSTR = 0x14, /** ANSI, null terminated */
+	MONO_NATIVE_LPWSTR = 0x15, /** UNICODE, null terminated */
+	MONO_NATIVE_LPTSTR = 0x16, /** plattform dep., null terminated */
+	MONO_NATIVE_BYVALTSTR = 0x17,
+	MONO_NATIVE_IUNKNOWN = 0x19,
+	MONO_NATIVE_IDISPATCH = 0x1a,
+	MONO_NATIVE_STRUCT = 0x1b,
+	MONO_NATIVE_INTERFACE = 0x1c,
+	MONO_NATIVE_SAFEARRAY = 0x1d,
+	MONO_NATIVE_BYVALARRAY = 0x1e,
+	MONO_NATIVE_INT = 0x1f,
+	MONO_NATIVE_UINT = 0x20,
+	MONO_NATIVE_VBBYREFSTR = 0x22,
+	MONO_NATIVE_ANSIBSTR = 0x23, /** prefixed length, ANSI */
+	MONO_NATIVE_TBSTR = 0x24, /** prefixed length, plattform dep. */
+	MONO_NATIVE_VARIANTBOOL = 0x25,
+	MONO_NATIVE_FUNC = 0x26,
+	MONO_NATIVE_ASANY = 0x28,
+	MONO_NATIVE_LPARRAY = 0x2a,
+	MONO_NATIVE_LPSTRUCT = 0x2b,
+	MONO_NATIVE_CUSTOM = 0x2c,
+	MONO_NATIVE_ERROR = 0x2d,
+	// TODO: MONO_NATIVE_IINSPECTABLE = 0x2e
+	// TODO: MONO_NATIVE_HSTRING = 0x2f
+	MONO_NATIVE_UTF8STR = 0x30,
+	MONO_NATIVE_MAX = 0x50 /** no info */
+}
+
+alias MonoMarshalVariant = int;
+enum : MonoMarshalVariant
+{
+	MONO_VARIANT_EMPTY = 0x00,
+	MONO_VARIANT_NULL = 0x01,
+	MONO_VARIANT_I2 = 0x02,
+	MONO_VARIANT_I4 = 0x03,
+	MONO_VARIANT_R4 = 0x04,
+	MONO_VARIANT_R8 = 0x05,
+	MONO_VARIANT_CY = 0x06,
+	MONO_VARIANT_DATE = 0x07,
+	MONO_VARIANT_BSTR = 0x08,
+	MONO_VARIANT_DISPATCH = 0x09,
+	MONO_VARIANT_ERROR = 0x0a,
+	MONO_VARIANT_BOOL = 0x0b,
+	MONO_VARIANT_VARIANT = 0x0c,
+	MONO_VARIANT_UNKNOWN = 0x0d,
+	MONO_VARIANT_DECIMAL = 0x0e,
+	MONO_VARIANT_I1 = 0x10,
+	MONO_VARIANT_UI1 = 0x11,
+	MONO_VARIANT_UI2 = 0x12,
+	MONO_VARIANT_UI4 = 0x13,
+	MONO_VARIANT_I8 = 0x14,
+	MONO_VARIANT_UI8 = 0x15,
+	MONO_VARIANT_INT = 0x16,
+	MONO_VARIANT_UINT = 0x17,
+	MONO_VARIANT_VOID = 0x18,
+	MONO_VARIANT_HRESULT = 0x19,
+	MONO_VARIANT_PTR = 0x1a,
+	MONO_VARIANT_SAFEARRAY = 0x1b,
+	MONO_VARIANT_CARRAY = 0x1c,
+	MONO_VARIANT_USERDEFINED = 0x1d,
+	MONO_VARIANT_LPSTR = 0x1e,
+	MONO_VARIANT_LPWSTR = 0x1f,
+	MONO_VARIANT_RECORD = 0x24,
+	MONO_VARIANT_FILETIME = 0x40,
+	MONO_VARIANT_BLOB = 0x41,
+	MONO_VARIANT_STREAM = 0x42,
+	MONO_VARIANT_STORAGE = 0x43,
+	MONO_VARIANT_STREAMED_OBJECT = 0x44,
+	MONO_VARIANT_STORED_OBJECT = 0x45,
+	MONO_VARIANT_BLOB_OBJECT = 0x46,
+	MONO_VARIANT_CF = 0x47,
+	MONO_VARIANT_CLSID = 0x48,
+	MONO_VARIANT_VECTOR = 0x1000,
+	MONO_VARIANT_ARRAY = 0x2000,
+	MONO_VARIANT_BYREF = 0x4000
+}
+
+alias MonoMarshalConv = int;
+enum : MonoMarshalConv
+{
+	MONO_MARSHAL_CONV_NONE,
+	MONO_MARSHAL_CONV_BOOL_VARIANTBOOL,
+	MONO_MARSHAL_CONV_BOOL_I4,
+	MONO_MARSHAL_CONV_STR_BSTR,
+	MONO_MARSHAL_CONV_STR_LPSTR,
+	MONO_MARSHAL_CONV_LPSTR_STR,
+	MONO_MARSHAL_CONV_LPTSTR_STR,
+	MONO_MARSHAL_CONV_STR_LPWSTR,
+	MONO_MARSHAL_CONV_LPWSTR_STR,
+	MONO_MARSHAL_CONV_STR_LPTSTR,
+	MONO_MARSHAL_CONV_STR_ANSIBSTR,
+	MONO_MARSHAL_CONV_STR_TBSTR,
+	MONO_MARSHAL_CONV_STR_BYVALSTR,
+	MONO_MARSHAL_CONV_STR_BYVALWSTR,
+	MONO_MARSHAL_CONV_SB_LPSTR,
+	MONO_MARSHAL_CONV_SB_LPTSTR,
+	MONO_MARSHAL_CONV_SB_LPWSTR,
+	MONO_MARSHAL_CONV_LPSTR_SB,
+	MONO_MARSHAL_CONV_LPTSTR_SB,
+	MONO_MARSHAL_CONV_LPWSTR_SB,
+	MONO_MARSHAL_CONV_ARRAY_BYVALARRAY,
+	MONO_MARSHAL_CONV_ARRAY_BYVALCHARARRAY,
+	MONO_MARSHAL_CONV_ARRAY_SAVEARRAY,
+	MONO_MARSHAL_CONV_ARRAY_LPARRAY,
+	MONO_MARSHAL_FREE_LPARRAY,
+	MONO_MARSHAL_CONV_OBJECT_INTERFACE,
+	MONO_MARSHAL_CONV_OBJECT_IDISPATCH,
+	MONO_MARSHAL_CONV_OBJECT_IUNKNOWN,
+	MONO_MARSHAL_CONV_OBJECT_STRUCT,
+	MONO_MARSHAL_CONV_DEL_FTN,
+	MONO_MARSHAL_CONV_FTN_DEL,
+	MONO_MARSHAL_FREE_ARRAY,
+	MONO_MARSHAL_CONV_BSTR_STR,
+	MONO_MARSHAL_CONV_SAFEHANDLE,
+	MONO_MARSHAL_CONV_HANDLEREF,
+	MONO_MARSHAL_CONV_STR_UTF8STR,
+	MONO_MARSHAL_CONV_SB_UTF8STR,
+	MONO_MARSHAL_CONV_UTF8STR_STR,
+	MONO_MARSHAL_CONV_UTF8STR_SB,
+	MONO_MARSHAL_CONV_FIXED_BUFFER
+}
+enum MONO_MARSHAL_CONV_INVALID = cast(MonoMarshalConv)(-1);
+
+struct MonoMarshalSpec
+{
+	MonoMarshalNative native;
+	static union data_t
+	{
+		static struct array_data_t
+		{
+			MonoMarshalNative elem_type;
+			int32_t num_elem; /** -1 if not set */
+			int16_t param_num; /** -1 if not set */
+			int16_t elem_mult; /** -1 if not set */
+		}
+
+		static struct custom_data_t
+		{
+			char* custom_name;
+			char* cookie;
+			MonoImage* image;
+		}
+
+		static struct safearray_data_t
+		{
+			MonoMarshalVariant elem_type;
+			int32_t num_elem;
+		}
+
+		array_data_t array_data;
+		custom_data_t custom_data;
+		safearray_data_t safearray_data;
+	}
+
+	data_t data;
+}
+
+struct MonoExceptionClause
+{
+	uint32_t flags;
+	uint32_t try_offset;
+	uint32_t try_len;
+	uint32_t handler_offset;
+	uint32_t handler_len;
+	static union data_t
+	{
+		uint32_t filter_offset;
+		MonoClass* catch_class;
+	}
+
+	data_t data;
+}
+
+struct MonoType;
+alias _MonoType = MonoType;
+struct MonoGenericInst;
+alias _MonoGenericInst = MonoGenericInst;
+struct MonoGenericClass;
+alias _MonoGenericClass = MonoGenericClass;
+struct MonoGenericContext;
+alias _MonoGenericContext = MonoGenericContext;
+struct MonoGenericContainer;
+alias _MonoGenericContainer = MonoGenericContainer;
+struct MonoGenericParam;
+alias _MonoGenericParam = MonoGenericParam;
+
+alias _MonoArrayType = MonoArrayType;
+struct MonoMethodSignature;
+alias _MonoMethodSignature = MonoMethodSignature;
+struct invalid_name;
+alias MonoGenericMethod = invalid_name;
+struct MonoCustomMod
+{
+	uint required_1_token_31;
+}
+
+struct MonoArrayType
+{
+	MonoClass* eklass;
+	// Number of dimensions of the array
+	uint8_t rank;
+
+	// Arrays recording known upper and lower index bounds for each dimension
+	uint8_t numsizes;
+	uint8_t numlobounds;
+	int* sizes;
+	int* lobounds;
+}
+
+struct MonoMethodHeader;
+alias _MonoMethodHeader = MonoMethodHeader;
+
+alias MonoParseTypeMode = int;
+enum : MonoParseTypeMode
+{
+	MONO_PARSE_TYPE,
+	MONO_PARSE_MOD_TYPE,
+	MONO_PARSE_LOCAL,
+	MONO_PARSE_PARAM,
+	MONO_PARSE_RET,
+	MONO_PARSE_FIELD
+}
+
+// metadata/mono-config.h
+
+// metadata/mono-debug.h
+alias _MonoSymbolTable = MonoSymbolTable;
+struct MonoDebugDataTable;
+alias _MonoDebugDataTable = MonoDebugDataTable;
+struct MonoSymbolFile;
+alias _MonoSymbolFile = MonoSymbolFile;
+struct MonoPPDBFile;
+alias _MonoPPDBFile = MonoPPDBFile;
+alias _MonoDebugHandle = MonoDebugHandle;
+alias MonoDebugLineNumberEntry = _MonoDebugLineNumberEntry;
+alias _MonoDebugVarInfo = MonoDebugVarInfo;
+alias _MonoDebugMethodJitInfo = MonoDebugMethodJitInfo;
+struct MonoDebugMethodAddress;
+alias _MonoDebugMethodAddress = MonoDebugMethodAddress;
+alias _MonoDebugMethodAddressList = MonoDebugMethodAddressList;
+struct MonoDebugClassEntry;
+alias _MonoDebugClassEntry = MonoDebugClassEntry;
+struct MonoDebugMethodInfo;
+alias MonoDebugLocalsInfo = _MonoDebugLocalsInfo;
+alias MonoDebugMethodAsyncInfo = _MonoDebugMethodAsyncInfo;
+alias _MonoDebugSourceLocation = MonoDebugSourceLocation;
+alias _MonoDebugList = MonoDebugList;
+
+alias MonoDebugFormat = int;
+enum : MonoDebugFormat
+{
+	MONO_DEBUG_FORMAT_NONE = 0,
+	MONO_DEBUG_FORMAT_MONO = 1,
+	/** Deprecated, the mdb debugger is not longer supported. */
+	MONO_DEBUG_FORMAT_DEBUGGER = 2
+}
+
+struct MonoDebugList
+{
+	MonoDebugList* next;
+	const(void)* data;
+}
+
+struct MonoSymbolTable
+{
+	uint64_t magic;
+	uint32_t version_;
+	uint32_t total_size;
+
+	/**
+	 * Corlib and metadata info.
+	 */
+	MonoDebugHandle* corlib;
+	MonoDebugDataTable* global_data_table;
+	MonoDebugList* data_tables;
+
+	/**
+	 * The symbol files.
+	 */
+	MonoDebugList* symbol_files;
+}
+
+struct MonoDebugHandle
+{
+	uint32_t index;
+	char* image_file;
+	MonoImage* image;
+	MonoDebugDataTable* type_table;
+	MonoSymbolFile* symfile;
+	MonoPPDBFile* ppdb;
+}
+
+struct MonoDebugMethodJitInfo
+{
+	const(mono_byte)* code_start;
+	uint32_t code_size;
+	uint32_t prologue_end;
+	uint32_t epilogue_begin;
+	const(mono_byte)* wrapper_addr;
+	uint32_t num_line_numbers;
+	MonoDebugLineNumberEntry* line_numbers;
+	uint32_t has_var_info;
+	uint32_t num_params;
+	MonoDebugVarInfo* this_var;
+	MonoDebugVarInfo* params;
+	uint32_t num_locals;
+	MonoDebugVarInfo* locals;
+	MonoDebugVarInfo* gsharedvt_info_var;
+	MonoDebugVarInfo* gsharedvt_locals_var;
+}
+
+struct MonoDebugMethodAddressList
+{
+	uint32_t size;
+	uint32_t count;
+	mono_byte[MONO_ZERO_LEN_ARRAY] data;
+}
+
+struct MonoDebugSourceLocation
+{
+	char* source_file;
+	uint32_t row, column;
+	uint32_t il_offset;
+}
+
+struct MonoDebugVarInfo
+{
+	uint32_t index;
+	uint32_t offset;
+	uint32_t size;
+	uint32_t begin_scope;
+	uint32_t end_scope;
+	MonoType* type;
+}
+
+/**
+ * These bits of the MonoDebugLocalInfo's "index" field are flags specifying
+ * where the variable is actually stored.
+ *
+ * See relocate_variable() in debug-symfile.c for more info.
+ */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_FLAGS = 0xf0000000;
+
+/** The variable is in register "index". */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_REGISTER = 0;
+
+/** The variable is at offset "offset" from register "index". */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_REGOFFSET = 0x10000000;
+
+/** The variable is in the two registers "offset" and "index". */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_TWO_REGISTERS = 0x20000000;
+
+/** The variable is dead. */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_DEAD = 0x30000000;
+
+/** Same as REGOFFSET, but do an indirection */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_REGOFFSET_INDIR = 0x40000000;
+
+/** gsharedvt local */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_GSHAREDVT_LOCAL = 0x50000000;
+
+/** variable is a vt address */
+enum MONO_DEBUG_VAR_ADDRESS_MODE_VTADDR = 0x60000000;
+
+enum MONO_DEBUGGER_MAJOR_VERSION = 81;
+enum MONO_DEBUGGER_MINOR_VERSION = 6;
+enum MONO_DEBUGGER_MAGIC = 0x7aff65af4253d427UL;
+
+// metadata/mono-gc.h
+alias MonoGCReferences = int function(MonoObject* obj, MonoClass* klass,
+		uintptr_t size, uintptr_t num, MonoObject** refs, uintptr_t* offsets, void* data);
+
+alias MonoGCRootSource = int;
+enum : MonoGCRootSource
+{
+	// Roots external to Mono.  Embedders may only use this value.
+	MONO_ROOT_SOURCE_EXTERNAL = 0,
+	// Thread stack.  Must not be used to register roots.
+	MONO_ROOT_SOURCE_STACK = 1,
+	// Roots in the finalizer queue.  Must not be used to register roots.
+	MONO_ROOT_SOURCE_FINALIZER_QUEUE = 2,
+	// Managed static variables.
+	MONO_ROOT_SOURCE_STATIC = 3,
+	// Static variables with ThreadStaticAttribute.
+	MONO_ROOT_SOURCE_THREAD_STATIC = 4,
+	// Static variables with ContextStaticAttribute.
+	MONO_ROOT_SOURCE_CONTEXT_STATIC = 5,
+	// GCHandle structures.
+	MONO_ROOT_SOURCE_GC_HANDLE = 6,
+	// Roots in the just-in-time compiler.
+	MONO_ROOT_SOURCE_JIT = 7,
+	// Roots in the threading subsystem.
+	MONO_ROOT_SOURCE_THREADING = 8,
+	// Roots in application domains.
+	MONO_ROOT_SOURCE_DOMAIN = 9,
+	// Roots in reflection code.
+	MONO_ROOT_SOURCE_REFLECTION = 10,
+	// Roots from P/Invoke or other marshaling.
+	MONO_ROOT_SOURCE_MARSHAL = 11,
+	// Roots in the thread pool data structures.
+	MONO_ROOT_SOURCE_THREAD_POOL = 12,
+	// Roots in the debugger agent.
+	MONO_ROOT_SOURCE_DEBUGGER = 13,
+	// Handle structures, used for object passed to internal functions
+	MONO_ROOT_SOURCE_HANDLE = 14,
+}
+
+// metadata/object.h
+alias MonoBoolean = mono_byte;
+
+struct _MonoString;
+alias MonoString = _MonoString;
+struct _MonoArray;
+alias MonoArray = _MonoArray;
+struct _MonoReflectionMethod;
+alias MonoReflectionMethod = _MonoReflectionMethod;
+struct _MonoReflectionAssembly;
+alias MonoReflectionAssembly = _MonoReflectionAssembly;
+struct _MonoReflectionModule;
+alias MonoReflectionModule = _MonoReflectionModule;
+struct _MonoReflectionField;
+alias MonoReflectionField = _MonoReflectionField;
+struct _MonoReflectionProperty;
+alias MonoReflectionProperty = _MonoReflectionProperty;
+struct _MonoReflectionEvent;
+alias MonoReflectionEvent = _MonoReflectionEvent;
+struct _MonoReflectionType;
+alias MonoReflectionType = _MonoReflectionType;
+struct _MonoDelegate;
+alias MonoDelegate = _MonoDelegate;
+struct _MonoException;
+alias MonoException = _MonoException;
+struct _MonoThreadsSync;
+alias MonoThreadsSync = _MonoThreadsSync;
+struct _MonoThread;
+alias MonoThread = _MonoThread;
+struct _MonoDynamicAssembly;
+alias MonoDynamicAssembly = _MonoDynamicAssembly;
+struct _MonoDynamicImage;
+alias MonoDynamicImage = _MonoDynamicImage;
+struct _MonoReflectionMethodBody;
+alias MonoReflectionMethodBody = _MonoReflectionMethodBody;
+struct _MonoAppContext;
+alias MonoAppContext = _MonoAppContext;
+
+struct _MonoObject
+{
+	MonoVTable* vtable;
+	MonoThreadsSync* synchronisation;
+}
+
+alias MonoObject = _MonoObject;
+
+alias MonoInvokeFunc = _MonoObject* function(MonoMethod* method, void* obj,
+		void** params, MonoObject** exc, MonoError* error);
+alias MonoCompileFunc = void* function(MonoMethod* method);
+alias MonoMainThreadFunc = void function(void* user_data);
+alias mono_reference_queue_callback = void function(void* user_data);
+struct _MonoReferenceQueue;
+alias MonoReferenceQueue = _MonoReferenceQueue;
+
+// metadata/opcodes.h
+enum MONO_CUSTOM_PREFIX = 0xf0;
+
+alias MonoOpcodeEnum = int;
+enum : MonoOpcodeEnum
+{
+	MONO_CEE_NOP = 0,
+	MONO_CEE_BREAK = 1,
+	MONO_CEE_LDARG_0 = 2,
+	MONO_CEE_LDARG_1 = 3,
+	MONO_CEE_LDARG_2 = 4,
+	MONO_CEE_LDARG_3 = 5,
+	MONO_CEE_LDLOC_0 = 6,
+	MONO_CEE_LDLOC_1 = 7,
+	MONO_CEE_LDLOC_2 = 8,
+	MONO_CEE_LDLOC_3 = 9,
+	MONO_CEE_STLOC_0 = 10,
+	MONO_CEE_STLOC_1 = 11,
+	MONO_CEE_STLOC_2 = 12,
+	MONO_CEE_STLOC_3 = 13,
+	MONO_CEE_LDARG_S = 14,
+
+	/** __MONO_METADATA_OPCODES_H__ */
+	MONO_CEE_LDARGA_S = 15,
+	MONO_CEE_STARG_S = 16,
+	MONO_CEE_LDLOC_S = 17,
+	MONO_CEE_LDLOCA_S = 18,
+	MONO_CEE_STLOC_S = 19,
+	MONO_CEE_LDNULL = 20,
+	MONO_CEE_LDC_I4_M1 = 21,
+	MONO_CEE_LDC_I4_0 = 22,
+	MONO_CEE_LDC_I4_1 = 23,
+	MONO_CEE_LDC_I4_2 = 24,
+	MONO_CEE_LDC_I4_3 = 25,
+	MONO_CEE_LDC_I4_4 = 26,
+	MONO_CEE_LDC_I4_5 = 27,
+	MONO_CEE_LDC_I4_6 = 28,
+	MONO_CEE_LDC_I4_7 = 29,
+	MONO_CEE_LDC_I4_8 = 30,
+	MONO_CEE_LDC_I4_S = 31,
+	MONO_CEE_LDC_I4 = 32,
+	MONO_CEE_LDC_I8 = 33,
+	MONO_CEE_LDC_R4 = 34,
+	MONO_CEE_LDC_R8 = 35,
+	MONO_CEE_UNUSED99 = 36,
+	MONO_CEE_DUP = 37,
+	MONO_CEE_POP = 38,
+	MONO_CEE_JMP = 39,
+	MONO_CEE_CALL = 40,
+	MONO_CEE_CALLI = 41,
+	MONO_CEE_RET = 42,
+	MONO_CEE_BR_S = 43,
+	MONO_CEE_BRFALSE_S = 44,
+	MONO_CEE_BRTRUE_S = 45,
+	MONO_CEE_BEQ_S = 46,
+	MONO_CEE_BGE_S = 47,
+	MONO_CEE_BGT_S = 48,
+	MONO_CEE_BLE_S = 49,
+	MONO_CEE_BLT_S = 50,
+	MONO_CEE_BNE_UN_S = 51,
+	MONO_CEE_BGE_UN_S = 52,
+	MONO_CEE_BGT_UN_S = 53,
+	MONO_CEE_BLE_UN_S = 54,
+	MONO_CEE_BLT_UN_S = 55,
+	MONO_CEE_BR = 56,
+	MONO_CEE_BRFALSE = 57,
+	MONO_CEE_BRTRUE = 58,
+	MONO_CEE_BEQ = 59,
+	MONO_CEE_BGE = 60,
+	MONO_CEE_BGT = 61,
+	MONO_CEE_BLE = 62,
+	MONO_CEE_BLT = 63,
+	MONO_CEE_BNE_UN = 64,
+	MONO_CEE_BGE_UN = 65,
+	MONO_CEE_BGT_UN = 66,
+	MONO_CEE_BLE_UN = 67,
+	MONO_CEE_BLT_UN = 68,
+	MONO_CEE_SWITCH = 69,
+	MONO_CEE_LDIND_I1 = 70,
+	MONO_CEE_LDIND_U1 = 71,
+	MONO_CEE_LDIND_I2 = 72,
+	MONO_CEE_LDIND_U2 = 73,
+	MONO_CEE_LDIND_I4 = 74,
+	MONO_CEE_LDIND_U4 = 75,
+	MONO_CEE_LDIND_I8 = 76,
+	MONO_CEE_LDIND_I = 77,
+	MONO_CEE_LDIND_R4 = 78,
+	MONO_CEE_LDIND_R8 = 79,
+	MONO_CEE_LDIND_REF = 80,
+	MONO_CEE_STIND_REF = 81,
+	MONO_CEE_STIND_I1 = 82,
+	MONO_CEE_STIND_I2 = 83,
+	MONO_CEE_STIND_I4 = 84,
+	MONO_CEE_STIND_I8 = 85,
+	MONO_CEE_STIND_R4 = 86,
+	MONO_CEE_STIND_R8 = 87,
+	MONO_CEE_ADD = 88,
+	MONO_CEE_SUB = 89,
+	MONO_CEE_MUL = 90,
+	MONO_CEE_DIV = 91,
+	MONO_CEE_DIV_UN = 92,
+	MONO_CEE_REM = 93,
+	MONO_CEE_REM_UN = 94,
+	MONO_CEE_AND = 95,
+	MONO_CEE_OR = 96,
+	MONO_CEE_XOR = 97,
+	MONO_CEE_SHL = 98,
+	MONO_CEE_SHR = 99,
+	MONO_CEE_SHR_UN = 100,
+	MONO_CEE_NEG = 101,
+	MONO_CEE_NOT = 102,
+	MONO_CEE_CONV_I1 = 103,
+	MONO_CEE_CONV_I2 = 104,
+	MONO_CEE_CONV_I4 = 105,
+	MONO_CEE_CONV_I8 = 106,
+	MONO_CEE_CONV_R4 = 107,
+	MONO_CEE_CONV_R8 = 108,
+	MONO_CEE_CONV_U4 = 109,
+	MONO_CEE_CONV_U8 = 110,
+	MONO_CEE_CALLVIRT = 111,
+	MONO_CEE_CPOBJ = 112,
+	MONO_CEE_LDOBJ = 113,
+	MONO_CEE_LDSTR = 114,
+	MONO_CEE_NEWOBJ = 115,
+	MONO_CEE_CASTCLASS = 116,
+	MONO_CEE_ISINST = 117,
+	MONO_CEE_CONV_R_UN = 118,
+	MONO_CEE_UNUSED58 = 119,
+	MONO_CEE_UNUSED1 = 120,
+	MONO_CEE_UNBOX = 121,
+	MONO_CEE_THROW = 122,
+	MONO_CEE_LDFLD = 123,
+	MONO_CEE_LDFLDA = 124,
+	MONO_CEE_STFLD = 125,
+	MONO_CEE_LDSFLD = 126,
+	MONO_CEE_LDSFLDA = 127,
+	MONO_CEE_STSFLD = 128,
+	MONO_CEE_STOBJ = 129,
+	MONO_CEE_CONV_OVF_I1_UN = 130,
+	MONO_CEE_CONV_OVF_I2_UN = 131,
+	MONO_CEE_CONV_OVF_I4_UN = 132,
+	MONO_CEE_CONV_OVF_I8_UN = 133,
+	MONO_CEE_CONV_OVF_U1_UN = 134,
+	MONO_CEE_CONV_OVF_U2_UN = 135,
+	MONO_CEE_CONV_OVF_U4_UN = 136,
+	MONO_CEE_CONV_OVF_U8_UN = 137,
+	MONO_CEE_CONV_OVF_I_UN = 138,
+	MONO_CEE_CONV_OVF_U_UN = 139,
+	MONO_CEE_BOX = 140,
+	MONO_CEE_NEWARR = 141,
+	MONO_CEE_LDLEN = 142,
+	MONO_CEE_LDELEMA = 143,
+	MONO_CEE_LDELEM_I1 = 144,
+	MONO_CEE_LDELEM_U1 = 145,
+	MONO_CEE_LDELEM_I2 = 146,
+	MONO_CEE_LDELEM_U2 = 147,
+	MONO_CEE_LDELEM_I4 = 148,
+	MONO_CEE_LDELEM_U4 = 149,
+	MONO_CEE_LDELEM_I8 = 150,
+	MONO_CEE_LDELEM_I = 151,
+	MONO_CEE_LDELEM_R4 = 152,
+	MONO_CEE_LDELEM_R8 = 153,
+	MONO_CEE_LDELEM_REF = 154,
+	MONO_CEE_STELEM_I = 155,
+	MONO_CEE_STELEM_I1 = 156,
+	MONO_CEE_STELEM_I2 = 157,
+	MONO_CEE_STELEM_I4 = 158,
+	MONO_CEE_STELEM_I8 = 159,
+	MONO_CEE_STELEM_R4 = 160,
+	MONO_CEE_STELEM_R8 = 161,
+	MONO_CEE_STELEM_REF = 162,
+	MONO_CEE_LDELEM = 163,
+	MONO_CEE_STELEM = 164,
+	MONO_CEE_UNBOX_ANY = 165,
+	MONO_CEE_UNUSED5 = 166,
+	MONO_CEE_UNUSED6 = 167,
+	MONO_CEE_UNUSED7 = 168,
+	MONO_CEE_UNUSED8 = 169,
+	MONO_CEE_UNUSED9 = 170,
+	MONO_CEE_UNUSED10 = 171,
+	MONO_CEE_UNUSED11 = 172,
+	MONO_CEE_UNUSED12 = 173,
+	MONO_CEE_UNUSED13 = 174,
+	MONO_CEE_UNUSED14 = 175,
+	MONO_CEE_UNUSED15 = 176,
+	MONO_CEE_UNUSED16 = 177,
+	MONO_CEE_UNUSED17 = 178,
+	MONO_CEE_CONV_OVF_I1 = 179,
+	MONO_CEE_CONV_OVF_U1 = 180,
+	MONO_CEE_CONV_OVF_I2 = 181,
+	MONO_CEE_CONV_OVF_U2 = 182,
+	MONO_CEE_CONV_OVF_I4 = 183,
+	MONO_CEE_CONV_OVF_U4 = 184,
+	MONO_CEE_CONV_OVF_I8 = 185,
+	MONO_CEE_CONV_OVF_U8 = 186,
+	MONO_CEE_UNUSED50 = 187,
+	MONO_CEE_UNUSED18 = 188,
+	MONO_CEE_UNUSED19 = 189,
+	MONO_CEE_UNUSED20 = 190,
+	MONO_CEE_UNUSED21 = 191,
+	MONO_CEE_UNUSED22 = 192,
+	MONO_CEE_UNUSED23 = 193,
+	MONO_CEE_REFANYVAL = 194,
+	MONO_CEE_CKFINITE = 195,
+	MONO_CEE_UNUSED24 = 196,
+	MONO_CEE_UNUSED25 = 197,
+	MONO_CEE_MKREFANY = 198,
+	MONO_CEE_UNUSED59 = 199,
+	MONO_CEE_UNUSED60 = 200,
+	MONO_CEE_UNUSED61 = 201,
+	MONO_CEE_UNUSED62 = 202,
+	MONO_CEE_UNUSED63 = 203,
+	MONO_CEE_UNUSED64 = 204,
+	MONO_CEE_UNUSED65 = 205,
+	MONO_CEE_UNUSED66 = 206,
+	MONO_CEE_UNUSED67 = 207,
+	MONO_CEE_LDTOKEN = 208,
+	MONO_CEE_CONV_U2 = 209,
+	MONO_CEE_CONV_U1 = 210,
+	MONO_CEE_CONV_I = 211,
+	MONO_CEE_CONV_OVF_I = 212,
+	MONO_CEE_CONV_OVF_U = 213,
+	MONO_CEE_ADD_OVF = 214,
+	MONO_CEE_ADD_OVF_UN = 215,
+	MONO_CEE_MUL_OVF = 216,
+	MONO_CEE_MUL_OVF_UN = 217,
+	MONO_CEE_SUB_OVF = 218,
+	MONO_CEE_SUB_OVF_UN = 219,
+	MONO_CEE_ENDFINALLY = 220,
+	MONO_CEE_LEAVE = 221,
+	MONO_CEE_LEAVE_S = 222,
+	MONO_CEE_STIND_I = 223,
+	MONO_CEE_CONV_U = 224,
+	MONO_CEE_UNUSED26 = 225,
+	MONO_CEE_UNUSED27 = 226,
+	MONO_CEE_UNUSED28 = 227,
+	MONO_CEE_UNUSED29 = 228,
+	MONO_CEE_UNUSED30 = 229,
+	MONO_CEE_UNUSED31 = 230,
+	MONO_CEE_UNUSED32 = 231,
+	MONO_CEE_UNUSED33 = 232,
+	MONO_CEE_UNUSED34 = 233,
+	MONO_CEE_UNUSED35 = 234,
+	MONO_CEE_UNUSED36 = 235,
+	MONO_CEE_UNUSED37 = 236,
+	MONO_CEE_UNUSED38 = 237,
+	MONO_CEE_UNUSED39 = 238,
+	MONO_CEE_UNUSED40 = 239,
+	MONO_CEE_UNUSED41 = 240,
+	MONO_CEE_UNUSED42 = 241,
+	MONO_CEE_UNUSED43 = 242,
+	MONO_CEE_UNUSED44 = 243,
+	MONO_CEE_UNUSED45 = 244,
+	MONO_CEE_UNUSED46 = 245,
+	MONO_CEE_UNUSED47 = 246,
+	MONO_CEE_UNUSED48 = 247,
+	MONO_CEE_PREFIX7 = 248,
+	MONO_CEE_PREFIX6 = 249,
+	MONO_CEE_PREFIX5 = 250,
+	MONO_CEE_PREFIX4 = 251,
+	MONO_CEE_PREFIX3 = 252,
+	MONO_CEE_PREFIX2 = 253,
+	MONO_CEE_PREFIX1 = 254,
+	MONO_CEE_PREFIXREF = 255,
+	MONO_CEE_ARGLIST = 256,
+	MONO_CEE_CEQ = 257,
+	MONO_CEE_CGT = 258,
+	MONO_CEE_CGT_UN = 259,
+	MONO_CEE_CLT = 260,
+	MONO_CEE_CLT_UN = 261,
+	MONO_CEE_LDFTN = 262,
+	MONO_CEE_LDVIRTFTN = 263,
+	MONO_CEE_UNUSED56 = 264,
+	MONO_CEE_LDARG = 265,
+	MONO_CEE_LDARGA = 266,
+	MONO_CEE_STARG = 267,
+	MONO_CEE_LDLOC = 268,
+	MONO_CEE_LDLOCA = 269,
+	MONO_CEE_STLOC = 270,
+	MONO_CEE_LOCALLOC = 271,
+	MONO_CEE_UNUSED57 = 272,
+	MONO_CEE_ENDFILTER = 273,
+	MONO_CEE_UNALIGNED_ = 274,
+	MONO_CEE_VOLATILE_ = 275,
+	MONO_CEE_TAIL_ = 276,
+	MONO_CEE_INITOBJ = 277,
+	MONO_CEE_CONSTRAINED_ = 278,
+	MONO_CEE_CPBLK = 279,
+	MONO_CEE_INITBLK = 280,
+	MONO_CEE_NO_ = 281,
+	MONO_CEE_RETHROW = 282,
+	MONO_CEE_UNUSED = 283,
+	MONO_CEE_SIZEOF = 284,
+	MONO_CEE_REFANYTYPE = 285,
+	MONO_CEE_READONLY_ = 286,
+	MONO_CEE_UNUSED53 = 287,
+	MONO_CEE_UNUSED54 = 288,
+	MONO_CEE_UNUSED55 = 289,
+	MONO_CEE_UNUSED70 = 290,
+	MONO_CEE_ILLEGAL = 291,
+	MONO_CEE_ENDMAC = 292,
+	MONO_CEE_MONO_ICALL = 293,
+	MONO_CEE_MONO_OBJADDR = 294,
+	MONO_CEE_MONO_LDPTR = 295,
+	MONO_CEE_MONO_VTADDR = 296,
+	MONO_CEE_MONO_NEWOBJ = 297,
+	MONO_CEE_MONO_RETOBJ = 298,
+	MONO_CEE_MONO_LDNATIVEOBJ = 299,
+	MONO_CEE_MONO_CISINST = 300,
+	MONO_CEE_MONO_CCASTCLASS = 301,
+	MONO_CEE_MONO_SAVE_LMF = 302,
+	MONO_CEE_MONO_RESTORE_LMF = 303,
+	MONO_CEE_MONO_CLASSCONST = 304,
+	MONO_CEE_MONO_NOT_TAKEN = 305,
+	MONO_CEE_MONO_TLS = 306,
+	MONO_CEE_MONO_ICALL_ADDR = 307,
+	MONO_CEE_MONO_DYN_CALL = 308,
+	MONO_CEE_MONO_MEMORY_BARRIER = 309,
+	MONO_CEE_MONO_JIT_ATTACH = 310,
+	MONO_CEE_MONO_JIT_DETACH = 311,
+	MONO_CEE_MONO_JIT_ICALL_ADDR = 312,
+	MONO_CEE_MONO_LDPTR_INT_REQ_FLAG = 313,
+	MONO_CEE_MONO_LDPTR_CARD_TABLE = 314,
+	MONO_CEE_MONO_LDPTR_NURSERY_START = 315,
+	MONO_CEE_MONO_LDPTR_NURSERY_BITS = 316,
+	MONO_CEE_MONO_CALLI_EXTRA_ARG = 317,
+	MONO_CEE_MONO_LDDOMAIN = 318,
+	MONO_CEE_MONO_ATOMIC_STORE_I4 = 319,
+	MONO_CEE_MONO_GET_LAST_ERROR = 320,
+	MONO_CEE_LAST = 321
+}
+
+enum
+{
+	MONO_FLOW_NEXT = 0,
+	MONO_FLOW_BRANCH = 1,
+	MONO_FLOW_COND_BRANCH = 2,
+	MONO_FLOW_ERROR = 3,
+	MONO_FLOW_CALL = 4,
+	MONO_FLOW_RETURN = 5,
+	MONO_FLOW_META = 6
+}
+
+enum
+{
+	MonoInlineNone = 0,
+	MonoInlineType = 1,
+	MonoInlineField = 2,
+	MonoInlineMethod = 3,
+	MonoInlineTok = 4,
+	MonoInlineString = 5,
+	MonoInlineSig = 6,
+	MonoInlineVar = 7,
+	MonoShortInlineVar = 8,
+	MonoInlineBrTarget = 9,
+	MonoShortInlineBrTarget = 10,
+	MonoInlineSwitch = 11,
+	MonoInlineR = 12,
+	MonoShortInlineR = 13,
+	MonoInlineI = 14,
+	MonoShortInlineI = 15,
+	MonoInlineI8 = 16
+}
+
+struct MonoOpcode
+{
+	ubyte argument;
+	ubyte flow_type;
+	ushort opval;
+}
+
+// metadata/profiler.h
+
+enum MONO_PROFILER_MAX_STAT_CALL_CHAIN_DEPTH = 128;
+
+alias MonoProfileFlags = int;
+enum : MonoProfileFlags
+{
+	MONO_PROFILE_NONE = 0,
+	MONO_PROFILE_APPDOMAIN_EVENTS = 1,
+	MONO_PROFILE_ASSEMBLY_EVENTS = 2,
+	MONO_PROFILE_MODULE_EVENTS = 4,
+	MONO_PROFILE_CLASS_EVENTS = 8,
+	MONO_PROFILE_JIT_COMPILATION = 16,
+	MONO_PROFILE_INLINING = 32,
+	MONO_PROFILE_EXCEPTIONS = 64,
+	MONO_PROFILE_ALLOCATIONS = 128,
+	MONO_PROFILE_GC = 256,
+	MONO_PROFILE_THREADS = 512,
+	MONO_PROFILE_REMOTING = 1024,
+	MONO_PROFILE_TRANSITIONS = 2048,
+	MONO_PROFILE_ENTER_LEAVE = 4096,
+	MONO_PROFILE_COVERAGE = 8192,
+	MONO_PROFILE_INS_COVERAGE = 16384,
+	MONO_PROFILE_STATISTICAL = 32768,
+	MONO_PROFILE_METHOD_EVENTS = 65536,
+	MONO_PROFILE_MONITOR_EVENTS = 131072,
+	MONO_PROFILE_IOMAP_EVENTS = 262144, /** this should likely be removed, too */
+	MONO_PROFILE_GC_MOVES = 524288,
+	MONO_PROFILE_GC_ROOTS = 1048576,
+	MONO_PROFILE_CONTEXT_EVENTS = 2097152,
+	MONO_PROFILE_GC_FINALIZATION = 4194304
+}
+
+alias MonoProfileResult = int;
+enum : MonoProfileResult
+{
+	MONO_PROFILE_OK = 0,
+	MONO_PROFILE_FAILED = 1
+}
+
+alias MonoGCEvent = int;
+enum : MonoGCEvent
+{
+	MONO_GC_EVENT_START = 0,
+	MONO_GC_EVENT_MARK_START = 1,
+	MONO_GC_EVENT_MARK_END = 2,
+	MONO_GC_EVENT_RECLAIM_START = 3,
+	MONO_GC_EVENT_RECLAIM_END = 4,
+	MONO_GC_EVENT_END = 5,
+	/**
+    	 * This is the actual arrival order of the following events:
+    	 *
+    	 * MONO_GC_EVENT_PRE_STOP_WORLD
+    	 * MONO_GC_EVENT_PRE_STOP_WORLD_LOCKED
+    	 * MONO_GC_EVENT_POST_STOP_WORLD
+    	 * MONO_GC_EVENT_PRE_START_WORLD
+    	 * MONO_GC_EVENT_POST_START_WORLD_UNLOCKED
+    	 * MONO_GC_EVENT_POST_START_WORLD
+    	 *
+    	 * The LOCKED and UNLOCKED events guarantee that, by the time they arrive,
+    	 * the GC and suspend locks will both have been acquired and released,
+    	 * respectively.
+    	 */
+	MONO_GC_EVENT_PRE_STOP_WORLD = 6,
+	MONO_GC_EVENT_POST_STOP_WORLD = 7,
+	MONO_GC_EVENT_PRE_START_WORLD = 8,
+	MONO_GC_EVENT_POST_START_WORLD = 9,
+	MONO_GC_EVENT_PRE_STOP_WORLD_LOCKED = 10,
+	MONO_GC_EVENT_POST_START_WORLD_UNLOCKED = 11
+}
+
+/** coverage info */
+struct MonoProfileCoverageEntry
+{
+	MonoMethod* method;
+	int iloffset;
+	int counter;
+	const(char)* filename;
+	int line;
+	int col;
+}
+
+/** executable code buffer info */
+alias MonoProfilerCodeBufferType = int;
+enum : MonoProfilerCodeBufferType
+{
+	MONO_PROFILER_CODE_BUFFER_UNKNOWN = 0,
+	MONO_PROFILER_CODE_BUFFER_METHOD = 1,
+	MONO_PROFILER_CODE_BUFFER_METHOD_TRAMPOLINE = 2,
+	MONO_PROFILER_CODE_BUFFER_UNBOX_TRAMPOLINE = 3,
+	MONO_PROFILER_CODE_BUFFER_IMT_TRAMPOLINE = 4,
+	MONO_PROFILER_CODE_BUFFER_GENERICS_TRAMPOLINE = 5,
+	MONO_PROFILER_CODE_BUFFER_SPECIFIC_TRAMPOLINE = 6,
+	MONO_PROFILER_CODE_BUFFER_HELPER = 7,
+	MONO_PROFILER_CODE_BUFFER_MONITOR = 8,
+	MONO_PROFILER_CODE_BUFFER_DELEGATE_INVOKE = 9,
+	MONO_PROFILER_CODE_BUFFER_EXCEPTION_HANDLING = 10,
+	MONO_PROFILER_CODE_BUFFER_LAST = 11
+}
+
+struct _MonoProfiler;
+alias MonoProfiler = _MonoProfiler;
+
+alias MonoProfilerMonitorEvent = int;
+enum : MonoProfilerMonitorEvent
+{
+	MONO_PROFILER_MONITOR_CONTENTION = 1,
+	MONO_PROFILER_MONITOR_DONE = 2,
+	MONO_PROFILER_MONITOR_FAIL = 3
+}
+
+alias MonoProfilerCallChainStrategy = int;
+enum : MonoProfilerCallChainStrategy
+{
+	MONO_PROFILER_CALL_CHAIN_NONE = 0,
+	MONO_PROFILER_CALL_CHAIN_NATIVE = 1,
+	MONO_PROFILER_CALL_CHAIN_GLIBC = 2,
+	MONO_PROFILER_CALL_CHAIN_MANAGED = 3,
+	MONO_PROFILER_CALL_CHAIN_INVALID = 4
+}
+
+alias MonoProfileGCHandleEvent = int;
+enum : MonoProfileGCHandleEvent
+{
+	MONO_PROFILER_GC_HANDLE_CREATED = 0,
+	MONO_PROFILER_GC_HANDLE_DESTROYED = 1
+}
+
+alias MonoProfileGCRootType = int;
+enum : MonoProfileGCRootType
+{
+	MONO_PROFILE_GC_ROOT_PINNING = 256,
+	MONO_PROFILE_GC_ROOT_WEAKREF = 512,
+	MONO_PROFILE_GC_ROOT_INTERIOR = 1024,
+	/** the above are flags, the type is in the low 2 bytes */
+	MONO_PROFILE_GC_ROOT_STACK = 0,
+	MONO_PROFILE_GC_ROOT_FINALIZER = 1,
+	MONO_PROFILE_GC_ROOT_HANDLE = 2,
+	MONO_PROFILE_GC_ROOT_OTHER = 3,
+	MONO_PROFILE_GC_ROOT_MISC = 4, /** could be stack, handle, etc. */
+	MONO_PROFILE_GC_ROOT_TYPEMASK = 255
+}
+
+/**
+ * Functions that the runtime will call on the profiler.
+ */
+
+alias MonoProfileFunc = void function(MonoProfiler* prof);
+
+alias MonoProfileAppDomainFunc = void function(MonoProfiler* prof, MonoDomain* domain);
+alias MonoProfileContextFunc = void function(MonoProfiler* prof, MonoAppContext* context);
+alias MonoProfileMethodFunc = void function(MonoProfiler* prof, MonoMethod* method);
+alias MonoProfileClassFunc = void function(MonoProfiler* prof, MonoClass* klass);
+alias MonoProfileModuleFunc = void function(MonoProfiler* prof, MonoImage* module_);
+alias MonoProfileAssemblyFunc = void function(MonoProfiler* prof, MonoAssembly* assembly);
+alias MonoProfileMonitorFunc = void function(MonoProfiler* prof,
+		MonoObject* obj, MonoProfilerMonitorEvent event);
+
+alias MonoProfileExceptionFunc = void function(MonoProfiler* prof, MonoObject* object);
+alias MonoProfileExceptionClauseFunc = void function(MonoProfiler* prof,
+		MonoMethod* method, int clause_type, int clause_num);
+
+alias MonoProfileAppDomainResult = void function(MonoProfiler* prof, MonoDomain* domain, int result);
+alias MonoProfileAppDomainFriendlyNameFunc = void function(MonoProfiler* prof,
+		MonoDomain* domain, const(char)* name);
+alias MonoProfileMethodResult = void function(MonoProfiler* prof, MonoMethod* method, int result);
+alias MonoProfileJitResult = void function(MonoProfiler* prof,
+		MonoMethod* method, MonoJitInfo* jinfo, int result);
+alias MonoProfileClassResult = void function(MonoProfiler* prof, MonoClass* klass, int result);
+alias MonoProfileModuleResult = void function(MonoProfiler* prof, MonoImage* module_, int result);
+alias MonoProfileAssemblyResult = void function(MonoProfiler* prof,
+		MonoAssembly* assembly, int result);
+
+alias MonoProfileMethodInline = void function(MonoProfiler* prof,
+		MonoMethod* parent, MonoMethod* child, int* ok);
+
+alias MonoProfileThreadFunc = void function(MonoProfiler* prof, uintptr_t tid);
+alias MonoProfileThreadNameFunc = void function(MonoProfiler* prof, uintptr_t tid,
+		const(char)* name);
+alias MonoProfileAllocFunc = void function(MonoProfiler* prof, MonoObject* obj, MonoClass* klass);
+alias MonoProfileStatFunc = void function(MonoProfiler* prof, mono_byte* ip, void* context);
+alias MonoProfileStatCallChainFunc = void function(MonoProfiler* prof,
+		int call_chain_depth, mono_byte** ip, void* context);
+alias MonoProfileGCFunc = void function(MonoProfiler* prof, MonoGCEvent event, int generation);
+alias MonoProfileGCMoveFunc = void function(MonoProfiler* prof, void** objects, int num);
+alias MonoProfileGCResizeFunc = void function(MonoProfiler* prof, long new_size);
+alias MonoProfileGCHandleFunc = void function(MonoProfiler* prof, int op,
+		int type, uintptr_t handle, MonoObject* obj);
+alias MonoProfileGCRootFunc = void function(MonoProfiler* prof, int num_roots,
+		void** objects, int* root_types, uintptr_t* extra_info);
+
+alias MonoProfileGCFinalizeFunc = void function(MonoProfiler* prof);
+alias MonoProfileGCFinalizeObjectFunc = void function(MonoProfiler* prof, MonoObject* obj);
+
+alias MonoProfileIomapFunc = void function(MonoProfiler* prof,
+		const(char)* report, const(char)* pathname, const(char)* new_pathname);
+
+alias MonoProfileCoverageFilterFunc = int function(MonoProfiler* prof, MonoMethod* method);
+
+alias MonoProfileCoverageFunc = void function(MonoProfiler* prof,
+		const(MonoProfileCoverageEntry)* entry);
+
+alias MonoProfilerCodeChunkNew = void function(MonoProfiler* prof, void* chunk, int size);
+alias MonoProfilerCodeChunkDestroy = void function(MonoProfiler* prof, void* chunk);
+alias MonoProfilerCodeBufferNew = void function(MonoProfiler* prof,
+		void* buffer, int size, MonoProfilerCodeBufferType type, void* data);
+
+alias MonoProfileSamplingMode = int;
+enum : MonoProfileSamplingMode
+{
+	/** Elapsed time is tracked by user+kernel time of the process - this is the default*/
+	MONO_PROFILER_STAT_MODE_PROCESS = 0,
+	/** Elapsed time is tracked by wallclock time */
+	MONO_PROFILER_STAT_MODE_REAL = 1
+}
+
+// metadata/reflection.h
+
+struct MonoTypeNameParse;
+
+struct MonoCustomAttrEntry
+{
+	MonoMethod* ctor;
+	uint data_size;
+	const(mono_byte)* data;
+}
+
+struct MonoCustomAttrInfo
+{
+	int num_attrs;
+	int cached;
+	MonoImage* image;
+	MonoCustomAttrEntry[MONO_ZERO_LEN_ARRAY] attrs;
+}
+
+enum MONO_SIZEOF_CUSTOM_ATTR_INFO = MonoCustomAttrInfo.attrs.offsetof;
+
+/**
+ * Information which isn't in the MonoMethod structure is stored here for
+ * dynamic methods.
+ */
+struct MonoReflectionMethodAux
+{
+	char** param_names;
+	MonoMarshalSpec** param_marshall;
+	MonoCustomAttrInfo** param_cattr;
+	ubyte** param_defaults;
+	uint* param_default_types;
+	char* dllentry;
+	char* dll;
+}
+
+alias MonoResolveTokenError = int;
+enum : MonoResolveTokenError
+{
+	ResolveTokenError_OutOfRange = 0,
+	ResolveTokenError_BadTable = 1,
+	ResolveTokenError_Other = 2
+}
+
+enum MONO_DECLSEC_ACTION_MIN = 0x1;
+enum MONO_DECLSEC_ACTION_MAX = 0x12;
+
+enum
+{
+	MONO_DECLSEC_FLAG_REQUEST = 1,
+	MONO_DECLSEC_FLAG_DEMAND = 2,
+	MONO_DECLSEC_FLAG_ASSERT = 4,
+	MONO_DECLSEC_FLAG_DENY = 8,
+	MONO_DECLSEC_FLAG_PERMITONLY = 16,
+	MONO_DECLSEC_FLAG_LINKDEMAND = 32,
+	MONO_DECLSEC_FLAG_INHERITANCEDEMAND = 64,
+	MONO_DECLSEC_FLAG_REQUEST_MINIMUM = 128,
+	MONO_DECLSEC_FLAG_REQUEST_OPTIONAL = 256,
+	MONO_DECLSEC_FLAG_REQUEST_REFUSE = 512,
+	MONO_DECLSEC_FLAG_PREJIT_GRANT = 1024,
+	MONO_DECLSEC_FLAG_PREJIT_DENY = 2048,
+	MONO_DECLSEC_FLAG_NONCAS_DEMAND = 4096,
+	MONO_DECLSEC_FLAG_NONCAS_LINKDEMAND = 8192,
+	MONO_DECLSEC_FLAG_NONCAS_INHERITANCEDEMAND = 16384,
+	MONO_DECLSEC_FLAG_LINKDEMAND_CHOICE = 32768,
+	MONO_DECLSEC_FLAG_INHERITANCEDEMAND_CHOICE = 65536,
+	MONO_DECLSEC_FLAG_DEMAND_CHOICE = 131072
+}
+
+/** this structure MUST be kept in synch with RuntimeDeclSecurityEntry
+ * located in /mcs/class/corlib/System.Security/SecurityFrame.cs */
+struct MonoDeclSecurityEntry
+{
+	char* blob; /** pointer to metadata blob */
+	uint size; /** size of the metadata blob */
+	uint index;
+}
+
+struct MonoDeclSecurityActions
+{
+	MonoDeclSecurityEntry demand;
+	MonoDeclSecurityEntry noncasdemand;
+	MonoDeclSecurityEntry demandchoice;
+}
+
+// metadata/row-indexes.h
+
+/**
+ * The last entry in the enum is used to give the number
+ * of columns in the row.
+ */
+
+enum
+{
+	MONO_ASSEMBLY_HASH_ALG = 0,
+	MONO_ASSEMBLY_MAJOR_VERSION = 1,
+	MONO_ASSEMBLY_MINOR_VERSION = 2,
+	MONO_ASSEMBLY_BUILD_NUMBER = 3,
+	MONO_ASSEMBLY_REV_NUMBER = 4,
+	MONO_ASSEMBLY_FLAGS = 5,
+	MONO_ASSEMBLY_PUBLIC_KEY = 6,
+	MONO_ASSEMBLY_NAME = 7,
+	MONO_ASSEMBLY_CULTURE = 8,
+	MONO_ASSEMBLY_SIZE = 9
+}
+
+enum
+{
+	MONO_ASSEMBLYOS_PLATFORM = 0,
+	MONO_ASSEMBLYOS_MAJOR_VERSION = 1,
+	MONO_ASSEMBLYOS_MINOR_VERSION = 2,
+	MONO_ASSEMBLYOS_SIZE = 3
+}
+
+enum
+{
+	MONO_ASSEMBLY_PROCESSOR = 0,
+	MONO_ASSEMBLY_PROCESSOR_SIZE = 1
+}
+
+enum
+{
+	MONO_ASSEMBLYREF_MAJOR_VERSION = 0,
+	MONO_ASSEMBLYREF_MINOR_VERSION = 1,
+	MONO_ASSEMBLYREF_BUILD_NUMBER = 2,
+	MONO_ASSEMBLYREF_REV_NUMBER = 3,
+	MONO_ASSEMBLYREF_FLAGS = 4,
+	MONO_ASSEMBLYREF_PUBLIC_KEY = 5,
+	MONO_ASSEMBLYREF_NAME = 6,
+	MONO_ASSEMBLYREF_CULTURE = 7,
+	MONO_ASSEMBLYREF_HASH_VALUE = 8,
+	MONO_ASSEMBLYREF_SIZE = 9
+}
+
+enum
+{
+	MONO_ASSEMBLYREFOS_PLATFORM = 0,
+	MONO_ASSEMBLYREFOS_MAJOR_VERSION = 1,
+	MONO_ASSEMBLYREFOS_MINOR_VERSION = 2,
+	MONO_ASSEMBLYREFOS_ASSEMBLYREF = 3,
+	MONO_ASSEMBLYREFOS_SIZE = 4
+}
+
+enum
+{
+	MONO_ASSEMBLYREFPROC_PROCESSOR = 0,
+	MONO_ASSEMBLYREFPROC_ASSEMBLYREF = 1,
+	MONO_ASSEMBLYREFPROC_SIZE = 2
+}
+
+enum
+{
+	MONO_CLASS_LAYOUT_PACKING_SIZE = 0,
+	MONO_CLASS_LAYOUT_CLASS_SIZE = 1,
+	MONO_CLASS_LAYOUT_PARENT = 2,
+	MONO_CLASS_LAYOUT_SIZE = 3
+}
+
+enum
+{
+	MONO_CONSTANT_TYPE = 0,
+	MONO_CONSTANT_PADDING = 1,
+	MONO_CONSTANT_PARENT = 2,
+	MONO_CONSTANT_VALUE = 3,
+	MONO_CONSTANT_SIZE = 4
+}
+
+enum
+{
+	MONO_CUSTOM_ATTR_PARENT = 0,
+	MONO_CUSTOM_ATTR_TYPE = 1,
+	MONO_CUSTOM_ATTR_VALUE = 2,
+	MONO_CUSTOM_ATTR_SIZE = 3
+}
+
+enum
+{
+	MONO_DECL_SECURITY_ACTION = 0,
+	MONO_DECL_SECURITY_PARENT = 1,
+	MONO_DECL_SECURITY_PERMISSIONSET = 2,
+	MONO_DECL_SECURITY_SIZE = 3
+}
+
+enum
+{
+	MONO_EVENT_MAP_PARENT = 0,
+	MONO_EVENT_MAP_EVENTLIST = 1,
+	MONO_EVENT_MAP_SIZE = 2
+}
+
+enum
+{
+	MONO_EVENT_FLAGS = 0,
+	MONO_EVENT_NAME = 1,
+	MONO_EVENT_TYPE = 2,
+	MONO_EVENT_SIZE = 3
+}
+
+enum
+{
+	MONO_EVENT_POINTER_EVENT = 0,
+	MONO_EVENT_POINTER_SIZE = 1
+}
+
+enum
+{
+	MONO_EXP_TYPE_FLAGS = 0,
+	MONO_EXP_TYPE_TYPEDEF = 1,
+	MONO_EXP_TYPE_NAME = 2,
+	MONO_EXP_TYPE_NAMESPACE = 3,
+	MONO_EXP_TYPE_IMPLEMENTATION = 4,
+	MONO_EXP_TYPE_SIZE = 5
+}
+
+enum
+{
+	MONO_FIELD_FLAGS = 0,
+	MONO_FIELD_NAME = 1,
+	MONO_FIELD_SIGNATURE = 2,
+	MONO_FIELD_SIZE = 3
+}
+
+enum
+{
+	MONO_FIELD_LAYOUT_OFFSET = 0,
+	MONO_FIELD_LAYOUT_FIELD = 1,
+	MONO_FIELD_LAYOUT_SIZE = 2
+}
+
+enum
+{
+	MONO_FIELD_MARSHAL_PARENT = 0,
+	MONO_FIELD_MARSHAL_NATIVE_TYPE = 1,
+	MONO_FIELD_MARSHAL_SIZE = 2
+}
+
+enum
+{
+	MONO_FIELD_POINTER_FIELD = 0,
+	MONO_FIELD_POINTER_SIZE = 1
+}
+
+enum
+{
+	MONO_FIELD_RVA_RVA = 0,
+	MONO_FIELD_RVA_FIELD = 1,
+	MONO_FIELD_RVA_SIZE = 2
+}
+
+enum
+{
+	MONO_FILE_FLAGS = 0,
+	MONO_FILE_NAME = 1,
+	MONO_FILE_HASH_VALUE = 2,
+	MONO_FILE_SIZE = 3
+}
+
+enum
+{
+	MONO_IMPLMAP_FLAGS = 0,
+	MONO_IMPLMAP_MEMBER = 1,
+	MONO_IMPLMAP_NAME = 2,
+	MONO_IMPLMAP_SCOPE = 3,
+	MONO_IMPLMAP_SIZE = 4
+}
+
+enum
+{
+	MONO_INTERFACEIMPL_CLASS = 0,
+	MONO_INTERFACEIMPL_INTERFACE = 1,
+	MONO_INTERFACEIMPL_SIZE = 2
+}
+
+enum
+{
+	MONO_MANIFEST_OFFSET = 0,
+	MONO_MANIFEST_FLAGS = 1,
+	MONO_MANIFEST_NAME = 2,
+	MONO_MANIFEST_IMPLEMENTATION = 3,
+	MONO_MANIFEST_SIZE = 4
+}
+
+enum
+{
+	MONO_MEMBERREF_CLASS = 0,
+	MONO_MEMBERREF_NAME = 1,
+	MONO_MEMBERREF_SIGNATURE = 2,
+	MONO_MEMBERREF_SIZE = 3
+}
+
+enum
+{
+	MONO_METHOD_RVA = 0,
+	MONO_METHOD_IMPLFLAGS = 1,
+	MONO_METHOD_FLAGS = 2,
+	MONO_METHOD_NAME = 3,
+	MONO_METHOD_SIGNATURE = 4,
+	MONO_METHOD_PARAMLIST = 5,
+	MONO_METHOD_SIZE = 6
+}
+
+enum
+{
+	MONO_METHODIMPL_CLASS = 0,
+	MONO_METHODIMPL_BODY = 1,
+	MONO_METHODIMPL_DECLARATION = 2,
+	MONO_METHODIMPL_SIZE = 3
+}
+
+enum
+{
+	MONO_METHOD_POINTER_METHOD = 0,
+	MONO_METHOD_POINTER_SIZE = 1
+}
+
+enum
+{
+	MONO_METHOD_SEMA_SEMANTICS = 0,
+	MONO_METHOD_SEMA_METHOD = 1,
+	MONO_METHOD_SEMA_ASSOCIATION = 2,
+	MONO_METHOD_SEMA_SIZE = 3
+}
+
+enum
+{
+	MONO_MODULE_GENERATION = 0,
+	MONO_MODULE_NAME = 1,
+	MONO_MODULE_MVID = 2,
+	MONO_MODULE_ENC = 3,
+	MONO_MODULE_ENCBASE = 4,
+	MONO_MODULE_SIZE = 5
+}
+
+enum
+{
+	MONO_MODULEREF_NAME = 0,
+	MONO_MODULEREF_SIZE = 1
+}
+
+enum
+{
+	MONO_NESTED_CLASS_NESTED = 0,
+	MONO_NESTED_CLASS_ENCLOSING = 1,
+	MONO_NESTED_CLASS_SIZE = 2
+}
+
+enum
+{
+	MONO_PARAM_FLAGS = 0,
+	MONO_PARAM_SEQUENCE = 1,
+	MONO_PARAM_NAME = 2,
+	MONO_PARAM_SIZE = 3
+}
+
+enum
+{
+	MONO_PARAM_POINTER_PARAM = 0,
+	MONO_PARAM_POINTER_SIZE = 1
+}
+
+enum
+{
+	MONO_PROPERTY_FLAGS = 0,
+	MONO_PROPERTY_NAME = 1,
+	MONO_PROPERTY_TYPE = 2,
+	MONO_PROPERTY_SIZE = 3
+}
+
+enum
+{
+	MONO_PROPERTY_POINTER_PROPERTY = 0,
+	MONO_PROPERTY_POINTER_SIZE = 1
+}
+
+enum
+{
+	MONO_PROPERTY_MAP_PARENT = 0,
+	MONO_PROPERTY_MAP_PROPERTY_LIST = 1,
+	MONO_PROPERTY_MAP_SIZE = 2
+}
+
+enum
+{
+	MONO_STAND_ALONE_SIGNATURE = 0,
+	MONO_STAND_ALONE_SIGNATURE_SIZE = 1
+}
+
+enum
+{
+	MONO_TYPEDEF_FLAGS = 0,
+	MONO_TYPEDEF_NAME = 1,
+	MONO_TYPEDEF_NAMESPACE = 2,
+	MONO_TYPEDEF_EXTENDS = 3,
+	MONO_TYPEDEF_FIELD_LIST = 4,
+	MONO_TYPEDEF_METHOD_LIST = 5,
+	MONO_TYPEDEF_SIZE = 6
+}
+
+enum
+{
+	MONO_TYPEREF_SCOPE = 0,
+	MONO_TYPEREF_NAME = 1,
+	MONO_TYPEREF_NAMESPACE = 2,
+	MONO_TYPEREF_SIZE = 3
+}
+
+enum
+{
+	MONO_TYPESPEC_SIGNATURE = 0,
+	MONO_TYPESPEC_SIZE = 1
+}
+
+enum
+{
+	MONO_GENERICPARAM_NUMBER = 0,
+	MONO_GENERICPARAM_FLAGS = 1,
+	MONO_GENERICPARAM_OWNER = 2,
+	MONO_GENERICPARAM_NAME = 3,
+
+	MONO_GENERICPARAM_SIZE = 4
+}
+
+enum
+{
+	MONO_METHODSPEC_METHOD = 0,
+	MONO_METHODSPEC_SIGNATURE = 1,
+	MONO_METHODSPEC_SIZE = 2
+}
+
+enum
+{
+	MONO_GENPARCONSTRAINT_GENERICPAR = 0,
+	MONO_GENPARCONSTRAINT_CONSTRAINT = 1,
+	MONO_GENPARCONSTRAINT_SIZE = 2
+}
+
+enum
+{
+	MONO_DOCUMENT_NAME = 0,
+	MONO_DOCUMENT_HASHALG = 1,
+	MONO_DOCUMENT_HASH = 2,
+	MONO_DOCUMENT_LANGUAGE = 3,
+	MONO_DOCUMENT_SIZE = 4
+}
+
+enum
+{
+	MONO_METHODBODY_DOCUMENT = 0,
+	MONO_METHODBODY_SEQ_POINTS = 1,
+	MONO_METHODBODY_SIZE = 2
+}
+
+enum
+{
+	MONO_LOCALSCOPE_METHOD = 0,
+	MONO_LOCALSCOPE_IMPORTSCOPE = 1,
+	MONO_LOCALSCOPE_VARIABLELIST = 2,
+	MONO_LOCALSCOPE_CONSTANTLIST = 3,
+	MONO_LOCALSCOPE_STARTOFFSET = 4,
+	MONO_LOCALSCOPE_LENGTH = 5,
+	MONO_LOCALSCOPE_SIZE = 6
+}
+
+enum
+{
+	MONO_LOCALVARIABLE_ATTRIBUTES = 0,
+	MONO_LOCALVARIABLE_INDEX = 1,
+	MONO_LOCALVARIABLE_NAME = 2,
+	MONO_LOCALVARIABLE_SIZE = 3
+}
+
+enum
+{
+	MONO_CUSTOMDEBUGINFORMATION_PARENT = 0,
+	MONO_CUSTOMDEBUGINFORMATION_KIND = 1,
+	MONO_CUSTOMDEBUGINFORMATION_VALUE = 2,
+	MONO_CUSTOMDEBUGINFORMATION_SIZE = 3
+}
+
+/**
+ * Coded Tokens
+ * The _BITS entry is for the bits used in the token.
+ * The _MASK entry is for mask the index out.
+ */
+
+enum
+{
+	MONO_TYPEDEFORREF_TYPEDEF = 0,
+	MONO_TYPEDEFORREF_TYPEREF = 1,
+	MONO_TYPEDEFORREF_TYPESPEC = 2,
+	MONO_TYPEDEFORREF_BITS = 2,
+	MONO_TYPEDEFORREF_MASK = 3
+}
+
+enum
+{
+	MONO_HASCONSTANT_FIEDDEF = 0,
+	MONO_HASCONSTANT_PARAM = 1,
+	MONO_HASCONSTANT_PROPERTY = 2,
+	MONO_HASCONSTANT_BITS = 2,
+	MONO_HASCONSTANT_MASK = 3
+}
+
+enum
+{
+	MONO_CUSTOM_ATTR_METHODDEF = 0,
+	MONO_CUSTOM_ATTR_FIELDDEF = 1,
+	MONO_CUSTOM_ATTR_TYPEREF = 2,
+	MONO_CUSTOM_ATTR_TYPEDEF = 3,
+	MONO_CUSTOM_ATTR_PARAMDEF = 4,
+	MONO_CUSTOM_ATTR_INTERFACE = 5,
+	MONO_CUSTOM_ATTR_MEMBERREF = 6,
+	MONO_CUSTOM_ATTR_MODULE = 7,
+	MONO_CUSTOM_ATTR_PERMISSION = 8,
+	MONO_CUSTOM_ATTR_PROPERTY = 9,
+	MONO_CUSTOM_ATTR_EVENT = 10,
+	MONO_CUSTOM_ATTR_SIGNATURE = 11,
+	MONO_CUSTOM_ATTR_MODULEREF = 12,
+	MONO_CUSTOM_ATTR_TYPESPEC = 13,
+	MONO_CUSTOM_ATTR_ASSEMBLY = 14,
+	MONO_CUSTOM_ATTR_ASSEMBLYREF = 15,
+	MONO_CUSTOM_ATTR_FILE = 16,
+	MONO_CUSTOM_ATTR_EXP_TYPE = 17,
+	MONO_CUSTOM_ATTR_MANIFEST = 18,
+	MONO_CUSTOM_ATTR_GENERICPAR = 19,
+	MONO_CUSTOM_ATTR_BITS = 5,
+	MONO_CUSTOM_ATTR_MASK = 31
+}
+
+enum
+{
+	MONO_HAS_FIELD_MARSHAL_FIELDSREF = 0,
+	MONO_HAS_FIELD_MARSHAL_PARAMDEF = 1,
+	MONO_HAS_FIELD_MARSHAL_BITS = 1,
+	MONO_HAS_FIELD_MARSHAL_MASK = 1
+}
+
+enum
+{
+	MONO_HAS_DECL_SECURITY_TYPEDEF = 0,
+	MONO_HAS_DECL_SECURITY_METHODDEF = 1,
+	MONO_HAS_DECL_SECURITY_ASSEMBLY = 2,
+	MONO_HAS_DECL_SECURITY_BITS = 2,
+	MONO_HAS_DECL_SECURITY_MASK = 3
+}
+
+enum
+{
+	MONO_MEMBERREF_PARENT_TYPEDEF = 0, /** not used */
+	MONO_MEMBERREF_PARENT_TYPEREF = 1,
+	MONO_MEMBERREF_PARENT_MODULEREF = 2,
+	MONO_MEMBERREF_PARENT_METHODDEF = 3,
+	MONO_MEMBERREF_PARENT_TYPESPEC = 4,
+	MONO_MEMBERREF_PARENT_BITS = 3,
+	MONO_MEMBERREF_PARENT_MASK = 7
+}
+
+enum
+{
+	MONO_HAS_SEMANTICS_EVENT = 0,
+	MONO_HAS_SEMANTICS_PROPERTY = 1,
+	MONO_HAS_SEMANTICS_BITS = 1,
+	MONO_HAS_SEMANTICS_MASK = 1
+}
+
+enum
+{
+	MONO_METHODDEFORREF_METHODDEF = 0,
+	MONO_METHODDEFORREF_METHODREF = 1,
+	MONO_METHODDEFORREF_BITS = 1,
+	MONO_METHODDEFORREF_MASK = 1
+}
+
+enum
+{
+	MONO_MEMBERFORWD_FIELDDEF = 0,
+	MONO_MEMBERFORWD_METHODDEF = 1,
+	MONO_MEMBERFORWD_BITS = 1,
+	MONO_MEMBERFORWD_MASK = 1
+}
+
+enum
+{
+	MONO_IMPLEMENTATION_FILE = 0,
+	MONO_IMPLEMENTATION_ASSEMBLYREF = 1,
+	MONO_IMPLEMENTATION_EXP_TYPE = 2,
+	MONO_IMPLEMENTATION_BITS = 2,
+	MONO_IMPLEMENTATION_MASK = 3
+}
+
+enum
+{
+	MONO_CUSTOM_ATTR_TYPE_TYPEREF = 0, /** not used */
+	MONO_CUSTOM_ATTR_TYPE_TYPEDEF = 1, /** not used */
+	MONO_CUSTOM_ATTR_TYPE_METHODDEF = 2,
+	MONO_CUSTOM_ATTR_TYPE_MEMBERREF = 3,
+	MONO_CUSTOM_ATTR_TYPE_STRING = 4, /** not used */
+	MONO_CUSTOM_ATTR_TYPE_BITS = 3,
+	MONO_CUSTOM_ATTR_TYPE_MASK = 7
+}
+
+enum
+{
+	MONO_RESOLUTION_SCOPE_MODULE = 0,
+	MONO_RESOLUTION_SCOPE_MODULEREF = 1,
+	MONO_RESOLUTION_SCOPE_ASSEMBLYREF = 2,
+	MONO_RESOLUTION_SCOPE_TYPEREF = 3,
+	MONO_RESOLUTION_SCOPE_BITS = 2,
+	MONO_RESOLUTION_SCOPE_MASK = 3
+}
+
+/** Kept for compatibility since this is a public header file */
+enum
+{
+	MONO_RESOLTION_SCOPE_MODULE = 0,
+	MONO_RESOLTION_SCOPE_MODULEREF = 1,
+	MONO_RESOLTION_SCOPE_ASSEMBLYREF = 2,
+	MONO_RESOLTION_SCOPE_TYPEREF = 3,
+	MONO_RESOLTION_SCOPE_BITS = 2,
+	MONO_RESOLTION_SCOPE_MASK = 3
+}
+
+enum
+{
+	MONO_TYPEORMETHOD_TYPE = 0,
+	MONO_TYPEORMETHOD_METHOD = 1,
+	MONO_TYPEORMETHOD_BITS = 1,
+	MONO_TYPEORMETHOD_MASK = 1
+}
+
+// metadata/sgen-bridge.h
+/**
+ * The bridge is a mechanism for SGen to let clients override the death of some
+ * unreachable objects.  We use it in monodroid to do garbage collection across
+ * the Mono and Java heaps.
+ *
+ * The client (Monodroid) can designate some objects as "bridged", which means
+ * that they participate in the bridge processing step once SGen considers them
+ * unreachable, i.e., dead.  Bridged objects must be registered for
+ * finalization.
+ *
+ * When SGen is done marking, it puts together a list of all dead bridged
+ * objects.  This is passed to the bridge processor, which does an analysis to
+ * simplify the graph: It replaces strongly-connected components with single
+ * nodes, and may remove nodes corresponding to components which do not contain
+ * bridged objects.
+ *
+ * The output of the SCC analysis is passed to the client's `cross_references()`
+ * callback.  This consists of 2 arrays, an array of SCCs (MonoGCBridgeSCC),
+ * and an array of "xrefs" (edges between SCCs, MonoGCBridgeXRef).  Edges are
+ * encoded as pairs of "API indices", ie indexes in the SCC array.  The client
+ * is expected to set the `is_alive` flag on those strongly connected components
+ * that it wishes to be kept alive.
+ *
+ * In monodroid each bridged object has a corresponding Java mirror object.  In
+ * the bridge callback it reifies the Mono object graph in the Java heap so that
+ * the full, combined object graph is now instantiated on the Java side.  Then
+ * it triggers a Java GC, waits for it to finish, and checks which of the Java
+ * mirror objects are still alive.  For those it sets the `is_alive` flag and
+ * returns from the callback.
+ *
+ * The SCC analysis is done while the world is stopped, but the callback is made
+ * with the world running again.  Weak links to bridged objects and other
+ * objects reachable from them are kept until the callback returns, at which
+ * point all links to bridged objects that don't have `is_alive` set are nulled.
+ * Note that weak links to non-bridged objects reachable from bridged objects
+ * are not nulled.  This might be considered a bug.
+ *
+ * There are three different implementations of the bridge processor, each of
+ * which implements 8 callbacks (see SgenBridgeProcessor).  The implementations
+ * differ in the algorithm they use to compute the "simplified" SCC graph.
+ */
+enum
+{
+	SGEN_BRIDGE_VERSION = 5
+}
+
+alias MonoGCBridgeObjectKind = int;
+enum : MonoGCBridgeObjectKind
+{
+	/** Instances of this class should be scanned when computing the transitive dependency among bridges. E.g. List<object>*/
+	GC_BRIDGE_TRANSPARENT_CLASS,
+	/** Instances of this class should not be scanned when computing the transitive dependency among bridges. E.g. String*/
+	GC_BRIDGE_OPAQUE_CLASS,
+	/** Instances of this class should be bridged and have their dependency computed. */
+	GC_BRIDGE_TRANSPARENT_BRIDGE_CLASS,
+	/** Instances of this class should be bridged but no dependencies should not be calculated. */
+	GC_BRIDGE_OPAQUE_BRIDGE_CLASS,
+}
+
+struct MonoGCBridgeSCC
+{
+	mono_bool is_alive; /** to be set by the cross reference callback */
+	int num_objs;
+	MonoObject*[MONO_ZERO_LEN_ARRAY] objs;
+}
+
+struct MonoGCBridgeXRef
+{
+	int src_scc_index;
+	int dst_scc_index;
+}
+
+struct MonoGCBridgeCallbacks
+{
+	int bridge_version;
+extern (C):
+nothrow:
+	/**
+	 * Tells the runtime which classes to even consider when looking for
+	 * bridged objects.  If subclasses are to be considered as well, the
+	 * subclass check must be done in the callback.
+	 */
+	MonoGCBridgeObjectKind function(MonoClass* klass) bridge_class_kind;
+	/**
+	 * This is only called on objects for whose classes
+	 * `bridge_class_kind()` returned `XXX_BRIDGE_CLASS`.
+	 */
+	mono_bool function(MonoObject* object) is_bridge_object;
+	void function(int num_sccs, MonoGCBridgeSCC** sccs, int num_xrefs, MonoGCBridgeXRef* xrefs) cross_references;
+}
+
+// metadata/threads.h
+alias MonoThreadManageCallback = int function(MonoThread* thread);
+
+// metadata/tokentype.h
+/**
+ * These tokens match the table ID except for the last
+ * three (string, name and base type which are special)
+ */
+
+alias MonoTokenType = int;
+enum : MonoTokenType
+{
+	MONO_TOKEN_MODULE = 0,
+	MONO_TOKEN_TYPE_REF = 16777216,
+	MONO_TOKEN_TYPE_DEF = 33554432,
+	MONO_TOKEN_FIELD_DEF = 67108864,
+	MONO_TOKEN_METHOD_DEF = 100663296,
+	MONO_TOKEN_PARAM_DEF = 134217728,
+	MONO_TOKEN_INTERFACE_IMPL = 150994944,
+	MONO_TOKEN_MEMBER_REF = 167772160,
+	MONO_TOKEN_CUSTOM_ATTRIBUTE = 201326592,
+	MONO_TOKEN_PERMISSION = 234881024,
+	MONO_TOKEN_SIGNATURE = 285212672,
+	MONO_TOKEN_EVENT = 335544320,
+	MONO_TOKEN_PROPERTY = 385875968,
+	MONO_TOKEN_MODULE_REF = 436207616,
+	MONO_TOKEN_TYPE_SPEC = 452984832,
+	MONO_TOKEN_ASSEMBLY = 536870912,
+	MONO_TOKEN_ASSEMBLY_REF = 587202560,
+	MONO_TOKEN_FILE = 637534208,
+	MONO_TOKEN_EXPORTED_TYPE = 654311424,
+	MONO_TOKEN_MANIFEST_RESOURCE = 671088640,
+	MONO_TOKEN_GENERIC_PARAM = 704643072,
+	MONO_TOKEN_METHOD_SPEC = 721420288,
+
+	/**
+    	 * These do not match metadata tables directly
+    	 */
+	MONO_TOKEN_STRING = 1879048192,
+	MONO_TOKEN_NAME = 1895825408,
+	MONO_TOKEN_BASE_TYPE = 1912602624
+}
+
+// metadata/verify.h
+alias MonoVerifyStatus = int;
+enum : MonoVerifyStatus
+{
+	MONO_VERIFY_OK,
+	MONO_VERIFY_ERROR,
+	MONO_VERIFY_WARNING,
+	MONO_VERIFY_CLS = 4,
+	MONO_VERIFY_ALL = 7,
+
+	/** Status signaling code that is not verifiable.*/
+	MONO_VERIFY_NOT_VERIFIABLE = 8,
+
+	/**OR it with other flags*/
+
+	/** Abort the verification if the code is not verifiable.
+	 * The standard behavior is to abort if the code is not valid.
+	 * */
+	MONO_VERIFY_FAIL_FAST = 16,
+
+	/** Perform less verification of the code. This flag should be used
+	 * if one wants the verifier to be more compatible to the MS runtime.
+	 * Mind that this is not to be more compatible with MS peverify, but
+	 * with the runtime itself, that has a less strict verifier.
+	 */
+	MONO_VERIFY_NON_STRICT = 32,
+
+	/**Skip all visibility related checks*/
+	MONO_VERIFY_SKIP_VISIBILITY = 64,
+
+	/**Skip all visibility related checks*/
+	MONO_VERIFY_REPORT_ALL_ERRORS = 128
+}
+
+struct MonoVerifyInfo
+{
+	char* message;
+	MonoVerifyStatus status;
+}
+
+struct MonoVerifyInfoExtended
+{
+	MonoVerifyInfo info;
+	ubyte /+MonoExceptionType+/ exception_type; /**should be one of MONO_EXCEPTION_* */
+}
+
+// jit/jit.h
+alias MonoAotMode = int;
+enum : MonoAotMode
+{
+	/** Disables AOT mode */
+	MONO_AOT_MODE_NONE,
+	/** Enables normal AOT mode, equivalent to mono_jit_set_aot_only (false) */
+	MONO_AOT_MODE_NORMAL,
+	/** Enables hybrid AOT mode, JIT can still be used for wrappers */
+	MONO_AOT_MODE_HYBRID,
+	/** Enables full AOT mode, JIT is disabled and not allowed,
+	 * equivalent to mono_jit_set_aot_only (true) */
+	MONO_AOT_MODE_FULL,
+	/** Same as full, but use only llvm compiled code */
+	MONO_AOT_MODE_LLVMONLY
+}
+
+alias MonoBreakPolicy = int;
+enum : MonoBreakPolicy
+{
+	/** the default is to always obey the breakpoint */
+	MONO_BREAK_POLICY_ALWAYS,
+	/** a nop is inserted instead of a breakpoint */
+	MONO_BREAK_POLICY_NEVER,
+	/** the breakpoint is executed only if the program has ben started under
+	 * the debugger (that is if a debugger was attached at the time the method
+	 * was compiled).
+	 */
+	MONO_BREAK_POLICY_ON_DBG
+}
+
+alias MonoBreakPolicyFunc = MonoBreakPolicy function(MonoMethod*);

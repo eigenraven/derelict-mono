@@ -55,6 +55,47 @@ class DerelictMonoLoader : SharedLibLoader
 		// utils/mono-publib.h
 		bindFunc(cast(void**)&mono_free, "mono_free");
 		bindFunc(cast(void**)&mono_set_allocator_vtable, "mono_set_allocator_vtable");
+		// utils/mono-logger.h
+		bindFunc(cast(void**)&mono_trace_set_level_string, "mono_trace_set_level_string");
+		bindFunc(cast(void**)&mono_trace_set_mask_string, "mono_trace_set_mask_string");
+		bindFunc(cast(void**)&mono_trace_set_log_handler, "mono_trace_set_log_handler");
+		bindFunc(cast(void**)&mono_trace_set_print_handler, "mono_trace_set_print_handler");
+		bindFunc(cast(void**)&mono_trace_set_printerr_handler, "mono_trace_set_printerr_handler");
+		// utils/mono-error.h
+		bindFunc(cast(void**)&mono_error_init, "mono_error_init");
+		bindFunc(cast(void**)&mono_error_init_flags, "mono_error_init_flags");
+		bindFunc(cast(void**)&mono_error_cleanup, "mono_error_cleanup");
+		bindFunc(cast(void**)&mono_error_ok, "mono_error_ok");
+		bindFunc(cast(void**)&mono_error_get_error_code, "mono_error_get_error_code");
+		bindFunc(cast(void**)&mono_error_get_message, "mono_error_get_message");
+		// utils/mono-dl-fallback.h
+		bindFunc(cast(void**)&mono_dl_fallback_register, "mono_dl_fallback_register");
+		bindFunc(cast(void**)&mono_dl_fallback_unregister, "mono_dl_fallback_unregister");
+		// utils/mono-counters.h
+		bindFunc(cast(void**)&mono_counters_enable, "mono_counters_enable");
+		bindFunc(cast(void**)&mono_counters_init, "mono_counters_init");
+		bindFunc(cast(void**)&mono_counters_register, "mono_counters_register");
+		bindFunc(cast(void**)&mono_counters_register_with_size,
+				"mono_counters_register_with_size");
+		bindFunc(cast(void**)&mono_counters_on_register, "mono_counters_on_register");
+		bindFunc(cast(void**)&mono_counters_dump, "mono_counters_dump");
+		bindFunc(cast(void**)&mono_counters_cleanup, "mono_counters_cleanup");
+		bindFunc(cast(void**)&mono_counters_foreach, "mono_counters_foreach");
+		bindFunc(cast(void**)&mono_counters_sample, "mono_counters_sample");
+		bindFunc(cast(void**)&mono_counter_get_name, "mono_counter_get_name");
+		bindFunc(cast(void**)&mono_counter_get_type, "mono_counter_get_type");
+		bindFunc(cast(void**)&mono_counter_get_section, "mono_counter_get_section");
+		bindFunc(cast(void**)&mono_counter_get_unit, "mono_counter_get_unit");
+		bindFunc(cast(void**)&mono_counter_get_variance, "mono_counter_get_variance");
+		bindFunc(cast(void**)&mono_counter_get_size, "mono_counter_get_size");
+		bindFunc(cast(void**)&mono_runtime_resource_limit, "mono_runtime_resource_limit");
+		bindFunc(cast(void**)&mono_runtime_resource_set_callback,
+				"mono_runtime_resource_set_callback");
+		bindFunc(cast(void**)&mono_runtime_resource_check_limit,
+				"mono_runtime_resource_check_limit");
+		// metadata/appdomain.h
+		// jit/jit.h
+
 	}
 }
 
@@ -64,3 +105,67 @@ shared static this()
 {
 	DerelictMono = new DerelictMonoLoader();
 }
+
+// metadata/metadata.h
+bool MONO_CLASS_IS_INTERFACE()(in MonoClass* c)
+{
+	return ((mono_class_get_flags(c) & TYPE_ATTRIBUTE_INTERFACE)
+			|| (c.byval_arg.type == MONO_TYPE_VAR) || (c.byval_arg.type == MONO_TYPE_MVAR));
+}
+
+bool MONO_CLASS_IS_IMPORT()(in MonoClass* c)
+{
+	return ((mono_class_get_flags(c) & TYPE_ATTRIBUTE_IMPORT));
+}
+
+int mono_metadata_table_size()(int bitfield, int table)
+{
+	return ((((bitfield) >> ((table) * 2)) & 0x3) + 1);
+}
+
+int mono_metadata_table_count()(int bitfield)
+{
+	return ((bitfield) >> 24);
+}
+
+int MONO_OFFSET_IN_CLAUSE(T)(in T* clause, int offset)
+{
+	return ((clause).try_offset <= (offset) && (offset) < ((clause).try_offset + (clause).try_len));
+}
+
+int MONO_OFFSET_IN_HANDLER(T)(in T* clause, int offset)
+{
+	return ((clause).handler_offset <= (offset) && (offset) < ((clause)
+			.handler_offset + (clause).handler_len));
+}
+
+int MONO_OFFSET_IN_FILTER(T)(in T* clause, int offset)
+{
+	return ((clause).flags == MONO_EXCEPTION_CLAUSE_FILTER && (clause)
+			.data.filter_offset <= (offset) && (offset) < ((clause).handler_offset));
+}
+
+int mono_metadata_make_token()(int table, int idx)
+{
+	return (((table) << 24) | (idx));
+}
+
+int mono_metadata_token_table()(int token)
+{
+	return ((token) >> 24);
+}
+
+int mono_metadata_token_index()(int token)
+{
+	return ((token & 0xffffff));
+}
+
+int mono_metadata_token_code()(int token)
+{
+	return ((token & 0xff000000));
+}
+
+/*alias MONO_TYPE_ISSTRUCT = mono_type_is_struct;
+alias MONO_TYPE_IS_VOID = mono_type_is_void;
+alias MONO_TYPE_IS_POINTER = mono_type_is_pointer;
+alias MONO_TYPE_IS_REFERENCE = mono_type_is_reference;*/

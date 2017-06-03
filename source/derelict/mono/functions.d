@@ -28,6 +28,7 @@ private
 {
 	import core.stdc.config;
 	import core.stdc.stdint;
+	import core.stdc.stdio;
 	import derelict.util.system;
 	import derelict.mono.types;
 }
@@ -37,7 +38,46 @@ extern (C) @nogc nothrow
 	// utils/mono-publib.h
 	alias da_mono_free = void function(void*);
 	alias da_mono_set_allocator_vtable = mono_bool function(MonoAllocatorVTable*);
-
+	// utils/mono-logger.h
+	alias da_mono_trace_set_level_string = void function(const(char)* value);
+	alias da_mono_trace_set_mask_string = void function(const(char)* value);
+	alias da_mono_trace_set_log_handler = void function(MonoLogCallback callback, void* user_data);
+	alias da_mono_trace_set_print_handler = void function(MonoPrintCallback callback);
+	alias da_mono_trace_set_printerr_handler = void function(MonoPrintCallback callback);
+	// utils/mono-error.h
+	alias da_mono_error_init = void function(MonoError*);
+	alias da_mono_error_init_flags = void function(MonoError*, ushort);
+	alias da_mono_error_cleanup = void function(MonoError*);
+	alias da_mono_error_ok = mono_bool function(MonoError*);
+	alias da_mono_error_get_error_code = ushort function(MonoError*);
+	alias da_mono_error_get_message = const(char)* function(MonoError*);
+	// utils/mono-dl-fallback.h
+	alias da_mono_dl_fallback_register = MonoDlFallbackHandler* function(MonoDlFallbackLoad load_func,
+			MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void* user_data);
+	alias da_mono_dl_fallback_unregister = void function(MonoDlFallbackHandler* handler);
+	// utils/mono-counters.h
+	alias da_mono_counters_enable = void function(int section_mask);
+	alias da_mono_counters_init = void function();
+	alias da_mono_counters_register = void function(const(char)* descr, int type, void* addr);
+	alias da_mono_counters_register_with_size = void function(const(char)* name,
+			int type, void* addr, int size);
+	alias da_mono_counters_on_register = void function(MonoCounterRegisterCallback callback);
+	alias da_mono_counters_dump = void function(int section_mask, FILE* outfile);
+	alias da_mono_counters_cleanup = void function();
+	alias da_mono_counters_foreach = void function(CountersEnumCallback cb, void* user_data);
+	alias da_mono_counters_sample = int function(MonoCounter* counter, void* buffer, int buffer_size);
+	alias da_mono_counter_get_name = const(char)* function(MonoCounter* name);
+	alias da_mono_counter_get_type = int function(MonoCounter* counter);
+	alias da_mono_counter_get_section = int function(MonoCounter* counter);
+	alias da_mono_counter_get_unit = int function(MonoCounter* counter);
+	alias da_mono_counter_get_variance = int function(MonoCounter* counter);
+	alias da_mono_counter_get_size = size_t function(MonoCounter* counter);
+	alias da_mono_runtime_resource_limit = int function(int resource_type,
+			uintptr_t soft_limit, uintptr_t hard_limit);
+	alias da_mono_runtime_resource_set_callback = void function(MonoResourceCallback callback);
+	alias da_mono_runtime_resource_check_limit = void function(int resource_type, uintptr_t value);
+	// metadata/appdomain.h
+	// jit/jit.h
 }
 
 __gshared
@@ -45,4 +85,41 @@ __gshared
 	// utils/mono-publib.h
 	da_mono_free mono_free;
 	da_mono_set_allocator_vtable mono_set_allocator_vtable;
+	// utils/mono-logger.h
+	da_mono_trace_set_level_string mono_trace_set_level_string;
+	da_mono_trace_set_mask_string mono_trace_set_mask_string;
+	da_mono_trace_set_log_handler mono_trace_set_log_handler;
+	da_mono_trace_set_print_handler mono_trace_set_print_handler;
+	da_mono_trace_set_printerr_handler mono_trace_set_printerr_handler;
+	// utils/mono-error.h
+	da_mono_error_init mono_error_init;
+	da_mono_error_init_flags mono_error_init_flags;
+	da_mono_error_cleanup mono_error_cleanup;
+	da_mono_error_ok mono_error_ok;
+	da_mono_error_get_error_code mono_error_get_error_code;
+	da_mono_error_get_message mono_error_get_message;
+	// utils/mono-dl-fallback.h
+	da_mono_dl_fallback_register mono_dl_fallback_register;
+	da_mono_dl_fallback_unregister mono_dl_fallback_unregister;
+	// utils/mono-counters.h
+	da_mono_counters_enable mono_counters_enable;
+	da_mono_counters_init mono_counters_init;
+	da_mono_counters_register mono_counters_register;
+	da_mono_counters_register_with_size mono_counters_register_with_size;
+	da_mono_counters_on_register mono_counters_on_register;
+	da_mono_counters_dump mono_counters_dump;
+	da_mono_counters_cleanup mono_counters_cleanup;
+	da_mono_counters_foreach mono_counters_foreach;
+	da_mono_counters_sample mono_counters_sample;
+	da_mono_counter_get_name mono_counter_get_name;
+	da_mono_counter_get_type mono_counter_get_type;
+	da_mono_counter_get_section mono_counter_get_section;
+	da_mono_counter_get_unit mono_counter_get_unit;
+	da_mono_counter_get_variance mono_counter_get_variance;
+	da_mono_counter_get_size mono_counter_get_size;
+	da_mono_runtime_resource_limit mono_runtime_resource_limit;
+	da_mono_runtime_resource_set_callback mono_runtime_resource_set_callback;
+	da_mono_runtime_resource_check_limit mono_runtime_resource_check_limit;
+	// metadata/appdomain.h
+	// jit/jit.h
 }
