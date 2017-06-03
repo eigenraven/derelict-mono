@@ -342,7 +342,7 @@ class DerelictMonoLoader : SharedLibLoader
 				"mono_debug_symfile_lookup_method");
 		bindFunc(cast(void**)&mono_debug_symfile_lookup_locals,
 				"mono_debug_symfile_lookup_locals");
-		bindFunc(cast(void**)&mono_debug_image_has_debug_info, "mono_debug_image_has_debug_info");
+		//?bindFunc(cast(void**)&mono_debug_image_has_debug_info, "mono_debug_image_has_debug_info");
 		// metadata/environment.h
 		bindFunc(cast(void**)&mono_environment_exitcode_get, "mono_environment_exitcode_get");
 		bindFunc(cast(void**)&mono_environment_exitcode_set, "mono_environment_exitcode_set");
@@ -419,10 +419,10 @@ class DerelictMonoLoader : SharedLibLoader
 				"mono_get_exception_reflection_type_load");
 		bindFunc(cast(void**)&mono_get_exception_runtime_wrapped,
 				"mono_get_exception_runtime_wrapped");
-		bindFunc(cast(void**)&mono_install_unhandled_exception_hook,
-				"mono_install_unhandled_exception_hook");
-		bindFunc(cast(void**)&mono_invoke_unhandled_exception_hook,
-				"mono_invoke_unhandled_exception_hook");
+		/*?bindFunc(cast(void**)&mono_install_unhandled_exception_hook,
+				"mono_install_unhandled_exception_hook");*/
+		/*?bindFunc(cast(void**)&mono_invoke_unhandled_exception_hook,
+				"mono_invoke_unhandled_exception_hook");*/
 		// metadata/image.h
 		bindFunc(cast(void**)&mono_images_init, "mono_images_init");
 		bindFunc(cast(void**)&mono_images_cleanup, "mono_images_cleanup");
@@ -478,10 +478,10 @@ class DerelictMonoLoader : SharedLibLoader
 		bindFunc(cast(void**)&mono_method_get_token, "mono_method_get_token");
 		bindFunc(cast(void**)&mono_method_get_flags, "mono_method_get_flags");
 		bindFunc(cast(void**)&mono_method_get_index, "mono_method_get_index");
-		bindFunc(cast(void**)&mono_load_image, "mono_load_image");
+		//?bindFunc(cast(void**)&mono_load_image, "mono_load_image");
 		bindFunc(cast(void**)&mono_add_internal_call, "mono_add_internal_call");
 		bindFunc(cast(void**)&mono_lookup_internal_call, "mono_lookup_internal_call");
-		bindFunc(cast(void**)&mono_lookup_internal_call_full, "mono_lookup_internal_call_full");
+		//?bindFunc(cast(void**)&mono_lookup_internal_call_full, "mono_lookup_internal_call_full");
 		bindFunc(cast(void**)&mono_lookup_icall_symbol, "mono_lookup_icall_symbol");
 		bindFunc(cast(void**)&mono_dllmap_insert, "mono_dllmap_insert");
 		bindFunc(cast(void**)&mono_lookup_pinvoke_call, "mono_lookup_pinvoke_call");
@@ -550,7 +550,7 @@ class DerelictMonoLoader : SharedLibLoader
 		bindFunc(cast(void**)&mono_type_is_void, "mono_type_is_void");
 		bindFunc(cast(void**)&mono_type_is_pointer, "mono_type_is_pointer");
 		bindFunc(cast(void**)&mono_type_is_reference, "mono_type_is_reference");
-		bindFunc(cast(void**)&mono_type_is_generic_parameter, "mono_type_is_generic_parameter");
+		//?bindFunc(cast(void**)&mono_type_is_generic_parameter, "mono_type_is_generic_parameter");
 		bindFunc(cast(void**)&mono_signature_get_return_type, "mono_signature_get_return_type");
 		bindFunc(cast(void**)&mono_signature_get_params, "mono_signature_get_params");
 		bindFunc(cast(void**)&mono_signature_get_param_count, "mono_signature_get_param_count");
@@ -566,7 +566,7 @@ class DerelictMonoLoader : SharedLibLoader
 		bindFunc(cast(void**)&mono_metadata_free_array, "mono_metadata_free_array");
 		bindFunc(cast(void**)&mono_metadata_parse_type, "mono_metadata_parse_type");
 		bindFunc(cast(void**)&mono_metadata_parse_param, "mono_metadata_parse_param");
-		bindFunc(cast(void**)&mono_metadata_parse_ret_type, "mono_metadata_parse_ret_type");
+		//?bindFunc(cast(void**)&mono_metadata_parse_ret_type, "mono_metadata_parse_ret_type");
 		bindFunc(cast(void**)&mono_metadata_parse_field_type, "mono_metadata_parse_field_type");
 		bindFunc(cast(void**)&mono_type_create_from_typespec, "mono_type_create_from_typespec");
 		bindFunc(cast(void**)&mono_metadata_free_type, "mono_metadata_free_type");
@@ -576,10 +576,10 @@ class DerelictMonoLoader : SharedLibLoader
 				"mono_type_generic_inst_is_valuetype");
 		bindFunc(cast(void**)&mono_metadata_generic_class_is_valuetype,
 				"mono_metadata_generic_class_is_valuetype");
-		bindFunc(cast(void**)&mono_metadata_generic_class_hash,
-				"mono_metadata_generic_class_hash");
-		bindFunc(cast(void**)&mono_metadata_generic_class_equal,
-				"mono_metadata_generic_class_equal");
+		/*?bindFunc(cast(void**)&mono_metadata_generic_class_hash,
+				"mono_metadata_generic_class_hash");*/
+		/*?bindFunc(cast(void**)&mono_metadata_generic_class_equal,
+				"mono_metadata_generic_class_equal");*/
 		bindFunc(cast(void**)&mono_metadata_type_hash, "mono_metadata_type_hash");
 		bindFunc(cast(void**)&mono_metadata_type_equal, "mono_metadata_type_equal");
 		bindFunc(cast(void**)&mono_metadata_signature_alloc, "mono_metadata_signature_alloc");
@@ -642,7 +642,7 @@ class DerelictMonoLoader : SharedLibLoader
 		bindFunc(cast(void**)&mono_debug_add_delegate_trampoline,
 				"mono_debug_add_delegate_trampoline");
 		bindFunc(cast(void**)&mono_debug_lookup_locals, "mono_debug_lookup_locals");
-		bindFunc(cast(void**)&mono_debug_lookup_method_async_debug_info,
+		/*?bindFunc(cast(void**)&mono_debug_lookup_method_async_debug_info,
 				"mono_debug_lookup_method_async_debug_info");
 		bindFunc(cast(void**)&mono_debug_method_lookup_location,
 				"mono_debug_method_lookup_location");
@@ -650,7 +650,7 @@ class DerelictMonoLoader : SharedLibLoader
 				"mono_debug_lookup_source_location");
 		bindFunc(cast(void**)&mono_debug_il_offset_from_address,
 				"mono_debug_il_offset_from_address");
-		bindFunc(cast(void**)&mono_debug_free_source_location, "mono_debug_free_source_location");
+		bindFunc(cast(void**)&mono_debug_free_source_location, "mono_debug_free_source_location");*/
 		bindFunc(cast(void**)&mono_debug_print_stack_frame, "mono_debug_print_stack_frame");
 		bindFunc(cast(void**)&mono_debugger_method_has_breakpoint,
 				"mono_debugger_method_has_breakpoint");

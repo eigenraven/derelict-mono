@@ -1,0 +1,17 @@
+{
+	"name": "derelict-mono-sample",
+	"authors": [
+		"Jakub Szewczyk"
+	],
+	"description": "Sample for Mono embedding in D.",
+	"copyright": "Copyright © 2017, Jakub Szewczyk",
+	"license": "MIT",
+	"dependencies": {
+		"derelict-mono": {
+			"path": ".."
+		}
+	},
+	"postBuildCommands": [
+		"csc \"/target:exe\" source/printer.cs"
+	]
+}

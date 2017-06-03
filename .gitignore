@@ -14,3 +14,5 @@ dub.selections.json
 *.tmp
 *.h
 *.def
+.vscode
+derelict-mono-sample
