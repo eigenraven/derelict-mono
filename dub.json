@@ -6,7 +6,18 @@
 	"description": "Bindings of Mono's C API to D",
 	"copyright": "Copyright © 2017, Jakub Szewczyk",
 	"license": "BSL-1.0",
-	"dependencies": {
-		"derelict-util": ">=2.0.4 <3.1.0"
-	}
+	"configurations": [
+		{
+			"name": "derelict-mono-dynamic",
+			"dependencies": {
+				"derelict-util": ">=2.0.4 <3.1.0"
+			}
+		},
+		{
+			"name": "derelict-mono-static",
+			"versions": [
+				"DerelictMono_Static"
+			]
+		}
+	]
 }

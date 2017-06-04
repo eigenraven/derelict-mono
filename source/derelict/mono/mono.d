@@ -25,7 +25,10 @@ DEALINGS IN THE SOFTWARE.
 module derelict.mono.mono;
 
 public import derelict.mono.types;
-public import derelict.mono.functions;
+version(DerelictMono_Static)
+	public import derelict.mono.stafunctions;
+else:
+public import derelict.mono.dynfunctions;
 public import derelict.util.loader;
 
 private

@@ -22,7 +22,11 @@ FOR ANY DAMAGES OR OTHER LIABILITY,WHETHER IN CONTRACT,TORT OR OTHERWISE,
 ARISING FROM,OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 */
-module derelict.mono.functions;
+module derelict.mono.dynfunctions;
+
+version(DerelictMono_Static)
+	public import derelict.mono.stafunctions;
+else:
 
 private
 {

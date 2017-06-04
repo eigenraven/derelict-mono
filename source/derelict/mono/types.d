@@ -29,7 +29,6 @@ private
 	import core.stdc.config;
 	import core.stdc.stdint;
 	import core.stdc.stdlib;
-	import derelict.util.system;
 }
 
 extern (C):
@@ -54,7 +53,7 @@ struct MonoAllocatorVTable
 	typeof(&.calloc) calloc;
 }
 
-static if (Derelict_OS_Linux)
+version(linux)
 	enum MONO_ZERO_LEN_ARRAY = 0;
 else
 	enum MONO_ZERO_LEN_ARRAY = 1;
