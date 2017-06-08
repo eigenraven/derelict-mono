@@ -39,7 +39,7 @@ private
 	static if (Derelict_OS_Windows)
 		enum libNames = "mono-2.0.dll, mono-2.dll, mono.dll";
 	else static if (Derelict_OS_Mac)
-		enum libNames = "/usr/local/lib/libmono-2.0.dylib, /usr/local/lib/libmono-2.0/libmono-2.0.dylib, ../Frameworks/Mono.framework/, /Library/Frameworks/Mono.framework/, /System/Library/Frameworks/Mono.framework/";
+		enum libNames = "/usr/local/lib/libmono-2.0.dylib, /usr/local/lib/libmono-2.0/libmono-2.0.dylib, ../Frameworks/Mono.framework/Libraries/libmono-2.0.dylib, /Library/Frameworks/Mono.framework/Libraries/libmono-2.0.dylib, /System/Library/Frameworks/Mono.framework/Libraries/libmono-2.0.dylib, /Volumes/System/Library/Frameworks/Mono.framework/Libraries/libmono-2.0.dylib";
 	else static if (Derelict_OS_Posix)
 		enum libNames = "/usr/local/lib/libmono-2.0.so, /usr/lib/libmono-2.0.so, /usr/lib/libmono-2.0.so.1.0.0";
 	else
